@@ -5,6 +5,7 @@ import AuthNavigator from './src/navigators/AuthNavigators';
 import {NavigationContainer} from '@react-navigation/native';
 import {useAsyncStorage} from '@react-native-async-storage/async-storage';
 import MainNavigator from './src/navigators/MainNavigators';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const App = () => {
   const [isShowSplash, setIsShowSpash] = useState(true);
@@ -32,11 +33,12 @@ const App = () => {
   }, []);
 
   return (
-    <>
+    <GestureHandlerRootView style={{flex: 1}}>
       <StatusBar
         barStyle="dark-content"
         backgroundColor="transparent"
-        translucent></StatusBar>
+        // translucent
+      />
       {isShowSplash ? (
         <SplashScreen />
       ) : (
@@ -50,7 +52,7 @@ const App = () => {
           {/* <SplashScreen /> */}
         </NavigationContainer>
       )}
-    </>
+    </GestureHandlerRootView>
   );
 };
 

@@ -20,7 +20,7 @@ import {
   SpaceComponent,
   TextComponent,
 } from '../../../components';
-import SocialLogin from './components/SocialLogin';
+import SocialLogin from '../components/SocialLogin';
 
 const LoginScreen = ({navigation}: any) => {
   const [email, setEmail] = useState('');
@@ -139,7 +139,7 @@ const LoginScreen = ({navigation}: any) => {
           <ButtonComponent
             type="link"
             text="Sign up"
-            onPress={() => navigation.navigate('SignUpScreen')}
+            onPress={() => navigation.navigate('RegisterScreen')}
           />
         </RowComponent>
       </SectionComponent>

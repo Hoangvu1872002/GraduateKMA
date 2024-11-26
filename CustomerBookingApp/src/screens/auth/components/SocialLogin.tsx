@@ -6,15 +6,15 @@ import React, {useState} from 'react';
 // import authenticationAPI from '../../../apis/authApi';
 // import {Facebook, Google} from '../../../../assets/svgs';
 
-import {appColors} from '../../../../constants/appColors';
-import {fontFamilies} from '../../../../constants/fontFamilies';
-import LoadingModal from '../../../../modals/LoadingModal';
+import {appColors} from '../../../constants/appColors';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import LoadingModal from '../../../modals/LoadingModal';
 import {
   ButtonComponent,
   SectionComponent,
   SpaceComponent,
   TextComponent,
-} from '../../../../components';
+} from '../../../components';
 // import {addAuth} from '../../../redux/reducers/authReducer';
 
 // GoogleSignin.configure({
