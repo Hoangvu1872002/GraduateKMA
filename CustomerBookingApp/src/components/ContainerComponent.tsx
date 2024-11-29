@@ -3,7 +3,6 @@ import {
   Text,
   ImageBackground,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   StatusBar,
   Platform,
@@ -17,6 +16,7 @@ import {fontFamilies} from '../constants/fontFamilies';
 import RowComponent from './RowComponent';
 import TextComponent from './TextComponent';
 import {ArrowLeft} from 'iconsax-react-native';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 
 interface Props {
   isImageBackground?: boolean;
@@ -80,7 +80,9 @@ const ContainerComponent = (props: Props) => {
       source={require('../assets/images/splash-img.png')}
       style={{flex: 1}}
       imageStyle={{flex: 1}}>
-      <SafeAreaView style={{flex: 1}}>{headerComponent()}</SafeAreaView>
+      <SafeAreaView style={{flex: 1, marginTop: -10}}>
+        {headerComponent()}
+      </SafeAreaView>
     </ImageBackground>
   ) : (
     <SafeAreaView style={[globalStyles.container]}>

@@ -8,4 +8,10 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  */
 const config = {};
 
+module.exports = {
+  resolver: {
+    assetExts: ['png', 'jpg', 'jpeg', 'svg', 'gif', 'bmp', 'ico'],
+  },
+};
+
 module.exports = mergeConfig(getDefaultConfig(__dirname), config);

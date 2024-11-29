@@ -1,4 +1,4 @@
-import {Lock, Sms, User} from 'iconsax-react-native';
+import {Lock, Mobile, Sms, User} from 'iconsax-react-native';
 import React, {useEffect, useState} from 'react';
 // import {useDispatch} from 'react-redux';
 import {
@@ -29,6 +29,7 @@ const initValue = {
   email: '',
   password: '',
   confirmPassword: '',
+  phoneNumber: '',
 };
 
 const RegisterScreen = ({navigation}: any) => {
@@ -138,11 +139,19 @@ const RegisterScreen = ({navigation}: any) => {
           />
           <InputComponent
             value={values.email}
-            placeholder="abc@email.com"
+            placeholder="Abc@email.com"
             onChange={val => handleChangeValue('email', val)}
             allowClear
             affix={<Sms size={22} color={appColors.gray} />}
             onEnd={() => formValidator('email')}
+          />
+          <InputComponent
+            value={values.phoneNumber}
+            placeholder="Phone number"
+            onChange={val => handleChangeValue('phoneNumber', val)}
+            allowClear
+            affix={<Mobile size={22} color={appColors.gray} />}
+            onEnd={() => formValidator('phoneNumber')}
           />
           <InputComponent
             value={values.password}
@@ -178,7 +187,7 @@ const RegisterScreen = ({navigation}: any) => {
             )}
           </SectionComponent>
         )}
-        <SpaceComponent height={16} />
+        <SpaceComponent height={10} />
         <SectionComponent>
           <ButtonComponent
             // onPress={handleRegister}

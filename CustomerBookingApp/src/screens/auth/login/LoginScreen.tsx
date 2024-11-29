@@ -76,7 +76,7 @@ const LoginScreen = ({navigation}: any) => {
         styles={{
           justifyContent: 'center',
           alignItems: 'center',
-          marginTop: 75,
+          marginTop: 65,
         }}>
         <Image
           source={require('../../../assets/images/text-logo.png')}
@@ -127,7 +127,7 @@ const LoginScreen = ({navigation}: any) => {
       <SectionComponent>
         <ButtonComponent
           disable={isLoading || isDisable}
-          // onPress={handleLogin}
+          onPress={() => console.log('a')}
           text="SIGN IN"
           type="primary"
         />
