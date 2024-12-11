@@ -21,6 +21,7 @@ interface Props {
   textColor?: string;
   textStyles?: StyleProp<TextStyle>;
   textFont?: string;
+  sizeText?: number;
   onPress?: () => void;
   iconFlex?: 'right' | 'left';
   disable?: boolean;
@@ -33,6 +34,7 @@ const ButtonComponent = (props: Props) => {
     textColor,
     textStyles,
     textFont,
+    sizeText,
     color,
     styles,
     onPress,
@@ -68,7 +70,7 @@ const ButtonComponent = (props: Props) => {
             textStyles,
             {
               marginLeft: icon ? 12 : 0,
-              fontSize: 16,
+              fontSize: sizeText ? sizeText : 16,
               textAlign: 'center',
             },
           ]}
@@ -83,6 +85,7 @@ const ButtonComponent = (props: Props) => {
       <TextComponent
         flex={0}
         text={text}
+        font={fontFamilies.medium}
         color={type === 'link' ? appColors.primary : appColors.text}
       />
     </TouchableOpacity>

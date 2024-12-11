@@ -28,11 +28,13 @@ interface Props {
   onEnd?: () => void;
   multiline?: boolean;
   numberOfLine?: number;
+  width?: number;
   styles?: StyleProp<ViewStyle>;
 }
 
 const InputComponent = (props: Props) => {
   const {
+    width,
     value,
     onChange,
     affix,
@@ -55,6 +57,7 @@ const InputComponent = (props: Props) => {
         globalStyles.inputContainer,
         {
           alignItems: multiline ? 'flex-start' : 'center',
+          width: width ? `${width}%` : '100%',
         },
         styles,
       ]}>

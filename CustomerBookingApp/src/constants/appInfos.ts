@@ -5,7 +5,7 @@ export const appInfo = {
     WIDTH: Dimensions.get('window').width,
     HEIGHT: Dimensions.get('window').height,
   },
-  BASE_URL: 'http://localhost:3001',
+  BASE_URL: 'http://192.168.1.39:5001',
   GoogleApiKey: 'AIzaSyCbtwJ3e1wGs0RcFkgQPtaLwg0P4XxkELA',
   monthNames: [
     'January',
@@ -21,4 +21,5 @@ export const appInfo = {
     'November',
     'December',
   ],
+  dayNames: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 };

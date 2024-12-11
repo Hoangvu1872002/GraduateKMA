@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 // import {LoginManager, Profile, Settings} from 'react-native-fbsdk-next';
 // import {useDispatch} from 'react-redux';
 // import authenticationAPI from '../../../apis/authApi';
-// import {Facebook, Google} from '../../../../assets/svgs';
+import {Facebook, Google} from '../../../assets/svgs';
 
 import {appColors} from '../../../constants/appColors';
 import {fontFamilies} from '../../../constants/fontFamilies';
@@ -25,7 +25,12 @@ import {
 // });
 // Settings.setAppID('684546690239906');
 
-const SocialLogin = () => {
+interface Props {
+  content: string;
+}
+
+const SocialLogin = (props: Props) => {
+  const {content} = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const api = `/google-signin`;
@@ -110,21 +115,21 @@ const SocialLogin = () => {
         // onPress={handleLoginWithGoogle}
         color={appColors.white}
         textColor={appColors.text}
-        text="Login with Google"
+        text={`${content} with Google`}
         textFont={fontFamilies.regular}
         iconFlex="left"
-        // icon={<Google />}
+        icon={<Google />}
       />
 
       <ButtonComponent
         type="primary"
         color={appColors.white}
         textColor={appColors.text}
-        text="Login with Facebook"
+        text={`${content} with Facebook`}
         textFont={fontFamilies.regular}
         // onPress={handleLoginWithFacebook}
         iconFlex="left"
-        // icon={<Facebook />}
+        icon={<Facebook />}
       />
       <LoadingModal visible={isLoading} />
     </SectionComponent>

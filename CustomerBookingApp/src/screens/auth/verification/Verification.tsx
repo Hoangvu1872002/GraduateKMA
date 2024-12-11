@@ -18,9 +18,11 @@ import {globalStyles} from '../../../styles/globalStyles';
 // import {addAuth} from '../../redux/reducers/authReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoadingModal from '../../../modals/LoadingModal';
+import {apiRegister, apiVerification} from '../../../apis/authApi';
+import Toast from 'react-native-toast-message';
 
 const Verification = ({navigation, route}: any) => {
-  const {code, email, password, username} = route.params;
+  const {code, email, password, firstname, lastname, mobile} = route.params;
 
   const [currentCode, setCurrentCode] = useState<string>(code);
   const [codeValues, setCodeValues] = useState<string[]>([]);
@@ -63,75 +65,87 @@ const Verification = ({navigation, route}: any) => {
     setCodeValues(data);
   };
 
-  //   const handleResendVerification = async () => {
-  //     setCodeValues(['', '', '', '']);
-  //     setNewCode('');
+  const handleResendVerification = async () => {
+    setCodeValues(['', '', '', '']);
+    setNewCode('');
+    setErrorMessage('');
 
-  //     const api = `/verification`;
-  //     setIsLoading(true);
-  //     try {
-  //       const res: any = await authenticationAPI.HandleAuthentication(
-  //         api,
-  //         {email},
-  //         'post',
-  //       );
+    setIsLoading(true);
+    try {
+      const res = await apiVerification({email});
 
-  //       setLimit(120);
-  //       setCurrentCode(res.data.code);
-  //       setIsLoading(false);
+      setLimit(120);
+      setCurrentCode(res.data.code);
+      setIsLoading(false);
+      // console.log(res.data.code);
+    } catch (error) {
+      setIsLoading(false);
+      console.log(`Can not send verification code ${error}`);
+    }
+  };
 
-  //       console.log(res.data.code);
-  //     } catch (error) {
-  //       setIsLoading(false);
-  //       console.log(`Can not send verification code ${error}`);
-  //     }
-  //   };
+  const handleVerification = async () => {
+    if (limit > 0) {
+      if (parseInt(newCode) !== parseInt(currentCode)) {
+        setErrorMessage('Invalid code!!!');
+      } else {
+        setErrorMessage('');
+        const data = {
+          email,
+          password,
+          firstname,
+          lastname,
+          mobile,
+        };
 
-  //   const handleVerification = async () => {
-  //     if (limit > 0) {
-  //       if (parseInt(newCode) !== parseInt(currentCode)) {
-  //         setErrorMessage('Invalid code!!!');
-  //       } else {
-  //         setErrorMessage('');
+        try {
+          const res: any = await apiRegister(data);
+          if (res.data.success) {
+            console.log(res.data);
 
-  //         const api = `/register`;
-  //         const data = {
-  //           email,
-  //           password,
-  //           username: username ?? '',
-  //         };
-
-  //         try {
-  //           const res: any = await authenticationAPI.HandleAuthentication(
-  //             api,
-  //             data,
-  //             'post',
-  //           );
-  //           dispatch(addAuth(res.data));
-  //           await AsyncStorage.setItem('auth', JSON.stringify(res.data));
-  //         } catch (error) {
-  //           setErrorMessage('User has already exist!!!');
-  //           console.log(`Can not create new user ${error}`);
-  //         }
-  //       }
-  //     } else {
-  //       setErrorMessage('Time out verification code, please resend new code!!!');
-  //     }
-  //   };
+            Toast.show({
+              type: 'success',
+              text1: 'Success!',
+              autoHide: true,
+              text2: res.data.mes,
+              visibilityTime: 2000,
+            });
+            navigation.navigate('LoginScreen');
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'Error!',
+              autoHide: true,
+              text2: res.data.mes,
+              visibilityTime: 2000,
+            });
+          }
+        } catch (error) {
+          setErrorMessage('User has already exist!!!');
+          console.log(`Can not create new user ${error}`);
+        }
+      }
+    } else {
+      setErrorMessage('Time out verification code, please resend new code!!!');
+    }
+  };
 
   return (
     <ContainerComponent back isImageBackground isScroll>
       <SectionComponent>
+        <SpaceComponent height={15} />
         <TextComponent text="Verification" title />
-        <SpaceComponent height={12} />
+        <SpaceComponent height={15} />
         <TextComponent
+          numOfLine={2}
+          font={fontFamilies.medium}
           text={`We’ve send you the verification code on ${email.replace(
-            /.{1,5}/,
+            /.{1,8}/,
             (m: any) => '*'.repeat(m.length),
           )}`}
         />
-        <SpaceComponent height={26} />
-        <RowComponent justify="space-around">
+        <SpaceComponent height={25} />
+        <RowComponent justify="space-around" styles={{marginHorizontal: -10}}>
           <TextInput
             keyboardType="number-pad"
             ref={ref1}
@@ -182,11 +196,12 @@ const Verification = ({navigation, route}: any) => {
           />
         </RowComponent>
       </SectionComponent>
-      <SectionComponent styles={{marginTop: 40}}>
+      <SectionComponent styles={{marginTop: 15, marginHorizontal: -10}}>
         <ButtonComponent
           disable={newCode.length !== 4}
-          //   onPress={handleVerification}
+          onPress={handleVerification}
           text="Continue"
+          sizeText={17}
           type="primary"
           iconFlex="right"
           icon={
@@ -204,19 +219,26 @@ const Verification = ({navigation, route}: any) => {
         />
       </SectionComponent>
       {errorMessage && (
-        <SectionComponent>
+        <SectionComponent styles={{marginTop: -20}}>
           <TextComponent
+            // size={16}
             styles={{textAlign: 'center'}}
+            font={fontFamilies.medium}
             text={errorMessage}
             color={appColors.danger}
           />
         </SectionComponent>
       )}
-      <SectionComponent>
+      <SectionComponent styles={{marginTop: -15}}>
         {limit > 0 ? (
           <RowComponent justify="center">
-            <TextComponent text="Re-send code in  " flex={0} />
             <TextComponent
+              font={fontFamilies.medium}
+              text="Re-send code in  "
+              flex={0}
+            />
+            <TextComponent
+              font={fontFamilies.medium}
               text={`${(limit - (limit % 60)) / 60}:${
                 limit - (limit - (limit % 60))
               }`}
@@ -229,7 +251,7 @@ const Verification = ({navigation, route}: any) => {
             <ButtonComponent
               type="link"
               text="Resend email verification"
-              //   onPress={handleResendVerification}
+              onPress={handleResendVerification}
             />
           </RowComponent>
         )}

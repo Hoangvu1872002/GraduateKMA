@@ -11,6 +11,7 @@ import {
 import {ArrowRight, Sms} from 'iconsax-react-native';
 import {appColors} from '../../../constants/appColors';
 import LoadingModal from '../../../modals/LoadingModal';
+import {fontFamilies} from '../../../constants/fontFamilies';
 // import {Validate} from '../../utils/validate';
 
 // import authenticationAPI from '../../apis/authApi';
@@ -50,7 +51,10 @@ const ForgotPassword = () => {
       <SectionComponent>
         <TextComponent text="Resset Password" title />
         <SpaceComponent height={12} />
-        <TextComponent text="Please enter your email address to request a password reset" />
+        <TextComponent
+          font={fontFamilies.medium}
+          text="Please enter your email address to request a password reset"
+        />
         <SpaceComponent height={26} />
         <InputComponent
           value={email}

@@ -14,9 +14,10 @@ import {appColors} from '../../../constants/appColors';
 import LoadingModal from '../../../modals/LoadingModal';
 import SocialLogin from '../components/SocialLogin';
 
-// import {Validate} from '../../utils/validate';
+import {Validate} from '../../../utils/validate';
 
-// import authenticationAPI from '../../apis/authApi';
+import {apiVerification} from '../../../apis/authApi';
+import Toast from 'react-native-toast-message';
 
 interface ErrorMessages {
   email: string;
@@ -25,11 +26,12 @@ interface ErrorMessages {
 }
 
 const initValue = {
-  username: '',
+  firstname: '',
+  lastname: '',
   email: '',
   password: '',
   confirmPassword: '',
-  phoneNumber: '',
+  mobile: '',
 };
 
 const RegisterScreen = ({navigation}: any) => {
@@ -71,13 +73,13 @@ const RegisterScreen = ({navigation}: any) => {
 
     switch (key) {
       case 'email':
-        // if (!values.email) {
-        //   message = `Email is required!!!`;
-        // } else if (!Validate.email(values.email)) {
-        //   message = 'Email is not invalid!!';
-        // } else {
-        //   message = '';
-        // }
+        if (!values.email) {
+          message = `Email is required!!!`;
+        } else if (!Validate.email(values.email)) {
+          message = 'Email is not invalid!!';
+        } else {
+          message = '';
+        }
 
         break;
 
@@ -102,27 +104,37 @@ const RegisterScreen = ({navigation}: any) => {
     setErrorMessage(data);
   };
 
-  // const handleRegister = async () => {
-  //   const api = `/verification`;
-  //   setIsLoading(true);
-  //   try {
-  //     const res = await authenticationAPI.HandleAuthentication(
-  //       api,
-  //       {email: values.email},
-  //       'post',
-  //     );
+  const handleRegister = async () => {
+    setIsLoading(true);
 
-  //     setIsLoading(false);
+    console.log(values);
 
-  //     navigation.navigate('Verification', {
-  //       code: res.data.code,
-  //       ...values,
-  //     });
-  //   } catch (error) {
-  //     console.log(error);
-  //     setIsLoading(false);
-  //   }
-  // };
+    try {
+      const res = await apiVerification(values);
+
+      setIsLoading(false);
+
+      console.log(res.data);
+
+      if (res.data.success) {
+        navigation.navigate('Verification', {
+          code: res.data.code,
+          ...values,
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error!',
+          autoHide: true,
+          text2: res.data.mes,
+          visibilityTime: 2000,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -130,13 +142,25 @@ const RegisterScreen = ({navigation}: any) => {
         <SectionComponent>
           <TextComponent size={24} title text="Sign up" />
           <SpaceComponent height={21} />
-          <InputComponent
-            value={values.username}
-            placeholder="Full name"
-            onChange={val => handleChangeValue('username', val)}
-            allowClear
-            affix={<User size={22} color={appColors.gray} />}
-          />
+          <RowComponent justify="space-between">
+            <InputComponent
+              value={values.firstname}
+              placeholder="First name"
+              width={49}
+              // styles={{height: '100%'}}
+              onChange={val => handleChangeValue('firstname', val)}
+              allowClear
+              affix={<User size={22} color={appColors.gray} />}
+            />
+            <InputComponent
+              value={values.lastname}
+              placeholder="Last name"
+              width={49}
+              onChange={val => handleChangeValue('lastname', val)}
+              allowClear
+              affix={<User size={22} color={appColors.gray} />}
+            />
+          </RowComponent>
           <InputComponent
             value={values.email}
             placeholder="Abc@email.com"
@@ -146,12 +170,12 @@ const RegisterScreen = ({navigation}: any) => {
             onEnd={() => formValidator('email')}
           />
           <InputComponent
-            value={values.phoneNumber}
+            value={values.mobile}
             placeholder="Phone number"
-            onChange={val => handleChangeValue('phoneNumber', val)}
+            onChange={val => handleChangeValue('mobile', val)}
             allowClear
             affix={<Mobile size={22} color={appColors.gray} />}
-            onEnd={() => formValidator('phoneNumber')}
+            onEnd={() => formValidator('mobile')}
           />
           <InputComponent
             value={values.password}
@@ -190,13 +214,13 @@ const RegisterScreen = ({navigation}: any) => {
         <SpaceComponent height={10} />
         <SectionComponent>
           <ButtonComponent
-            // onPress={handleRegister}
+            onPress={handleRegister}
             text="SIGN UP"
             disable={isDisable}
             type="primary"
           />
         </SectionComponent>
-        <SocialLogin />
+        <SocialLogin content="Sign up" />
         <SectionComponent>
           <RowComponent justify="center">
             <TextComponent text="Don’t have an account? " />
