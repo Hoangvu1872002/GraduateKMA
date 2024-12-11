@@ -3,7 +3,7 @@ const {
   register,
   login,
   verification,
-  // forgotPassword,
+  forgotPassword,
   // handleLoginWithGoogle,
 } = require("../controllers/authControllers");
 var authRouter = express.Router();
@@ -12,7 +12,7 @@ var authRouter = express.Router();
 authRouter.post("/register", register);
 authRouter.post("/login", login);
 authRouter.post("/verification", verification);
-// authRouter.post("/forgotPassword", forgotPassword);
+authRouter.post("/forgotPassword", forgotPassword);
 // authRouter.post("/google-signin", handleLoginWithGoogle);
 
 module.exports = authRouter;

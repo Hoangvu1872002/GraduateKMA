@@ -22,6 +22,7 @@ import {login} from '../../../stores/users/userSlide';
 import {getCurrent} from '../../../stores/users/asyncAction';
 import {AppDispatch} from '../../../stores/redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen = ({navigation}: any) => {
   const [email, setEmail] = useState('');
@@ -93,7 +94,13 @@ const LoginScreen = ({navigation}: any) => {
           //   ? navigate(searchParams.get("redirect"))
           //   : navigate(`/${path.HOME}`);
         } else {
-          console.log(rs.data.mes);
+          Toast.show({
+            type: 'error',
+            text1: 'Error!',
+            autoHide: true,
+            text2: rs.data.mes,
+            visibilityTime: 2000,
+          });
         }
         // dispatch(addAuth(res.data));
 

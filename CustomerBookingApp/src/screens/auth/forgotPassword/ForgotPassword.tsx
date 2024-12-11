@@ -12,39 +12,60 @@ import {ArrowRight, Sms} from 'iconsax-react-native';
 import {appColors} from '../../../constants/appColors';
 import LoadingModal from '../../../modals/LoadingModal';
 import {fontFamilies} from '../../../constants/fontFamilies';
+import {Validate} from '../../../utils/validate';
+import {apiForgotpassword} from '../../../apis/authApi';
+import Toast from 'react-native-toast-message';
 // import {Validate} from '../../utils/validate';
 
 // import authenticationAPI from '../../apis/authApi';
 
-const ForgotPassword = () => {
+const ForgotPassword = ({navigation, route}: any) => {
   const [email, setEmail] = useState('');
   const [isDisable, setIsDisable] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  //   const handleCheckEmail = () => {
-  //     const isValidEmail = Validate.email(email);
-  //     setIsDisable(!isValidEmail);
-  //   };
+  const handleCheckEmail = () => {
+    const isValidEmail = Validate.email(email);
+    setIsDisable(!isValidEmail);
+  };
 
-  //   const handleForgotPassword = async () => {
-  //     const api = `/forgotPassword`;
-  //     setIsLoading(true);
-  //     try {
-  //       const res: any = await authenticationAPI.HandleAuthentication(
-  //         api,
-  //         {email},
-  //         'post',
-  //       );
+  const handleForgotPassword = async () => {
+    setIsLoading(true);
+    try {
+      const res: any = await apiForgotpassword({email});
+      console.log(res.data);
 
-  //       console.log(res);
-
-  //       Alert.alert('Send mail', 'We sended a email includes new password!!!');
-  //       setIsLoading(false);
-  //     } catch (error) {
-  //       setIsLoading(false);
-  //       console.log(`Can not create new password api forgot password, ${error}`);
-  //     }
-  //   };
+      setIsLoading(false);
+      if (res.data.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Success!',
+          autoHide: true,
+          text2: res.data.mes,
+          visibilityTime: 2000,
+        });
+        navigation.navigate('LoginScreen');
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Error!',
+          autoHide: true,
+          text2: res.data.mes,
+          visibilityTime: 2000,
+        });
+      }
+    } catch (error: any) {
+      setIsLoading(false);
+      Toast.show({
+        type: 'error',
+        text1: 'Error!',
+        autoHide: true,
+        text2: error.data.mes,
+        visibilityTime: 2000,
+      });
+      // console.log(`Can not create new password api forgot password, ${error}`);
+    }
+  };
 
   return (
     <ContainerComponent back isImageBackground isScroll>
@@ -61,12 +82,12 @@ const ForgotPassword = () => {
           onChange={val => setEmail(val)}
           affix={<Sms size={20} color={appColors.gray} />}
           placeholder="abc@gmail.com"
-          //   onEnd={handleCheckEmail}
+          onEnd={handleCheckEmail}
         />
       </SectionComponent>
       <SectionComponent>
         <ButtonComponent
-          //   onPress={handleForgotPassword}
+          onPress={handleForgotPassword}
           disable={isDisable}
           text="Send"
           type="primary"

@@ -27,7 +27,8 @@ const verification = asyncHandle(async (req, res) => {
   if (user) throw new Error("User has existed!");
   else {
     const html = `Your code to verification email: <h1>${verificationCode}</h1>`;
-    await sendMail(email, html);
+    const subject = "Verification email code";
+    await sendMail(email, html, subject);
   }
 
   res.status(200).json({
@@ -102,8 +103,49 @@ const login = asyncHandle(async (req, res) => {
   }
 });
 
+const forgotPassword = asyncHandle(async (req, res) => {
+  const { email } = req.body;
+
+  const randomPassword = Math.round(100000 + Math.random() * 99000);
+
+  const user = await userModel.findOne({ email });
+  if (user) {
+    const salt = await bcryp.genSalt(10);
+    const hashedPassword = await bcryp.hash(`${randomPassword}`, salt);
+
+    await userModel
+      .findByIdAndUpdate(user._id, {
+        password: hashedPassword,
+        isChangePassword: true,
+      })
+      .then(() => {
+        console.log("Done");
+      })
+      .catch((error) => console.log(error));
+
+    const html = `Your code to verification email for your new password: <h1>${randomPassword}</h1>`;
+    const subject = "Verification email code new password.";
+    const check = await sendMail(email, html, subject);
+    if (check) {
+      res.status(200).json({
+        data: {
+          success: check ? true : false,
+          mes: "Send email new password successfully!!!",
+        },
+      });
+    } else {
+      res.status(401);
+      throw new Error("Can not send email");
+    }
+  } else {
+    res.status(401);
+    throw new Error("User not found!!!");
+  }
+});
+
 module.exports = {
   register,
   login,
   verification,
+  forgotPassword,
 };

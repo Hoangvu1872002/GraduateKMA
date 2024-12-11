@@ -23,6 +23,13 @@ export const apiVerification = async (data?: any) =>
     data,
   });
 
+export const apiForgotpassword = async (data?: any) =>
+  axiosClient({
+    url: '/auth/forgotpassword',
+    method: 'post',
+    data,
+  });
+
 export const apiRegister = async (data?: any) =>
   axiosClient({
     url: '/auth/register',
