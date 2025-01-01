@@ -1,21 +1,22 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {AddSquare, Calendar, Location, User} from 'iconsax-react-native';
 import React, {ReactNode} from 'react';
-
-import {appColors} from '../constants/appColors';
-import {
-  AddSquare,
-  Calendar,
-  Home2,
-  Iost,
-  Location,
-  User,
-} from 'iconsax-react-native';
-import {CircleComponent, TextComponent} from '../components';
-import {Platform, View} from 'react-native';
+import {Platform} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {CircleComponent, TextComponent} from '../components';
+import {appColors} from '../constants/appColors';
+// import {AddNewScreen} from '../screens';
 import {globalStyles} from '../styles/globalStyles';
-// import DrawerNavigator from './DrawerNavigator';
-import {HomeScreen} from '../screens';
+import ExploreNavigator from './ExploreNavigator';
+
+import EventNavigator from './EventNavigator';
+import AddNewScreen from '../screens/events/AddNewScreen';
+import MapNavigator from './MapNavigator';
+import ProfileNavigator from './ProfileNavigator';
+// import EventNavigator from './EventNavigator';
+// import ExploreNavigator from './ExploreNavigator';
+// import MapNavigator from './MapNavigator';
+// import ProfileNavigator from './ProfileNavigator';
 
 const TabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -30,6 +31,7 @@ const TabNavigator = () => {
           alignItems: 'center',
           backgroundColor: appColors.white,
         },
+        tabBarHideOnKeyboard: true,
         tabBarIcon: ({focused, color, size}) => {
           let icon: ReactNode;
           color = focused ? appColors.primary : appColors.gray5;
@@ -55,7 +57,8 @@ const TabNavigator = () => {
                   size={52}
                   styles={[
                     globalStyles.shadow,
-                    {marginTop: Platform.OS === 'ios' ? -50 : -60},
+                    {marginTop: 10},
+                    // {marginTop: Platform.OS === 'ios' ? -50 : -60},
                   ]}>
                   <AddSquare size={24} color={appColors.white} variant="Bold" />
                 </CircleComponent>
@@ -82,11 +85,11 @@ const TabNavigator = () => {
           );
         },
       })}>
-      <Tab.Screen name="Explore" component={HomeScreen} />
-      <Tab.Screen name="Events" component={HomeScreen} />
-      <Tab.Screen name="Add" component={HomeScreen} />
-      <Tab.Screen name="Map" component={HomeScreen} />
-      <Tab.Screen name="Profile" component={HomeScreen} />
+      <Tab.Screen name="Explore" component={ExploreNavigator} />
+      <Tab.Screen name="Events" component={EventNavigator} />
+      <Tab.Screen name="Add" component={AddNewScreen} />
+      <Tab.Screen name="Map" component={MapNavigator} />
+      <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>
   );
 };

@@ -15,6 +15,7 @@ import {appColors} from '../constants/appColors';
 import {globalStyles} from '../styles/globalStyles';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import CardComponent from './CardComponent';
 
 interface Props {
   value: string;
@@ -50,6 +51,7 @@ const InputComponent = (props: Props) => {
   } = props;
 
   const [isShowPass, setIsShowPass] = useState(isPassword ?? false);
+  const [isFocused, setIsFocused] = useState(false);
 
   return (
     <View
@@ -58,7 +60,11 @@ const InputComponent = (props: Props) => {
         {
           alignItems: multiline ? 'flex-start' : 'center',
           width: width ? `${width}%` : '100%',
+          // backgroundColor: 'black',
+          borderWidth: 1,
+          borderColor: '#ccc',
         },
+        isFocused && styleForcus.inputFocused,
         styles,
       ]}>
       {affix ?? affix}
@@ -68,8 +74,11 @@ const InputComponent = (props: Props) => {
           globalStyles.text,
           {
             paddingHorizontal: affix || suffix ? 12 : 0,
+            // backgroundColor: 'coral',
           },
         ]}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         multiline={multiline}
         value={value}
         numberOfLines={numberOfLine}
@@ -82,26 +91,49 @@ const InputComponent = (props: Props) => {
         onEndEditing={onEnd}
       />
       {suffix ?? suffix}
-      <TouchableOpacity
-        onPress={
-          isPassword ? () => setIsShowPass(!isShowPass) : () => onChange('')
-        }>
-        {isPassword ? (
+
+      {isPassword ? (
+        <TouchableOpacity
+          onPress={
+            // isPassword ? () => setIsShowPass(!isShowPass) : () => onChange('')
+            () => setIsShowPass(!isShowPass)
+          }>
           <FontAwesome
             name={isShowPass ? 'eye-slash' : 'eye'}
             size={22}
             color={appColors.gray}
           />
-        ) : (
-          value &&
-          value.length > 0 &&
-          allowClear && (
+        </TouchableOpacity>
+      ) : (
+        value &&
+        value.length > 0 &&
+        allowClear && (
+          <CardComponent
+            styles={[
+              globalStyles.noSpaceCard,
+
+              {
+                width: 30,
+                height: 30,
+                borderRadius: 100,
+                borderWidth: 1,
+                borderColor: appColors.white2,
+              },
+            ]}
+            onPress={() => onChange('')}
+            color={appColors.gray4}>
             <AntDesign name="close" size={22} color={appColors.text} />
-          )
-        )}
-      </TouchableOpacity>
+          </CardComponent>
+        )
+      )}
     </View>
   );
 };
+
+const styleForcus = StyleSheet.create({
+  inputFocused: {
+    borderColor: appColors.link, // Màu border khi focus
+  },
+});
 
 export default InputComponent;

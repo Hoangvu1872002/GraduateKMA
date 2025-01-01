@@ -16,7 +16,7 @@ import {fontFamilies} from '../constants/fontFamilies';
 import RowComponent from './RowComponent';
 import TextComponent from './TextComponent';
 import {ArrowLeft} from 'iconsax-react-native';
-import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 interface Props {
   isImageBackground?: boolean;
@@ -24,10 +24,11 @@ interface Props {
   title?: string;
   children: ReactNode;
   back?: boolean;
+  backModal?: () => void;
 }
 
 const ContainerComponent = (props: Props) => {
-  const {children, isScroll, isImageBackground, title, back} = props;
+  const {children, isScroll, isImageBackground, title, back, backModal} = props;
 
   const navigation: any = useNavigation();
 
@@ -47,6 +48,11 @@ const ContainerComponent = (props: Props) => {
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
                 style={{marginRight: 12}}>
+                <ArrowLeft size={24} color={appColors.text} />
+              </TouchableOpacity>
+            )}
+            {backModal && (
+              <TouchableOpacity onPress={backModal} style={{marginRight: 12}}>
                 <ArrowLeft size={24} color={appColors.text} />
               </TouchableOpacity>
             )}
@@ -86,11 +92,11 @@ const ContainerComponent = (props: Props) => {
     </ImageBackground>
   ) : (
     <SafeAreaView style={[globalStyles.container]}>
-      <StatusBar barStyle={'dark-content'} />
+      {/* <StatusBar barStyle={'dark-content'} /> */}
       <View
         style={[
           globalStyles.container,
-          {paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0},
+          // {paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0},
         ]}>
         {headerComponent()}
       </View>

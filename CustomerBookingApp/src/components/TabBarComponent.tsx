@@ -14,7 +14,7 @@ const TabBarComponent = (props: Props) => {
   return (
     <RowComponent
       styles={{
-        marginBottom: 20,
+        marginBottom: 10,
         paddingHorizontal: 16,
       }}>
       <TextComponent text={title} title flex={1} size={18} />

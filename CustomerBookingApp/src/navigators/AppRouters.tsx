@@ -14,7 +14,7 @@ const AppRouters = () => {
 
   const {isLoggedIn} = useSelector((state: RootState) => state.user);
 
-  console.log(isLoggedIn);
+  // console.log(isLoggedIn);
 
   useEffect(() => {
     const timeOut = setTimeout(() => {

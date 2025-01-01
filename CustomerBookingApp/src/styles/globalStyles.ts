@@ -5,12 +5,12 @@ import {fontFamilies} from '../constants/fontFamilies';
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: appColors.white,
+    backgroundColor: 'white',
   },
 
   text: {
     fontFamily: fontFamilies.regular,
-    fontSize: 14,
+    fontSize: 15,
     color: appColors.text,
   },
 
@@ -37,7 +37,7 @@ export const globalStyles = StyleSheet.create({
 
   section: {
     paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   row: {
     flexDirection: 'row',
@@ -86,8 +86,9 @@ export const globalStyles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: appColors.gray3,
+    // width: '100%',
     minHeight: 58,
-    paddingVertical: 14,
+    // paddingVertical: 14,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 15,
@@ -99,7 +100,12 @@ export const globalStyles = StyleSheet.create({
     padding: 0,
     margin: 0,
     flex: 1,
-    // paddingHorizontal: 14,
+    paddingVertical: 14,
     color: appColors.text,
+  },
+
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -101,7 +101,7 @@ const Verification = ({navigation, route}: any) => {
         try {
           const res: any = await apiRegister(data);
           if (res.data.success) {
-            console.log(res.data);
+            // console.log(res.data);
 
             Toast.show({
               type: 'success',
@@ -201,7 +201,7 @@ const Verification = ({navigation, route}: any) => {
           disable={newCode.length !== 4}
           onPress={handleVerification}
           text="Continue"
-          sizeText={17}
+          textStyles={{fontSize: 17}}
           type="primary"
           iconFlex="right"
           icon={

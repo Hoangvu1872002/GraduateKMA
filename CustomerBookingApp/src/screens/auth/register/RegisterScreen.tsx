@@ -107,14 +107,14 @@ const RegisterScreen = ({navigation}: any) => {
   const handleRegister = async () => {
     setIsLoading(true);
 
-    console.log(values);
+    // console.log(values);
 
     try {
       const res = await apiVerification(values);
 
       setIsLoading(false);
 
-      console.log(res.data);
+      // console.log(res.data);
 
       if (res.data.success) {
         navigation.navigate('Verification', {

@@ -1,20 +1,24 @@
-import {View, Text} from 'react-native';
+import {View, Text, StyleProp, ViewStyle} from 'react-native';
 import React from 'react';
 
 interface Props {
   width?: number;
   height?: number;
+  styles?: StyleProp<ViewStyle>;
 }
 
 const SpaceComponent = (props: Props) => {
-  const {width, height} = props;
+  const {width, height, styles} = props;
 
   return (
     <View
-      style={{
-        width,
-        height,
-      }}
+      style={[
+        {
+          width,
+          height,
+        },
+        styles,
+      ]}
     />
   );
 };

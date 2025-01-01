@@ -44,8 +44,6 @@ export const userSlide = createSlice({
       state.isLoading = false;
       //   state.currentCart = action.payload.cart;
       state.current = action.payload;
-      console.log(action.payload);
-
       state.isLoggedIn = true;
       // console.log(state.current);
     });

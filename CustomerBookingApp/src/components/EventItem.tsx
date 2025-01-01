@@ -1,7 +1,7 @@
 import {Bookmark, Bookmark2, Location} from 'iconsax-react-native';
 import React from 'react';
 import {
-  //   AvatarGroup,
+  AvatarGroup,
   CardComponent,
   RowComponent,
   SpaceComponent,
@@ -18,12 +18,14 @@ import {useNavigation} from '@react-navigation/native';
 import {DateTime} from '../utils/DateTime';
 
 interface Props {
-  item: EventModel;
+  // item: EventModel;
+  item: any;
   type: 'card' | 'list';
 }
 
 const EventItem = (props: Props) => {
   const {item, type} = props;
+  // console.log(item);
 
   const navigation: any = useNavigation();
 
@@ -70,14 +72,15 @@ const EventItem = (props: Props) => {
             </RowComponent>
           </ImageBackground>
           <TextComponent numOfLine={1} text={item.title} title size={18} />
-          {/* <AvatarGroup /> */}
+          <AvatarGroup />
           <RowComponent>
             <Location size={18} color={appColors.text3} variant="Bold" />
             <SpaceComponent width={8} />
             <TextComponent
               flex={1}
               numOfLine={1}
-              text={item.locationAddress}
+              // text={item.locationAddress}
+              text={item.location.address}
               size={12}
               color={appColors.text2}
             />
@@ -115,7 +118,7 @@ const EventItem = (props: Props) => {
                 <TextComponent
                   flex={1}
                   numOfLine={1}
-                  text={item.locationAddress}
+                  text={item.location.address}
                   size={12}
                   color={appColors.text2}
                 />

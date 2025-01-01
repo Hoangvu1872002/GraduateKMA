@@ -28,7 +28,7 @@ const CategoriesList = (props: Props) => {
         <FontAwesome5
           name="basketball-ball"
           color={isFill ? appColors.white : '#F0635A'}
-          size={20}
+          size={12}
         />
       ),
       color: '#F0635A',
@@ -40,7 +40,7 @@ const CategoriesList = (props: Props) => {
         <FontAwesome5
           name="music"
           color={isFill ? appColors.white : '#F59762'}
-          size={20}
+          size={12}
         />
       ),
       color: '#F59762',
@@ -77,8 +77,8 @@ const CategoriesList = (props: Props) => {
       renderItem={({item, index}) => (
         <TagComponent
           styles={{
-            marginRight: index === categories.length - 1 ? 28 : 12,
-            minWidth: 82,
+            marginRight: index === categories.length - 1 ? 28 : 13,
+            minWidth: 85,
           }}
           bgColor={isFill ? item.color : appColors.white}
           onPress={() => {}}

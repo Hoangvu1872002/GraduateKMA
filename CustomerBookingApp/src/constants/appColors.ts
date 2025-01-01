@@ -1,7 +1,9 @@
 export const appColors = {
-  primary: '#5669FF',
+  // primary: '#5669FF',
+  primary: '#4A43EC',
   white: '#ffffff',
   white2: '#fcfcfc',
+  WhiteSmoke: '#F5F5F5',
   text: '#120D26',
   text2: '#747688',
   text3: '#716E9060',
@@ -13,4 +15,6 @@ export const appColors = {
   link: '#5669FF',
   danger: '#e74c3c',
   danger2: '#F0635A',
+  BlueDarkTurquoise: '#00C5CD',
+  DarkSlateGrayBlue4: '#528B8B',
 };

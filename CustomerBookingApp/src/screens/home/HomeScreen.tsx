@@ -1,3 +1,7 @@
+// import GeoLocation from '@react-native-community/geolocation';
+// import messaging from '@react-native-firebase/messaging';
+import {useIsFocused} from '@react-navigation/native';
+import axios from 'axios';
 import {
   HambergerMenu,
   Notification,
@@ -8,18 +12,24 @@ import React, {useEffect, useState} from 'react';
 import {
   FlatList,
   ImageBackground,
+  Modal,
   Platform,
   ScrollView,
   StatusBar,
+  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+
+import Toast from 'react-native-toast-message';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useDispatch, useSelector} from 'react-redux';
+// import eventAPI from '../../apis/eventApi';
 import {
+  ButtonComponent,
   CategoriesList,
   CircleComponent,
   EventItem,
+  LoadingComponent,
   RowComponent,
   SectionComponent,
   SpaceComponent,
@@ -29,85 +39,248 @@ import {
 } from '../../components';
 import {appColors} from '../../constants/appColors';
 import {fontFamilies} from '../../constants/fontFamilies';
-
-import {globalStyles} from '../../styles/globalStyles';
-
-import axios from 'axios';
-import {EventModel} from '../../models/EventModel';
 import {AddressModel} from '../../models/AddressModel';
+import {EventModel} from '../../models/EventModel';
+import {globalStyles} from '../../styles/globalStyles';
+// import {handleLinking} from '../../utils/handleLinking';
+// import NetInfo from '@react-native-community/netinfo';
+// import firestore from '@react-native-firebase/firestore';
+import {useDispatch, useSelector} from 'react-redux';
+// import {authSelector} from '../../redux/reducers/authReducer';
+import {appInfo} from '../../constants/appInfos';
 import {logout} from '../../stores/users/userSlide';
+import {AppDispatch, RootState} from '../../stores/redux';
+import {getCurrent} from '../../stores/users/asyncAction';
+import Geolocation from '@react-native-community/geolocation';
+// import {
+//   CategoriesList,
+//   CircleComponent,
+//   EventItem,
+//   RowComponent,
+//   SectionComponent,
+//   SpaceComponent,
+//   TabBarComponent,
+//   TagComponent,
+//   TextComponent,
+// } from '../../components';
 
-// Geocoder.init(process.env.MAP_API_KEY as string);
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
   const [events, setEvents] = useState<EventModel[]>([]);
   const [nearbyEvents, setNearbyEvents] = useState<EventModel[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [eventData, setEventData] = useState<EventModel[]>([]);
+  const [isOnline, setIsOnline] = useState<boolean>();
+  const [unReadNotifications, setUnReadNotifications] = useState([]);
 
-  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
+  // const user = useSelector(authSelector);
+  const dispatch = useDispatch<AppDispatch>();
+  const {isLoggedIn} = useSelector((state: RootState) => state.user);
+
+  // mẫu
+  const itemEvent = {
+    title: 'International Band Music Concert',
+    description:
+      'Enjoy your favorite dishe and a lovely your friends and family and have a great time. Food from local food trucks will be available for purchase.',
+    location: {
+      title: 'Gala Convention Center',
+      address: '36 Guild Street London, UK',
+    },
+    imageUrl: '',
+    users: [''],
+    authorId: '',
+    startAt: Date.now(),
+    endAt: Date.now(),
+    date: Date.now(),
+  };
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      (position: any) => {
+        if (position.coords) {
+          // console.log(position.coords);
+          reverseGeoCode({
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+          });
+        }
+      },
+      (error: any) => {
+        console.log(error);
+      },
+      {maximumAge: 0, timeout: 20000, enableHighAccuracy: true},
+    );
+  }, []);
 
   // useEffect(() => {
-  //   GeoLocation.getCurrentPosition(position => {
-  //     if (position.coords) {
-  //       reverseGeoCode({
-  //         lat: position.coords.latitude,
-  //         long: position.coords.longitude,
-  //       });
-  //     }
-  //   });
+  //   GeoLocation.getCurrentPosition(
+  //     (position: any) => {
+  //       if (position.coords) {
+  //         reverseGeoCode({
+  //           lat: position.coords.latitude,
+  //           long: position.coords.longitude,
+  //         });
+  //       }
+  //     },
+  //     (error: any) => {
+  //       console.log(error);
+  //     },
+  //     {},
+  //   );
 
   //   getEvents();
+  //   getEventsData();
+  //   messaging().onMessage(async (mess: any) => {
+  //     Toast.show({
+  //       text1: mess.notification.title,
+  //       text2: mess.notification.body,
+  //       onPress: () => {
+  //         const id = mess.data ? mess.data.eventId : '';
+  //         id && navigation.navigate('EventDetail', {id});
+  //       },
+  //     });
+  //   });
+
+  //   messaging()
+  //     .getInitialNotification()
+  //     .then((mess: any) => {
+  //       const id = mess && mess.data ? mess.data.id : '';
+  //       id && handleLinking(`${appInfo.domain}/detail/${mess.data.id}`);
+  //     });
+
+  //   // checkNetWork();
+
+  //   firestore()
+  //     .collection('notifcation')
+  //     .where('idRead', '==', false)
+  //     .where('uid', '==', user.id)
+  //     .onSnapshot(snap => {
+  //       if (snap.empty) {
+  //         setUnReadNotifications([]);
+  //       } else {
+  //         const items: any = [];
+
+  //         snap.forEach(item =>
+  //           items.push({
+  //             id: item.id,
+  //             ...item.data(),
+  //           }),
+  //         );
+
+  //         setUnReadNotifications(items);
+  //       }
+  //     });
   // }, []);
 
   // useEffect(() => {
+  //   getNearByEvents();
+  // }, [currentLocation]);
+
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     getEvents();
+  //     getNearByEvents();
+  //   }
+  // }, [isFocused]);
+
+  // const checkNetWork = () => {
+  //   NetInfo.addEventListener(state => {
+  //     setIsOnline(state.isConnected ?? false);
+  //   });
+  // };
+
+  // const getNearByEvents = () => {
   //   currentLocation &&
   //     currentLocation.position &&
   //     getEvents(currentLocation.position.lat, currentLocation.position.lng);
-  // }, [currentLocation]);
+  // };
 
-  // const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
-  //   const api = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${long}&lang=vi-VI&apiKey=zCDIlA5ytRuEe3YS9YrJlzAGjTkxsy4S6mJtq7ZpkGU`;
+  const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
+    // console.log(lat, long);
 
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
+
+    try {
+      const res = await axios.get(api);
+
+      if (res && res.status === 200 && res.data.results[0]) {
+        console.log(res);
+
+        const items = res.data.results[0].address;
+        setCurrentLocation(items);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // const getEvents = async (lat?: number, long?: number, distance?: number) => {
+  //   const api = `${
+  //     lat && long
+  //       ? `/get-events?lat=${lat}&long=${long}&distance=${
+  //           distance ?? 5
+  //         }&limit=5&isUpcoming=true`
+  //       : `/get-events?limit=5&isUpcoming=true`
+  //   }`;
+
+  //   if (events.length === 0 || nearbyEvents.length === 0) {
+  //     setIsLoading(true);
+  //   }
   //   try {
-  //     const res = await axios(api);
+  //     const res: any = await eventAPI.HandleEvent(api);
 
-  //     if (res && res.status === 200 && res.data) {
-  //       const items = res.data.items;
-  //       setCurrentLocation(items[0]);
-  //     }
+  //     setIsLoading(false);
+  //     res &&
+  //       res.data &&
+  //       (lat && long ? setNearbyEvents(res.data) : setEvents(res.data));
   //   } catch (error) {
-  //     console.log(error);
+  //     setIsLoading(false);
+  //     console.log(`Get event error in home screen line 74 ${error}`);
   //   }
   // };
 
-  // const getEvents = async (lat?: number, long?: number) => {
-  //   const api =
-  //     lat && long
-  //       ? `/get-events?lat=${lat}&long=${long}&distance=${5}`
-  //       : '/get-events';
-
+  // const getEventsData = async (
+  //   lat?: number,
+  //   long?: number,
+  //   distance?: number,
+  // ) => {
+  //   const api = `/get-events`;
   //   try {
   //     const res = await eventAPI.HandleEvent(api);
 
-  //     if (res && res.data) {
-  //       lat && long
-  //         ? setNearbyEvents(res.data)
-  //         : setEvents(
-  //             res.data.sort((a: any, b: any) => a.createdAt - b.createdAt),
-  //           );
-  //     }
+  //     const data = res.data;
+
+  //     const items: EventModel[] = [];
+
+  //     data.forEach((item: any) => items.push(item));
+
+  //     setEventData(items);
   //   } catch (error) {
   //     console.log(error);
   //   }
   // };
+
+  useEffect(() => {
+    const setTimeoutId = setTimeout(() => {
+      if (isLoggedIn) dispatch(getCurrent());
+    }, 300);
+
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
+  }, [isLoggedIn]);
+
+  // console.log(currentLocation);
 
   return (
     <View style={[globalStyles.container]}>
       <StatusBar barStyle={'light-content'} />
-
       <View
         style={{
           backgroundColor: appColors.primary,
-          height: Platform.OS === 'android' ? 166 : 182,
+          // height: Platform.OS === 'android' ? 168 : 182,
+          height: 182,
           borderBottomLeftRadius: 40,
           borderBottomRightRadius: 40,
           paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 52,
@@ -132,7 +305,7 @@ const HomeScreen = ({navigation}: any) => {
               </RowComponent>
               {currentLocation && (
                 <TextComponent
-                  text={`${currentLocation.address.city}, ${currentLocation.address.county}`}
+                  text={`${currentLocation}`}
                   flex={0}
                   color={appColors.white}
                   font={fontFamilies.medium}
@@ -141,26 +314,28 @@ const HomeScreen = ({navigation}: any) => {
               )}
             </View>
 
-            <CircleComponent color="#524CE0" size={36}>
+            <CircleComponent
+              onPress={() => dispatch(logout({}))}
+              // onPress={() => navigation.navigate('NotificationsScreen')}
+              color="#524CE0"
+              size={36}>
               <View>
-                <Notification
-                  onPress={() => dispatch(logout({}))}
-                  size={18}
-                  color={appColors.white}
-                />
-                <View
-                  style={{
-                    backgroundColor: '#02E9FE',
-                    width: 10,
-                    height: 10,
-                    borderRadius: 4,
-                    borderWidth: 2,
-                    borderColor: '#524CE0',
-                    position: 'absolute',
-                    top: -2,
-                    right: -2,
-                  }}
-                />
+                <Notification size={18} color={appColors.white} />
+                {unReadNotifications.length > 0 && (
+                  <View
+                    style={{
+                      backgroundColor: '#02E9FE',
+                      width: 10,
+                      height: 10,
+                      borderRadius: 4,
+                      borderWidth: 2,
+                      borderColor: '#524CE0',
+                      position: 'absolute',
+                      top: -2,
+                      right: -2,
+                    }}
+                  />
+                )}
               </View>
             </CircleComponent>
           </RowComponent>
@@ -168,11 +343,7 @@ const HomeScreen = ({navigation}: any) => {
           <RowComponent>
             <RowComponent
               styles={{flex: 1}}
-              onPress={() =>
-                navigation.navigate('SearchEvents', {
-                  isFilter: false,
-                })
-              }>
+              onPress={() => navigation.navigate('SearchEvents')}>
               <SearchNormal1
                 variant="TwoTone"
                 color={appColors.white}
@@ -196,9 +367,7 @@ const HomeScreen = ({navigation}: any) => {
             <TagComponent
               bgColor={'#5D56F3'}
               onPress={() =>
-                navigation.navigate('SearchEvents', {
-                  isFilter: true,
-                })
+                navigation.navigate('SearchEvents', {isFilter: true})
               }
               label="Filters"
               icon={
@@ -214,26 +383,53 @@ const HomeScreen = ({navigation}: any) => {
           <CategoriesList isFill />
         </View>
       </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={[
           {
             flex: 1,
-            marginTop: Platform.OS === 'ios' ? 22 : 18,
+            // marginTop: Platform.OS === 'ios' ? 22 : 18,
+            marginTop: 10,
           },
         ]}>
+        {/* <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
+          <TabBarComponent
+            title="Upcoming Events"
+            onPress={() =>
+              navigation.navigate('ExploreEvents', {
+                key: 'upcoming',
+                title: 'Upcoming Events',
+              })
+            }
+          />
+          {events.length > 0 ? (
+            <FlatList
+              showsHorizontalScrollIndicator={false}
+              horizontal
+              data={events}
+              renderItem={({item, index}) => (
+                <EventItem key={`event${index}`} item={item} type="card" />
+              )}
+            />
+          ) : (
+            <LoadingComponent isLoading={isLoading} values={events.length} />
+          )}
+        </SectionComponent> */}
+
+        {/* mẫu */}
         <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
           <TabBarComponent title="Upcoming Events" onPress={() => {}} />
           <FlatList
             showsHorizontalScrollIndicator={false}
             horizontal
-            inverted
-            data={events}
+            data={Array.from({length: 5})}
             renderItem={({item, index}) => (
-              <EventItem key={`event${index}`} item={item} type="card" />
+              <EventItem key={`event${index}`} item={itemEvent} type="card" />
             )}
           />
         </SectionComponent>
+
         <SectionComponent>
           <ImageBackground
             source={require('../../assets/images/invite-image.png')}
@@ -247,6 +443,7 @@ const HomeScreen = ({navigation}: any) => {
 
             <RowComponent justify="flex-start">
               <TouchableOpacity
+                onPress={() => console.log('fafafa')}
                 style={[
                   globalStyles.button,
                   {
@@ -264,18 +461,39 @@ const HomeScreen = ({navigation}: any) => {
             </RowComponent>
           </ImageBackground>
         </SectionComponent>
-        <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
-          <TabBarComponent title="Nearby You" onPress={() => {}} />
-          <FlatList
-            showsHorizontalScrollIndicator={false}
-            horizontal
-            data={nearbyEvents}
-            renderItem={({item, index}) => (
-              <EventItem key={`event${index}`} item={item} type="card" />
-            )}
+        {/* <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
+          <TabBarComponent
+            title="Nearby You"
+            onPress={() =>
+              navigation.navigate('ExploreEvents', {
+                key: 'nearby',
+                title: 'Nearby You',
+              })
+            }
           />
-        </SectionComponent>
+          {nearbyEvents.length > 0 ? (
+            <FlatList
+              showsHorizontalScrollIndicator={false}
+              horizontal
+              data={nearbyEvents}
+              renderItem={({item, index}) => (
+                <EventItem key={`event${index}`} item={item} type="card" />
+              )}
+            />
+          ) : (
+            <LoadingComponent
+              isLoading={isLoading}
+              values={nearbyEvents.length}
+            />
+          )}
+        </SectionComponent> */}
       </ScrollView>
+
+      {/* <Modal animationType="fade" style={[{flex: 1}]} visible={!isOnline}>
+        <View style={[globalStyles.center, {flex: 1}]}>
+          <Text>Network error</Text>
+        </View>
+      </Modal> */}
     </View>
   );
 };

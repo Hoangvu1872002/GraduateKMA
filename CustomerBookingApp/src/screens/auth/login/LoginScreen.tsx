@@ -16,11 +16,11 @@ import {
 } from '../../../components';
 import SocialLogin from '../components/SocialLogin';
 import {Validate} from '../../../utils/validate';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {apiLogin} from '../../../apis/authApi';
 import {login} from '../../../stores/users/userSlide';
 import {getCurrent} from '../../../stores/users/asyncAction';
-import {AppDispatch} from '../../../stores/redux';
+import {AppDispatch, RootState} from '../../../stores/redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 
@@ -41,7 +41,7 @@ const LoginScreen = ({navigation}: any) => {
         const account = JSON.parse(jsonValue);
         setEmail(account.email);
         setPassword(account?.password);
-        console.log('Account:', account); // {email, password}
+        // console.log('Account:', account); // {email, password}
         return account;
       } else {
         console.log('No data found!');
@@ -188,7 +188,7 @@ const LoginScreen = ({navigation}: any) => {
       <SocialLogin content="Login" />
       <SectionComponent>
         <RowComponent justify="center">
-          <TextComponent text="Don’t have an account? " />
+          <TextComponent text="Don't have an account? " />
           <ButtonComponent
             type="link"
             text="Sign up"

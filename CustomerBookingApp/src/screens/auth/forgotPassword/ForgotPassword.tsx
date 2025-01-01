@@ -33,7 +33,7 @@ const ForgotPassword = ({navigation, route}: any) => {
     setIsLoading(true);
     try {
       const res: any = await apiForgotpassword({email});
-      console.log(res.data);
+      // console.log(res.data);
 
       setIsLoading(false);
       if (res.data.success) {
