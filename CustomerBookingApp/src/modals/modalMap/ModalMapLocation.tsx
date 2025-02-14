@@ -31,14 +31,10 @@ import {styles} from './ModalMapLocation.styles';
 
 interface Props {
   visible: boolean;
-  onClose: () => void;
-  onSelect: (val: {
-    address: string;
-    postion?: {
-      lat: number;
-      long: number;
-    };
-  }) => void;
+  dataLocationSelected?: LocationModelSuggest | null;
+  onCloseMap: () => void;
+  onCloseAll?: () => void;
+  onSelect: (val: LocationModelSuggest) => void;
 }
 
 MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
@@ -47,11 +43,9 @@ MapLibreGL.setConnected(true);
 const loadMap =
   'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
 
-// const loadMap =
-//   'https://tiles.goong.io/assets/goong_satellite.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
-
 const ModalMapLocation = (props: Props) => {
-  const {visible, onClose, onSelect} = props;
+  const {visible, onCloseAll, onCloseMap, onSelect, dataLocationSelected} =
+    props;
 
   const cameraRef = useRef<MapLibreGL.CameraRef>(null);
   const mapRef = useRef<MapLibreGL.MapViewRef>(null);
@@ -73,24 +67,48 @@ const ModalMapLocation = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [ischangeCamera, setIsChangeCamera] = useState(false);
   const [isScrollEnabled, setIsScrollEnabled] = useState(true);
-  const [addressSelected, setAddressSelected] = useState('');
+  const [addressSelected, setAddressSelected] =
+    useState<LocationModelSuggest | null>();
+
+  const clearData = () => {
+    setZoomLevel(17);
+    setLocations([]);
+    setIsLoading(false);
+    setIsChangeCamera(false);
+    setIsScrollEnabled(true);
+    setCenterCoordsCamera(null);
+    setAddressSelected(null);
+    setCenterCoords({
+      latitude: 20.980216,
+      longitude: 105.772607,
+    });
+  };
 
   const fetchLocationCurrent = async () => {
+    // console.log('abcd');
+
     await Geolocation.getCurrentPosition(
       position => {
         const {latitude, longitude} = position.coords;
+        // console.log('abc');
+
         setCenterCoords({latitude, longitude});
         // setStartCoords({latitude, longitude});
-        cameraRef.current?.setCamera({
-          centerCoordinate: [longitude, latitude],
-          zoomLevel: 17,
-          animationDuration: 1000,
-        });
+        // cameraRef.current?.setCamera({
+        //   centerCoordinate: [longitude, latitude],
+        //   zoomLevel: 17,
+        //   animationDuration: 1000,
+        // });
       },
       error => {
-        console.error(error);
+        if (error.code === 3) {
+          console.log('Bỏ qua lỗi timeout do máy ảo không có GPS.');
+          return;
+        }
+        console.error('Lỗi lấy vị trí:', error);
       },
-      {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+      {},
+      // {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
   };
 
@@ -116,6 +134,8 @@ const ModalMapLocation = (props: Props) => {
         }));
 
         setLocations(dataSaveLocation);
+        setAddressSelected(dataSaveLocation[0]);
+
         checkCameraExist({
           latitude: res.data.results[0].geometry.location.lat,
           longitude: res.data.results[0].geometry.location.lng,
@@ -159,6 +179,7 @@ const ModalMapLocation = (props: Props) => {
 
     await setIsChangeCamera(true);
     if (locations[index].latitude && locations[index].longitude) {
+      setAddressSelected(locations[index]);
       checkCameraExist({
         latitude: locations[index].latitude,
         longitude: locations[index].longitude,
@@ -167,6 +188,8 @@ const ModalMapLocation = (props: Props) => {
   };
 
   const handleItemPress = (index: number) => {
+    setAddressSelected(locations[index]);
+
     // Chỉ cuộn lên đầu danh sách mà không thay đổi thứ tự
     flatListRef.current?.scrollToIndex({index: index, animated: true});
   };
@@ -196,11 +219,32 @@ const ModalMapLocation = (props: Props) => {
     setCenterCoordsCamera(newCoords);
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchLocationCurrent();
-    }, []),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchLocationCurrent();
+  //   }, []),
+  // );
+
+  useEffect(() => {
+    if (visible) {
+      if (!dataLocationSelected) {
+        // console.log('abc1');
+
+        fetchLocationCurrent();
+      } else if (
+        dataLocationSelected &&
+        dataLocationSelected.latitude &&
+        dataLocationSelected.longitude
+      ) {
+        setCenterCoords({
+          latitude: dataLocationSelected.latitude,
+          longitude: dataLocationSelected.longitude,
+        });
+      } else {
+        console.log('abc3');
+      }
+    }
+  }, [visible]);
 
   useEffect(() => {
     changeCamera();
@@ -229,13 +273,17 @@ const ModalMapLocation = (props: Props) => {
       />
       <SectionComponent styles={[globalStyles.noSpaceCard, styles.buttonBack]}>
         <CardComponent
-          onPress={onClose}
+          onPress={() => {
+            onCloseMap();
+            clearData();
+          }}
           styles={[
             globalStyles.noSpaceCard,
+            globalStyles.shadow,
             {width: 40, height: 40, borderRadius: 100},
           ]}
-          color={appColors.text3}>
-          <ArrowCircleLeft2 size="30" color={appColors.gray4} />
+          color={appColors.white}>
+          <ArrowCircleLeft2 size="30" color={appColors.gray} />
         </CardComponent>
       </SectionComponent>
 
@@ -243,6 +291,7 @@ const ModalMapLocation = (props: Props) => {
         <MapLibreGL.MapView
           styleURL={loadMap}
           style={{flex: 1}}
+          // styleJSON=''
           // scrollEnabled={false}
           // onRegionIsChanging={event => checkCameraForFlastlist(event)}
           compassEnabled={false}
@@ -324,7 +373,6 @@ const ModalMapLocation = (props: Props) => {
             style={{
               height: ' 52%',
 
-              // flex: 1,
               marginTop: 8,
               position: 'relative',
             }}>
@@ -390,9 +438,15 @@ const ModalMapLocation = (props: Props) => {
           </View>
           <View style={styles.frameButton}>
             <ButtonComponent
+              onPress={() => {
+                addressSelected && onSelect(addressSelected);
+                addressSelected && onCloseMap();
+                clearData();
+                onCloseAll && onCloseAll();
+              }}
               styles={{paddingVertical: 12}}
               type="primary"
-              disable={isScrollEnabled}
+              disable={!isScrollEnabled}
               color={
                 isScrollEnabled
                   ? appColors.BlueDarkTurquoise

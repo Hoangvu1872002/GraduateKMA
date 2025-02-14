@@ -77,8 +77,8 @@ const CategoriesList = (props: Props) => {
       renderItem={({item, index}) => (
         <TagComponent
           styles={{
-            marginRight: index === categories.length - 1 ? 28 : 13,
-            minWidth: 85,
+            marginRight: index === categories.length - 1 ? 20 : 5,
+            minWidth: 82,
           }}
           bgColor={isFill ? item.color : appColors.white}
           onPress={() => {}}

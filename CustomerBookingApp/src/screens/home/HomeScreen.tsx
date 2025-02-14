@@ -4,6 +4,7 @@ import {useIsFocused} from '@react-navigation/native';
 import axios from 'axios';
 import {
   HambergerMenu,
+  Location,
   Notification,
   SearchNormal1,
   Sort,
@@ -29,6 +30,7 @@ import {
   CategoriesList,
   CircleComponent,
   EventItem,
+  ItemBookingHome,
   LoadingComponent,
   RowComponent,
   SectionComponent,
@@ -52,17 +54,9 @@ import {logout} from '../../stores/users/userSlide';
 import {AppDispatch, RootState} from '../../stores/redux';
 import {getCurrent} from '../../stores/users/asyncAction';
 import Geolocation from '@react-native-community/geolocation';
-// import {
-//   CategoriesList,
-//   CircleComponent,
-//   EventItem,
-//   RowComponent,
-//   SectionComponent,
-//   SpaceComponent,
-//   TabBarComponent,
-//   TagComponent,
-//   TextComponent,
-// } from '../../components';
+import LinearGradient from 'react-native-linear-gradient';
+import data from '../../constants/data';
+import ModalLocationBooking from '../../modals/modalSelectLocation/ModalLocationBooking';
 
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
@@ -72,11 +66,12 @@ const HomeScreen = ({navigation}: any) => {
   const [eventData, setEventData] = useState<EventModel[]>([]);
   const [isOnline, setIsOnline] = useState<boolean>();
   const [unReadNotifications, setUnReadNotifications] = useState([]);
+  const [isVibleModalLocation, setIsVibleModalLocation] = useState(false);
 
   const isFocused = useIsFocused();
   // const user = useSelector(authSelector);
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoggedIn} = useSelector((state: RootState) => state.user);
+  const {isLoggedIn, current} = useSelector((state: RootState) => state.user);
 
   // mẫu
   const itemEvent = {
@@ -109,7 +104,8 @@ const HomeScreen = ({navigation}: any) => {
       (error: any) => {
         console.log(error);
       },
-      {maximumAge: 0, timeout: 20000, enableHighAccuracy: true},
+      // {maximumAge: 0, timeout: 30000, enableHighAccuracy: true},
+      {},
     );
   }, []);
 
@@ -205,8 +201,6 @@ const HomeScreen = ({navigation}: any) => {
       const res = await axios.get(api);
 
       if (res && res.status === 200 && res.data.results[0]) {
-        console.log(res);
-
         const items = res.data.results[0].address;
         setCurrentLocation(items);
       }
@@ -276,71 +270,74 @@ const HomeScreen = ({navigation}: any) => {
   return (
     <View style={[globalStyles.container]}>
       <StatusBar barStyle={'light-content'} />
-      <View
-        style={{
-          backgroundColor: appColors.primary,
-          // height: Platform.OS === 'android' ? 168 : 182,
-          height: 182,
-          borderBottomLeftRadius: 40,
-          borderBottomRightRadius: 40,
-          paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 52,
-        }}>
-        <View style={{paddingHorizontal: 16}}>
-          <RowComponent>
-            <TouchableOpacity onPress={() => navigation.openDrawer()}>
-              <HambergerMenu size={24} color={appColors.white} />
-            </TouchableOpacity>
-            <View style={[{flex: 1, alignItems: 'center'}]}>
-              <RowComponent>
-                <TextComponent
-                  text="Current Location"
-                  color={appColors.white2}
-                  size={12}
-                />
-                <MaterialIcons
-                  name="arrow-drop-down"
-                  size={18}
-                  color={appColors.white}
-                />
-              </RowComponent>
-              {currentLocation && (
-                <TextComponent
-                  text={`${currentLocation}`}
-                  flex={0}
-                  color={appColors.white}
-                  font={fontFamilies.medium}
-                  size={13}
-                />
-              )}
-            </View>
-
-            <CircleComponent
-              onPress={() => dispatch(logout({}))}
-              // onPress={() => navigation.navigate('NotificationsScreen')}
-              color="#524CE0"
-              size={36}>
-              <View>
-                <Notification size={18} color={appColors.white} />
-                {unReadNotifications.length > 0 && (
-                  <View
-                    style={{
-                      backgroundColor: '#02E9FE',
-                      width: 10,
-                      height: 10,
-                      borderRadius: 4,
-                      borderWidth: 2,
-                      borderColor: '#524CE0',
-                      position: 'absolute',
-                      top: -2,
-                      right: -2,
-                    }}
+      <LinearGradient colors={[appColors.primary, 'rgba(42, 31, 197, 0)']}>
+        <View
+          style={{
+            // backgroundColor: appColors.primary,
+            // height: Platform.OS === 'android' ? 168 : 182,
+            // height: 182,
+            height: 210,
+            borderBottomLeftRadius: 40,
+            borderBottomRightRadius: 40,
+            paddingTop:
+              Platform.OS === 'android' ? StatusBar.currentHeight : 52,
+          }}>
+          <View style={{paddingHorizontal: 16}}>
+            <RowComponent>
+              <TouchableOpacity onPress={() => navigation.openDrawer()}>
+                <HambergerMenu size={24} color={appColors.white} />
+              </TouchableOpacity>
+              <View style={[{flex: 1, alignItems: 'center'}]}>
+                <RowComponent>
+                  <TextComponent
+                    text="Current Location"
+                    color={appColors.white2}
+                    size={12}
+                  />
+                  <MaterialIcons
+                    name="arrow-drop-down"
+                    size={18}
+                    color={appColors.white}
+                  />
+                </RowComponent>
+                {currentLocation && (
+                  <TextComponent
+                    text={`${currentLocation}`}
+                    flex={0}
+                    color={appColors.white}
+                    font={fontFamilies.medium}
+                    size={13}
                   />
                 )}
               </View>
-            </CircleComponent>
-          </RowComponent>
-          <SpaceComponent height={20} />
-          <RowComponent>
+
+              <CircleComponent
+                onPress={() => dispatch(logout({}))}
+                // onPress={() => navigation.navigate('NotificationsScreen')}
+                color="#524CE0"
+                size={36}>
+                <View>
+                  <Notification size={18} color={appColors.white} />
+                  {unReadNotifications.length > 0 && (
+                    <View
+                      style={{
+                        backgroundColor: '#02E9FE',
+                        width: 10,
+                        height: 10,
+                        borderRadius: 4,
+                        borderWidth: 2,
+                        borderColor: '#524CE0',
+                        position: 'absolute',
+                        top: -2,
+                        right: -2,
+                      }}
+                    />
+                  )}
+                </View>
+              </CircleComponent>
+            </RowComponent>
+            <SpaceComponent height={20} />
+            {/* <RowComponent>
             <RowComponent
               styles={{flex: 1}}
               onPress={() => navigation.navigate('SearchEvents')}>
@@ -376,23 +373,109 @@ const HomeScreen = ({navigation}: any) => {
                 </CircleComponent>
               }
             />
-          </RowComponent>
-          <SpaceComponent height={20} />
-        </View>
-        <View style={{marginBottom: -16}}>
+          </RowComponent> */}
+            <RowComponent justify="space-between">
+              <TextComponent
+                text={`Hello, ${
+                  current?.firstname.charAt(0).toUpperCase() +
+                  current?.firstname.slice(1)
+                } ${
+                  current?.lastname.charAt(0).toUpperCase() +
+                  current?.lastname.slice(1)
+                } `}
+                size={20}
+                font={fontFamilies.medium}
+                color={appColors.white2}></TextComponent>
+              <TagComponent
+                bgColor={'#5D56F3'}
+                onPress={() =>
+                  navigation.navigate('SearchEvents', {isFilter: true})
+                }
+                label="489"
+                icon={
+                  <CircleComponent size={20} color="#B1AEFA">
+                    <Sort size={16} color="#5D56F3" />
+                  </CircleComponent>
+                }
+              />
+            </RowComponent>
+            <SpaceComponent height={20} />
+          </View>
+
+          {/* <View style={{marginBottom: -16}}>
           <CategoriesList isFill />
+        </View> */}
         </View>
-      </View>
+      </LinearGradient>
+      <SectionComponent styles={{marginTop: -85}}>
+        <View
+          style={[
+            globalStyles.shadow,
+            {
+              backgroundColor: appColors.white,
+              height: 95,
+              borderWidth: 0.5,
+              borderColor: appColors.gray3,
+              borderRadius: 12,
+            },
+          ]}>
+          <RowComponent
+            justify="flex-start"
+            // onPress={() => setIsVibleModalLocation(true)}
+            onPress={() => navigation.navigate('ScreenLocationBooking')}
+            styles={{
+              backgroundColor: appColors.WhiteSmoke,
+              // flex: 1,
+              height: '45%',
+              borderRadius: 12,
+              margin: 4,
+              paddingLeft: 15,
+            }}>
+            <Location variant="Bold" size="22" color="#FF8A65" />
+            <TextComponent
+              styles={{marginLeft: 10}}
+              font={fontFamilies.medium}
+              text="Where do you want to go?"></TextComponent>
+          </RowComponent>
+          <RowComponent
+            justify="center"
+            styles={{
+              alignItems: 'center',
+              height: '43%',
+              paddingHorizontal: 5,
+            }}>
+            <CategoriesList isFill />
+          </RowComponent>
+        </View>
+      </SectionComponent>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={[
           {
             flex: 1,
+            // backgroundColor: 'coral',
             // marginTop: Platform.OS === 'ios' ? 22 : 18,
             marginTop: 10,
           },
         ]}>
+        <SectionComponent
+          styles={{
+            height: 110,
+            // backgroundColor: 'black',
+            justifyContent: 'center',
+            // alignItems: 'center',
+            // marginTop: 10,
+            paddingBottom: 0,
+          }}>
+          <RowComponent justify="flex-start" styles={{flex: 1}}>
+            {data.itemBookingHomeData.map(e => (
+              <View key={e.id} style={{width: '35%'}}>
+                <ItemBookingHome data={e}></ItemBookingHome>
+              </View>
+            ))}
+          </RowComponent>
+        </SectionComponent>
         {/* <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
           <TabBarComponent
             title="Upcoming Events"
@@ -488,6 +571,15 @@ const HomeScreen = ({navigation}: any) => {
           )}
         </SectionComponent> */}
       </ScrollView>
+
+      {/* <ModalLocationBooking
+        visible={isVibleModalLocation}
+        onClose={() => setIsVibleModalLocation(false)}
+        onSelect={val => {
+          // setAddressSelected(val);
+          // onSelect(val);
+        }}
+      /> */}
 
       {/* <Modal animationType="fade" style={[{flex: 1}]} visible={!isOnline}>
         <View style={[globalStyles.center, {flex: 1}]}>

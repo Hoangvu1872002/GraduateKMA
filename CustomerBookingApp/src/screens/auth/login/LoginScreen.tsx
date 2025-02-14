@@ -158,7 +158,7 @@ const LoginScreen = ({navigation}: any) => {
           allowClear
           affix={<Lock size={22} color={appColors.gray} />}
         />
-        <RowComponent justify="space-between">
+        <RowComponent justify="space-between" styles={{backgroundColor: ''}}>
           <RowComponent onPress={() => setIsRemember(!isRemember)}>
             <Switch
               trackColor={{true: appColors.primary}}
@@ -170,6 +170,7 @@ const LoginScreen = ({navigation}: any) => {
             <TextComponent text="Remember me" />
           </RowComponent>
           <ButtonComponent
+            textStyles={{flex: 0}}
             text="Forgot Password?"
             onPress={() => navigation.navigate('ForgotPassword')}
             type="text"
@@ -190,6 +191,7 @@ const LoginScreen = ({navigation}: any) => {
         <RowComponent justify="center">
           <TextComponent text="Don't have an account? " />
           <ButtonComponent
+            textStyles={{flex: 0}}
             type="link"
             text="Sign up"
             onPress={() => navigation.navigate('RegisterScreen')}

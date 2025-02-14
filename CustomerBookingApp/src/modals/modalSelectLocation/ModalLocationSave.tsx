@@ -21,15 +21,15 @@ import {
   SectionComponent,
   SpaceComponent,
   TextComponent,
-} from '../components';
-import {appColors} from '../constants/appColors';
-import {appInfo} from '../constants/appInfos';
-import {LocationModelSuggest} from '../models/LocationModel';
-import {globalStyles} from '../styles/globalStyles';
-import useDebounce from '../hooks/useDebounce';
-import {fontFamilies} from '../constants/fontFamilies';
-import ItemSuggestLocation from '../components/ItemSuggestLocation';
-import locationsDataFake from '../constants/data';
+} from '../../components';
+import {appColors} from '../../constants/appColors';
+import {appInfo} from '../../constants/appInfos';
+import {LocationModelSuggest} from '../../models/LocationModel';
+import {globalStyles} from '../../styles/globalStyles';
+import useDebounce from '../../hooks/useDebounce';
+import {fontFamilies} from '../../constants/fontFamilies';
+import ItemSuggestLocation from '../../components/ItemSuggestLocation';
+import dataFake from '../../constants/data';
 import {ScrollView} from 'react-native-gesture-handler';
 
 // GeoCoder.init(process.env.MAP_API_KEY as string);
@@ -38,16 +38,10 @@ interface Props {
   visible: boolean;
   openMap: () => void;
   onClose: () => void;
-  onSelect: (val: {
-    address: string;
-    postion?: {
-      lat: number;
-      long: number;
-    };
-  }) => void;
+  onSelect: (val: LocationModelSuggest) => void;
 }
 
-const ModalLocation = (props: Props) => {
+const ModalLocationSave = (props: Props) => {
   const {visible, onClose, onSelect, openMap} = props;
   const [searchKey, setSearchKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -63,7 +57,6 @@ const ModalLocation = (props: Props) => {
   const debouncedInput = useDebounce(searchKey, 1500);
 
   useEffect(() => {
-    console.log(addressSelected);
     if (addressSelected) {
       fetchCoordinatesFromPlaceId(addressSelected);
     }
@@ -87,8 +80,6 @@ const ModalLocation = (props: Props) => {
       );
 
       if (response.status === 200) {
-        console.log(response.data);
-
         const dataSaveLocation = response.data.predictions.map((e: any) => ({
           description: e.structured_formatting.secondary_text,
           main_name_place: e.structured_formatting.main_text,
@@ -222,7 +213,14 @@ const ModalLocation = (props: Props) => {
           styles={{backgroundColor: appColors.gray5}}></SpaceComponent>
         <SectionComponent>
           {isLoading ? (
-            <ActivityIndicator />
+            <View
+              style={{
+                height: 600,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <ActivityIndicator />
+            </View>
           ) : locations.length > 0 ? (
             <View style={{paddingTop: 15}}>
               <TextComponent
@@ -244,10 +242,10 @@ const ModalLocation = (props: Props) => {
                     <ItemSuggestLocation
                       item={item}
                       key={`${item.place_id}${index}`}
-                      // setAddressSelected={val =>
-                      //   setAddressSelected(val)
-                      // }
-                    ></ItemSuggestLocation>
+                      onPress={() => {
+                        onSelect(item);
+                        onClose();
+                      }}></ItemSuggestLocation>
                   </View>
                 )}
               />
@@ -261,7 +259,7 @@ const ModalLocation = (props: Props) => {
                 color={appColors.gray}></TextComponent>
               <FlatList
                 style={{marginBottom: 100}}
-                data={locationsDataFake}
+                data={dataFake.locationsDataFake}
                 showsVerticalScrollIndicator={false}
                 renderItem={({item, index}) => (
                   <View
@@ -277,7 +275,10 @@ const ModalLocation = (props: Props) => {
                       // setAddressSelected={val =>
                       //   setAddressSelected(val)
                       // }
-                    ></ItemSuggestLocation>
+                      onPress={() => {
+                        onSelect(item);
+                        onClose();
+                      }}></ItemSuggestLocation>
                   </View>
                 )}
               />
@@ -311,4 +312,4 @@ const ModalLocation = (props: Props) => {
   );
 };
 
-export default ModalLocation;
+export default ModalLocationSave;

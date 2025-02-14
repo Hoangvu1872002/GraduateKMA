@@ -55,8 +55,8 @@ export const globalStyles = StyleSheet.create({
   },
 
   tag: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 100,
   },
 

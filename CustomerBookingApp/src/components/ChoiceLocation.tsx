@@ -1,33 +1,47 @@
 import {ArrowRight2, Location} from 'iconsax-react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {RowComponent, SpaceComponent, TextComponent} from '.';
 import {appColors} from '../constants/appColors';
 import {globalStyles} from '../styles/globalStyles';
-import ModalLocation from '../modals/ModalLocation';
+import ModalLocationSave from '../modals/modalSelectLocation/ModalLocationSave';
 import ModalMapLocation from '../modals/modalMap/ModalMapLocation';
 import {StatusBar} from 'react-native';
+import {LocationModelSuggest} from '../models/LocationModel';
+import {useNavigation} from '@react-navigation/native';
+// import {useIsFocused} from '@react-navigation/native';
 
 interface Props {
   onSelect: (val: any) => void;
 }
 
 const ChoiceLocation = (props: Props) => {
+  const navigation: any = useNavigation();
   const {onSelect} = props;
 
   const [isVibleModalLocation, setIsVibleModalLocation] = useState(false);
   const [isVibleModalMapLocation, setIsVibleModalMapLocation] = useState(false);
-  const [addressSelected, setAddressSelected] = useState<{
-    address: string;
-    position?: {
-      lat: number;
-      long: number;
-    };
-  }>();
+  const [addressSelected, setAddressSelected] =
+    useState<LocationModelSuggest>();
+
+  // const isFocused = useIsFocused();
+
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     console.log('abc');
+  //     navigation.setOptions({
+  //       onSelect: (val: LocationModelSuggest) => {
+  //         setAddressSelected(val);
+  //         onSelect(val);
+  //       },
+  //     });
+  //   }
+  // }, [isFocused, navigation]);
 
   return (
     <>
       <RowComponent
         onPress={() => setIsVibleModalLocation(!isVibleModalLocation)}
+        // onPress={() => navigation.navigate('ScreenLocationSave')}
         styles={[
           globalStyles.inputContainer,
           {borderWidth: 1, borderColor: '#ccc'},
@@ -38,24 +52,47 @@ const ChoiceLocation = (props: Props) => {
 
         <TextComponent
           numOfLine={1}
-          text={addressSelected ? addressSelected.address : 'Choice'}
+          text={
+            addressSelected
+              ? `${addressSelected.main_name_place} - ${addressSelected.description}`
+              : 'Choice'
+          }
           flex={1}
         />
         <ArrowRight2 color={appColors.primary} size={22} />
       </RowComponent>
 
-      <ModalLocation
-        visible={isVibleModalLocation}
-        onClose={() => setIsVibleModalLocation(false)}
-        openMap={() => setIsVibleModalMapLocation(true)}
-        onSelect={val => {
-          setAddressSelected(val);
-          onSelect(val);
-        }}
-      />
+      {isVibleModalLocation && (
+        <ModalLocationSave
+          visible={isVibleModalLocation}
+          onClose={() => setIsVibleModalLocation(false)}
+          openMap={() => setIsVibleModalMapLocation(true)}
+          onSelect={val => {
+            setAddressSelected(val);
+            onSelect(val);
+          }}
+        />
+      )}
+      {/* {isVibleModalMapLocation && (
+        <ModalMapLocation
+          visible={isVibleModalMapLocation}
+          onCloseMap={() => setIsVibleModalMapLocation(false)}
+          onCloseAll={() => {
+            setIsVibleModalMapLocation(false);
+            setIsVibleModalLocation(false);
+          }}
+          onSelect={val => {
+            setAddressSelected(val);
+            onSelect(val);
+          }}></ModalMapLocation>
+      )} */}
       <ModalMapLocation
         visible={isVibleModalMapLocation}
-        onClose={() => setIsVibleModalMapLocation(false)}
+        onCloseMap={() => setIsVibleModalMapLocation(false)}
+        onCloseAll={() => {
+          setIsVibleModalMapLocation(false);
+          setIsVibleModalLocation(false);
+        }}
         onSelect={val => {
           setAddressSelected(val);
           onSelect(val);

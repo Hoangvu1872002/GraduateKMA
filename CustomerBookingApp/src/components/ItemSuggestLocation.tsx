@@ -20,7 +20,7 @@ interface Props {
   setCenterCoordsCamera?: (val: {latitude: number; longitude: number}) => void;
 }
 
-const ItemSuggestLocation = (prop: Props) => {
+const ItemSuggestLocation = (props: Props) => {
   const {
     item,
     setAddressSelected,
@@ -29,7 +29,7 @@ const ItemSuggestLocation = (prop: Props) => {
     // setIsChangeCamera,
 
     onPress,
-  } = prop;
+  } = props;
 
   return (
     <TouchableOpacity
@@ -67,11 +67,13 @@ const ItemSuggestLocation = (prop: Props) => {
             font={fontFamilies.medium}
             text={item.main_name_place}></TextComponent>
 
-          <TextComponent
-            numOfLine={numberLineTitle ? numberLineTitle : 2}
-            size={11}
-            text={item.description}
-          />
+          {item.description && (
+            <TextComponent
+              numOfLine={numberLineTitle ? numberLineTitle : 2}
+              size={11}
+              text={item.description}
+            />
+          )}
         </View>
       </RowComponent>
     </TouchableOpacity>

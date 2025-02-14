@@ -30,6 +30,8 @@ interface Props {
   multiline?: boolean;
   numberOfLine?: number;
   width?: number;
+  turnOffAutoFocus?: () => void;
+  autoFocus?: boolean;
   styles?: StyleProp<ViewStyle>;
 }
 
@@ -48,7 +50,10 @@ const InputComponent = (props: Props) => {
     multiline,
     numberOfLine,
     styles,
+    autoFocus,
+    turnOffAutoFocus,
   } = props;
+  // console.log(turnOffAutoFocus);
 
   const [isShowPass, setIsShowPass] = useState(isPassword ?? false);
   const [isFocused, setIsFocused] = useState(false);
@@ -58,13 +63,13 @@ const InputComponent = (props: Props) => {
       style={[
         globalStyles.inputContainer,
         {
-          alignItems: multiline ? 'flex-start' : 'center',
+          alignItems: 'center',
           width: width ? `${width}%` : '100%',
           // backgroundColor: 'black',
           borderWidth: 1,
           borderColor: '#ccc',
         },
-        isFocused && styleForcus.inputFocused,
+        (autoFocus || isFocused) && styleForcus.inputFocused,
         styles,
       ]}>
       {affix ?? affix}
@@ -72,12 +77,16 @@ const InputComponent = (props: Props) => {
         style={[
           globalStyles.input,
           globalStyles.text,
+
           {
             paddingHorizontal: affix || suffix ? 12 : 0,
             // backgroundColor: 'coral',
           },
         ]}
-        onFocus={() => setIsFocused(true)}
+        onFocus={() => {
+          setIsFocused(true);
+          turnOffAutoFocus && turnOffAutoFocus();
+        }}
         onBlur={() => setIsFocused(false)}
         multiline={multiline}
         value={value}
@@ -107,22 +116,23 @@ const InputComponent = (props: Props) => {
       ) : (
         value &&
         value.length > 0 &&
-        allowClear && (
+        allowClear &&
+        isFocused && (
           <CardComponent
             styles={[
               globalStyles.noSpaceCard,
 
               {
-                width: 30,
-                height: 30,
+                width: 25,
+                height: 25,
                 borderRadius: 100,
                 borderWidth: 1,
                 borderColor: appColors.white2,
               },
             ]}
             onPress={() => onChange('')}
-            color={appColors.gray4}>
-            <AntDesign name="close" size={22} color={appColors.text} />
+            color={appColors.gray5}>
+            <AntDesign name="close" size={15} color={appColors.text} />
           </CardComponent>
         )
       )}
@@ -132,7 +142,7 @@ const InputComponent = (props: Props) => {
 
 const styleForcus = StyleSheet.create({
   inputFocused: {
-    borderColor: appColors.link, // Màu border khi focus
+    borderColor: appColors.BlueDarkTurquoise, // Màu border khi focus
   },
 });
 

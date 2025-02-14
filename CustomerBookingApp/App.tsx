@@ -8,6 +8,8 @@ import {store} from './src/stores/redux';
 import AppRouters from './src/navigators/AppRouters';
 import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import ToastComponent from './src/components/ToastComponent';
+import {Host} from 'react-native-portalize';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 const App = () => {
   return (
@@ -18,9 +20,11 @@ const App = () => {
           backgroundColor="transparent"
           translucent
         />
-        <NavigationContainer>
-          <AppRouters></AppRouters>
-        </NavigationContainer>
+        <Host>
+          <NavigationContainer>
+            <AppRouters></AppRouters>
+          </NavigationContainer>
+        </Host>
         <ToastComponent></ToastComponent>
       </Provider>
     </GestureHandlerRootView>

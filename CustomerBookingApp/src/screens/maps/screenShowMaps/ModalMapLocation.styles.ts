@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {appColors} from '../../constants/appColors';
+import {appColors} from '../../../constants/appColors';
 
 export const styles = StyleSheet.create({
   markerFixed: {

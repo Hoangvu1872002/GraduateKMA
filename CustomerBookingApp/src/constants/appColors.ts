@@ -15,6 +15,7 @@ export const appColors = {
   link: '#5669FF',
   danger: '#e74c3c',
   danger2: '#F0635A',
-  BlueDarkTurquoise: '#00C5CD',
+  BlueDarkTurquoise: '#00CED1',
   DarkSlateGrayBlue4: '#528B8B',
+  red: '#990000',
 };

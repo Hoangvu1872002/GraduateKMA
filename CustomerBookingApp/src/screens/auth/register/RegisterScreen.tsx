@@ -225,6 +225,7 @@ const RegisterScreen = ({navigation}: any) => {
           <RowComponent justify="center">
             <TextComponent text="Don’t have an account? " />
             <ButtonComponent
+              textStyles={{flex: 0}}
               type="link"
               text="Sign in"
               onPress={() => navigation.navigate('LoginScreen')}

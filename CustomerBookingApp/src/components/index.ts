@@ -21,6 +21,8 @@ import AvatarComponent from './AvatarComponent';
 import AvatarGroup from './AvatarGroup';
 import DateTimePicker from './DateTimePicker';
 import ButtonImagePicker from './ButtonImagePicker';
+import ItemBookingHome from './ItemBookingHome';
+import ItemSelectVehicel from './ItemSelectVehicel';
 
 export {
   SpaceComponent,
@@ -43,4 +45,6 @@ export {
   DateTimePicker,
   DropdownPicker,
   ButtonImagePicker,
+  ItemBookingHome,
+  ItemSelectVehicel,
 };

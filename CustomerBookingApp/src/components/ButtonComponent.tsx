@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, {ReactNode} from 'react';
-import {TextComponent} from '.';
+import {RowComponent, SpaceComponent, TextComponent} from '.';
 import {globalStyles} from '../styles/globalStyles';
 import {appColors} from '../constants/appColors';
 import {fontFamilies} from '../constants/fontFamilies';
@@ -68,12 +68,12 @@ const ButtonComponent = (props: Props) => {
             text={text}
             color={textColor ?? appColors.white}
             styles={[
-              textStyles,
               {
                 marginLeft: icon ? 12 : 0,
                 fontSize: 16,
                 textAlign: 'center',
               },
+              textStyles,
             ]}
             flex={icon && iconFlex === 'right' ? 1 : 0}
             font={textFont ?? fontFamilies.medium}
@@ -84,15 +84,19 @@ const ButtonComponent = (props: Props) => {
     </View>
   ) : (
     <TouchableOpacity onPress={onPress}>
-      {icon && icon}
-      {text && (
-        <TextComponent
-          flex={0}
-          text={text}
-          font={fontFamilies.medium}
-          color={type === 'link' ? appColors.primary : appColors.text}
-        />
-      )}
+      <RowComponent>
+        {icon && icon}
+        {icon && <SpaceComponent width={5}></SpaceComponent>}
+        {text && (
+          <TextComponent
+            flex={1}
+            text={text}
+            styles={[textStyles]}
+            font={textFont ?? fontFamilies.medium}
+            color={type === 'link' ? appColors.primary : appColors.text}
+          />
+        )}
+      </RowComponent>
     </TouchableOpacity>
   );
 };

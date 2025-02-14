@@ -78,69 +78,74 @@ const locationsDataFake: LocationModelSuggest[] = [
     latitude: 21.04876,
     longitude: 105.826091,
   },
-  // {
-  //   place_id: '12',
-  //   description: 'Long Biên, Hà Nội, Việt Nam',
-  //   main_name_place: 'Long Bien Bridge',
-  //   latitude: 21.0542,
-  //   longitude: 105.862,
-  // },
-  // {
-  //   place_id: '13',
-  //   description: '1 Nguyễn Văn Huyên, Cầu Giấy, Hà Nội, Việt Nam',
-  //   main_name_place: 'Vietnam Museum of Ethnology',
-  //   latitude: 21.028128,
-  //   longitude: 105.796836,
-  // },
-  // {
-  //   place_id: '14',
-  //   description: 'Trúc Bạch, Ba Đình, Hà Nội, Việt Nam',
-  //   main_name_place: 'Truc Bach Lake',
-  //   latitude: 21.052738,
-  //   longitude: 105.82328,
-  // },
-  // {
-  //   place_id: '15',
-  //   description: '54 Liễu Giai, Ba Đình, Hà Nội, Việt Nam',
-  //   main_name_place: 'Lotte Center Hanoi',
-  //   latitude: 21.035345,
-  //   longitude: 105.817986,
-  // },
-  // {
-  //   place_id: '16',
-  //   description: '72 Nguyễn Trãi, Thanh Xuân, Hà Nội, Việt Nam',
-  //   main_name_place: 'Royal City',
-  //   latitude: 21.016342,
-  //   longitude: 105.804431,
-  // },
-  // {
-  //   place_id: '17',
-  //   description: 'Hồ Tây, Hà Nội, Việt Nam',
-  //   main_name_place: 'Tay Ho',
-  //   latitude: 21.050413,
-  //   longitude: 105.831456,
-  // },
-  // {
-  //   place_id: '18',
-  //   description: '1 Tràng Tiền, Hoàn Kiếm, Hà Nội, Việt Nam',
-  //   main_name_place: 'Hanoi Opera House',
-  //   latitude: 21.028835,
-  //   longitude: 105.858186,
-  // },
-  // {
-  //   place_id: '19',
-  //   description: 'Hai Bà Trưng, Hà Nội, Việt Nam',
-  //   main_name_place: 'Hai Ba Trung Park',
-  //   latitude: 21.021213,
-  //   longitude: 105.852135,
-  // },
-  // {
-  //   place_id: '20',
-  //   description: 'Đồng Xuân, Hoàn Kiếm, Hà Nội, Việt Nam',
-  //   main_name_place: 'Dong Xuan Market',
-  //   latitude: 21.034354,
-  //   longitude: 105.858168,
-  // },
 ];
 
-export default locationsDataFake;
+const itemSelectVehicle: {
+  id: string;
+  image: string;
+  name: string;
+  type: string;
+  numberSeat: number;
+  description: string;
+  costCoefficient: number;
+}[] = [
+  {
+    id: '1',
+    image: require('../assets/images/bike.png'),
+    name: 'Vivu Bike',
+    type: 'Bike',
+    numberSeat: 2,
+    description: 'Fast, convenient',
+    costCoefficient: 10,
+  },
+
+  {
+    id: '2',
+    image: require('../assets/images/car.png'),
+    name: 'Vivu Car',
+    type: 'Car',
+    numberSeat: 4,
+    description: 'Safe, clean',
+    costCoefficient: 20,
+  },
+  {
+    id: '4',
+    image: require('../assets/images/bike.png'),
+    name: 'Vivu Bike Super',
+    type: 'Bike Super',
+    numberSeat: 2,
+    description: 'Luxury experience',
+    costCoefficient: 10,
+  },
+  {
+    id: '3',
+    image: require('../assets/images/car.png'),
+    name: 'Vivu Car Family',
+    type: 'Car Family',
+    numberSeat: 7,
+    description: 'Spacious space',
+    costCoefficient: 30,
+  },
+];
+
+const itemBookingHomeData: {
+  id: string;
+  image: string;
+  title: string;
+  type: string;
+}[] = [
+  {
+    id: '1',
+    image: require('../assets/images/banner_bike_fare_calcualtion_info.png'),
+    title: 'Bike',
+    type: 'bike',
+  },
+  {
+    id: '2',
+    image: require('../assets/images/banner_taxi_fare_calcualtion_info.png'),
+    title: 'Taxi',
+    type: 'taxi',
+  },
+];
+
+export default {locationsDataFake, itemBookingHomeData, itemSelectVehicle};

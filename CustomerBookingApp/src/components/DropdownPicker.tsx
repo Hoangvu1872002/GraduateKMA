@@ -125,14 +125,15 @@ const DropdownPicker = (props: Props) => {
   };
 
   return (
-    <View style={{marginBottom: 8}}>
+    <View style={{}}>
       {label && <TextComponent text={label} styles={{marginBottom: 8}} />}
       <RowComponent
         styles={[
           globalStyles.inputContainer,
           {
-            alignItems: 'flex-start',
-            paddingVertical: 14,
+            // alignItems: 'flex-start',
+            // paddingVertical: 14,
+            // justifyContent: 'center',
             borderWidth: 1,
             borderColor: '#ccc',
           },
@@ -156,7 +157,7 @@ const DropdownPicker = (props: Props) => {
         </RowComponent>
         <ArrowDown2 size={22} color={appColors.gray} />
       </RowComponent>
-      {/* <Portal>
+      <Portal>
         <Modalize
           handlePosition="inside"
           ref={modalieRef}
@@ -206,7 +207,7 @@ const DropdownPicker = (props: Props) => {
             {values.map(item => renderSelectItem(item))}
           </View>
         </Modalize>
-      </Portal> */}
+      </Portal>
     </View>
   );
 };

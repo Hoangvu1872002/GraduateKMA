@@ -93,7 +93,7 @@ const ButtonImagePicker = (props: Props) => {
         onPress={() => modalizeRef.current?.open()}
         type="link"
       />
-      {/* <Portal>
+      <Portal>
         <Modalize
           adjustToContentHeight
           ref={modalizeRef}
@@ -102,7 +102,7 @@ const ButtonImagePicker = (props: Props) => {
             {choiceImages.map(item => renderItem(item))}
           </View>
         </Modalize>
-      </Portal> */}
+      </Portal>
 
       <Modal
         visible={isVisibleModalAddUrl}
@@ -138,6 +138,7 @@ const ButtonImagePicker = (props: Props) => {
             </RowComponent>
 
             <TextComponent text="Image URL" title size={18} />
+            <SpaceComponent height={20}></SpaceComponent>
             <InputComponent
               placeholder="URL"
               value={imageUrl}

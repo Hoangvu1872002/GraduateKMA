@@ -1,4 +1,4 @@
-import {Image, StatusBar} from 'react-native';
+import {Image, StatusBar, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
   ButtonComponent,
@@ -23,6 +23,7 @@ import {appColors} from '../../constants/appColors';
 // import storage from '@react-native-firebase/storage';
 import {EventModel} from '../../models/EventModel';
 import {RootState} from '../../stores/redux';
+import {apiGetAllUsers} from '../../apis';
 // import eventAPI from '../apis/eventApi';
 
 const initValues = {
@@ -37,7 +38,7 @@ const initValues = {
   photoUrl: '',
   users: [],
   authorId: '',
-  startAt: Date.now(),
+  // startAt: Date.now(),
   endAt: Date.now(),
   date: Date.now(),
   price: '',
@@ -58,9 +59,9 @@ const AddNewScreen = ({navigation}: any) => {
   const [fileSelected, setFileSelected] = useState<any>();
   const [errorsMess, setErrorsMess] = useState<string[]>([]);
 
-  // useEffect(() => {
-  //   handleGetAllUsers();
-  // }, []);
+  useEffect(() => {
+    handleGetAllUsers();
+  }, []);
 
   useEffect(() => {
     const mess = Validate.EventValidation(eventData);
@@ -68,37 +69,38 @@ const AddNewScreen = ({navigation}: any) => {
     setErrorsMess(mess);
   }, [eventData]);
 
-  const handleChangeValue = (key: string, value: string | Date | string[]) => {
+  const handleChangeValue = (
+    key: string,
+    value: string | Date | string[] | number,
+  ) => {
     const items = {...eventData};
     items[`${key}`] = value;
 
     setEventData(items);
   };
 
-  // const handleGetAllUsers = async () => {
-  //   const api = `/get-all`;
+  const handleGetAllUsers = async () => {
+    try {
+      const res: any = await apiGetAllUsers();
 
-  //   try {
-  //     const res: any = await userAPI.HandleUser(api);
+      if (res && res.data && res.data.rs) {
+        const items: SelectModel[] = [];
 
-  //     if (res && res.data) {
-  //       const items: SelectModel[] = [];
+        res.data.rs.forEach(
+          (item: any) =>
+            item.email &&
+            items.push({
+              label: item.email,
+              value: item._id,
+            }),
+        );
 
-  //       res.data.forEach(
-  //         (item: any) =>
-  //           item.email &&
-  //           items.push({
-  //             label: item.email,
-  //             value: item.id,
-  //           }),
-  //       );
-
-  //       setUsersSelects(items);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+        setUsersSelects(items);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   // const handleAddEvent = async () => {
   //   if (fileSelected) {
@@ -152,9 +154,10 @@ const AddNewScreen = ({navigation}: any) => {
 
   const handleLocation = (val: any) => {
     const items = {...eventData};
-    items.position = val.postion;
-    items.locationAddress = val.address;
-
+    items.position.lat = val.latitude;
+    items.position.long = val.longitude;
+    items.locationAddress = val.description;
+    items.locationTitle = val.main_name_place;
     setEventData(items);
   };
 
@@ -201,56 +204,65 @@ const AddNewScreen = ({navigation}: any) => {
           // onChange={() => {}}
           onChange={val => handleChangeValue('description', val)}
         />
-
-        <DropdownPicker
-          selected={eventData.category}
-          values={[
-            {
-              label: 'Sport',
-              value: 'sport',
-            },
-            {
-              label: 'Food',
-              value: 'food',
-            },
-            {
-              label: 'Art',
-              value: 'art',
-            },
-            {
-              label: 'Music',
-              value: 'music',
-            },
-          ]}
-          onSelect={() => {}}
-          // onSelect={val => handleChangeValue('category', val)}
-        />
-
-        <RowComponent>
-          <DateTimePicker
-            label="Start at: "
-            type="time"
-            onSelect={() => {}}
-            // onSelect={val => handleChangeValue('startAt', val)}
-            selected={eventData.startAt}
+        <RowComponent
+          styles={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            // backgroundColor: 'coral',
+          }}>
+          <InputComponent
+            placeholder="Price"
+            allowClear
+            styles={{width: '48%'}}
+            type="number-pad"
+            value={eventData.price}
+            // onChange={() => {}}
+            onChange={val => handleChangeValue('price', val)}
           />
-          <SpaceComponent width={20} />
-          <DateTimePicker
-            label="End at:"
-            type="time"
-            onSelect={() => {}}
-            // onSelect={val => handleChangeValue('endAt', val)}
-            selected={eventData.endAt}
-          />
+          <View style={{width: '48%'}}>
+            <DropdownPicker
+              selected={eventData.category}
+              values={[
+                {
+                  label: 'Sport',
+                  value: 'sport',
+                },
+                {
+                  label: 'Food',
+                  value: 'food',
+                },
+                {
+                  label: 'Art',
+                  value: 'art',
+                },
+                {
+                  label: 'Music',
+                  value: 'music',
+                },
+              ]}
+              // onSelect={() => {}}
+              onSelect={val => handleChangeValue('category', val)}
+            />
+          </View>
         </RowComponent>
 
-        <DateTimePicker
-          label="Date:"
-          type="date"
-          onSelect={() => {}}
-          // onSelect={val => handleChangeValue('date', val)}
-          selected={eventData.date}
-        />
+        <RowComponent>
+          <View style={{width: '35%'}}>
+            <DateTimePicker
+              label="End at:"
+              type="time"
+              onSelect={val => handleChangeValue('endAt', val)}
+              selected={eventData.endAt}
+            />
+          </View>
+          <SpaceComponent width={15} />
+          <DateTimePicker
+            label="Date:"
+            type="date"
+            onSelect={val => handleChangeValue('date', val)}
+            selected={eventData.date}
+          />
+        </RowComponent>
 
         <DropdownPicker
           label="Invited users"
@@ -262,22 +274,14 @@ const AddNewScreen = ({navigation}: any) => {
           selected={eventData.users}
           multible
         />
-        <InputComponent
+        {/* <InputComponent
           placeholder="Title Address"
           allowClear
           value={eventData.locationTitle}
           // onChange={() => {}}
           onChange={val => handleChangeValue('locationTitle', val)}
-        />
+        /> */}
         <ChoiceLocation onSelect={val => handleLocation(val)} />
-        <InputComponent
-          placeholder="Price"
-          allowClear
-          type="number-pad"
-          value={eventData.price}
-          // onChange={() => {}}
-          onChange={val => handleChangeValue('price', val)}
-        />
       </SectionComponent>
 
       {errorsMess.length > 0 && (
