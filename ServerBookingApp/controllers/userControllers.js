@@ -1,9 +1,6 @@
 const userModel = require("../models/userModel");
 const asyncHandle = require("express-async-handler");
-const {
-  generateAccessToken,
-  generateRefreshToken,
-} = require("../middlewares/jwt");
+
 require("dotenv").config();
 
 const getCurrent = asyncHandle(async (req, res) => {

@@ -7,7 +7,10 @@ var cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
-var authRouter = require("./routes/authRouter");
+var driverRouter = require("./routes/driver");
+var authUserRouter = require("./routes/authUserRouter");
+var authDriverRouter = require("./routes/authDriverRouter");
+
 const { errorsMiddleware } = require("./middlewares/errorsMiddleware");
 
 var app = express();
@@ -28,7 +31,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/user", usersRouter);
-app.use("/auth", authRouter);
+app.use("/driver", driverRouter);
+app.use("/auth-user", authUserRouter);
+app.use("/auth-driver", authDriverRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

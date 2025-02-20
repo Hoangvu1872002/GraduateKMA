@@ -40,6 +40,7 @@ import {styles} from './ModalMapLocation.styles';
 import {FeatureCollection, LineString, Point} from 'geojson';
 import data from '../../../constants/data';
 import ModalMapFindDriver from '../../../modals/modalMap/ModalMapFindDriver';
+import {apiGetAllDriverNearby} from '../../../apis';
 
 interface Coordinates {
   latitude: number;
@@ -106,7 +107,6 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
     useState<FeatureCollection<LineString> | null>(null);
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
   const [itemFocusing, setItemFocusing] = useState<string>('1');
-  const [visibleMapFindDriver, setVisibleMapFindDriver] = useState(false);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -194,16 +194,22 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
     }
   };
 
-  // const viewabilityConfig = {
-  //   itemVisiblePercentThreshold: 100, // Phần tử phải hiển thị ít nhất 50% để được coi là visible
-  // };
+  const fetchDriverNearby = async () => {
+    if (
+      addressSelectedPickup.latitude &&
+      addressSelectedPickup.longitude &&
+      addressSelectedDestination.latitude &&
+      addressSelectedDestination.longitude
+    ) {
+      console.log('abc');
 
-  useEffect(() => {
-    // if (visible) {
-    setItemFocusing('1');
-    fetchRoute();
-    // }
-  }, []);
+      const rs = await apiGetAllDriverNearby({
+        latitude: addressSelectedPickup.latitude,
+        longitude: addressSelectedPickup.longitude,
+      });
+      console.log('test', rs);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -222,9 +228,15 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
           longitude: addressSelectedDestination.longitude,
         },
       );
+      fetchDriverNearby();
       setGeoJSONPoints(pointData);
     }
   }, [addressSelectedPickup, addressSelectedDestination]);
+
+  useEffect(() => {
+    setItemFocusing('1');
+    fetchRoute();
+  }, []);
 
   return (
     <>

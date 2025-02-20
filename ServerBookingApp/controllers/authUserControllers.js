@@ -10,7 +10,7 @@ const {
 } = require("../middlewares/jwt");
 require("dotenv").config();
 
-const verification = asyncHandle(async (req, res) => {
+const verificationUser = asyncHandle(async (req, res) => {
   const { email } = req.body;
 
   // const { email, password, firstname, lastname, mobile } = req.body;
@@ -40,7 +40,7 @@ const verification = asyncHandle(async (req, res) => {
   });
 });
 
-const register = asyncHandle(async (req, res) => {
+const registerUser = asyncHandle(async (req, res) => {
   const { firstname, lastname, email, password, mobile } = req.body;
   const newUser = await userModel.create({
     email,
@@ -60,7 +60,7 @@ const register = asyncHandle(async (req, res) => {
   });
 });
 
-const login = asyncHandle(async (req, res) => {
+const loginUser = asyncHandle(async (req, res) => {
   console.log(req.body);
 
   const { email, password } = req.body;
@@ -103,7 +103,7 @@ const login = asyncHandle(async (req, res) => {
   }
 });
 
-const forgotPassword = asyncHandle(async (req, res) => {
+const forgotPasswordUser = asyncHandle(async (req, res) => {
   const { email } = req.body;
 
   const randomPassword = Math.round(100000 + Math.random() * 99000);
@@ -144,8 +144,8 @@ const forgotPassword = asyncHandle(async (req, res) => {
 });
 
 module.exports = {
-  register,
-  login,
-  verification,
-  forgotPassword,
+  registerUser,
+  loginUser,
+  verificationUser,
+  forgotPasswordUser,
 };
