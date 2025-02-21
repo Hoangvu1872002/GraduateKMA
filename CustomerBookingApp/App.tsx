@@ -10,8 +10,13 @@ import Toast, {BaseToast, ErrorToast} from 'react-native-toast-message';
 import ToastComponent from './src/components/ToastComponent';
 import {Host} from 'react-native-portalize';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {useEffect} from 'react';
+import socket from './src/apis/socket';
 
 const App = () => {
+  useEffect(() => {
+    socket.emit('find-a-driver', {room: 'global'});
+  }, []);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <Provider store={store}>

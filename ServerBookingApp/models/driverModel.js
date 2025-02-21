@@ -17,6 +17,11 @@ const driverSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phoneNumber: {
+      type: String,
+      // required: true,
+      // unique: true,
+    },
     password: {
       type: String,
       require: true,
@@ -27,9 +32,47 @@ const driverSchema = new mongoose.Schema(
     refreshToken: {
       type: String,
     },
+    vehicleBrand: {
+      type: String,
+      default: "Honda",
+    },
+    role: {
+      type: String,
+      default: "driver",
+    },
+    travelMode: {
+      type: String,
+      enum: ["Bike", "Car", "BikePlus", "CarFamily"],
+      default: "Bike",
+    },
+    licensePlate: {
+      type: String,
+      default: "29V5-19850",
+    },
+    socketId: {
+      type: String,
+    },
+    ratings: [
+      {
+        star: { type: Number },
+        postedBy: { type: mongoose.Types.ObjectId, ref: "User" },
+        comment: { type: String },
+      },
+    ],
+    totalRating: {
+      type: Number,
+      default: 0,
+    },
     location: {
-      type: { type: String, enum: ["Point"], default: "Point" },
-      coordinates: { type: [Number] }, // [longitude, latitude]
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: undefined, // Cho phép không có `type`
+      },
+      coordinates: {
+        type: [Number],
+        default: undefined, // Cho phép bỏ trống `coordinates`
+      },
     },
   },
   {

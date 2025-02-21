@@ -37,12 +37,19 @@ import {fontFamilies} from '../../../constants/fontFamilies';
 import {LocationModelSuggest} from '../../../models/LocationModel';
 import ItemSuggestLocation from '../../../components/ItemSuggestLocation';
 import {styles} from './ModalMapLocation.styles';
-import {FeatureCollection, LineString, Point} from 'geojson';
+import {FeatureCollection, Feature, LineString, Point} from 'geojson';
 import data from '../../../constants/data';
 import ModalMapFindDriver from '../../../modals/modalMap/ModalMapFindDriver';
 import {apiGetAllDriverNearby} from '../../../apis';
 
 interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
+
+interface Driver {
+  _id: string;
+  travelMode: string;
   latitude: number;
   longitude: number;
 }
@@ -59,6 +66,9 @@ interface PointFeature extends FeatureCollection {
 // Hàm tạo dữ liệu GeoJSON từ pickup & destination
 const pickupIcon = require('../../../assets/images/ic_map_ic_pick.png');
 const destinationIcon = require('../../../assets/images/icons_pickupmarker.png');
+const bikeIcon = require('../../../assets/images/bike.png');
+const carIcon = require('../../../assets/images/car.png');
+
 const getPointData = (
   pickup: Coordinates,
   destination: Coordinates,
@@ -105,8 +115,12 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [geoJSONData, setGeoJSONData] =
     useState<FeatureCollection<LineString> | null>(null);
+  const [geoJSONDataDriver, setGeoJSONDataDriver] =
+    useState<FeatureCollection<Point> | null>(null);
+  const [driversDataNearby, setDriversDataNearby] = useState<Driver[]>([]);
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
   const [itemFocusing, setItemFocusing] = useState<string>('1');
+  const [totalDistance, setTotalDistance] = useState(0);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -155,8 +169,8 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
 
       const route = response.data.routes[0].overview_polyline.points;
       const decodedRoute = decodePolyline(route); // Giải mã polyline
-      const totalDistance = response.data.routes[0].legs[0].distance.value; // đơn vị: mét
-      console.log(`Tổng quãng đường: ${totalDistance} m`);
+      setTotalDistance(response.data.routes[0].legs[0].distance.value); // đơn vị: mét
+      // console.log(`Tổng quãng đường: ${totalDistance} m`);
       const data: FeatureCollection<LineString> = {
         type: 'FeatureCollection',
         features: [
@@ -201,42 +215,66 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
       addressSelectedDestination.latitude &&
       addressSelectedDestination.longitude
     ) {
-      console.log('abc');
-
       const rs = await apiGetAllDriverNearby({
         latitude: addressSelectedPickup.latitude,
         longitude: addressSelectedPickup.longitude,
       });
-      console.log('test', rs);
+      setDriversDataNearby(rs.data);
     }
   };
-
-  useEffect(() => {
-    if (
-      addressSelectedPickup.latitude &&
-      addressSelectedPickup.longitude &&
-      addressSelectedDestination.latitude &&
-      addressSelectedDestination.longitude
-    ) {
-      const pointData = getPointData(
-        {
-          latitude: addressSelectedPickup.latitude,
-          longitude: addressSelectedPickup.longitude,
-        },
-        {
-          latitude: addressSelectedDestination.latitude,
-          longitude: addressSelectedDestination.longitude,
-        },
-      );
-      fetchDriverNearby();
-      setGeoJSONPoints(pointData);
-    }
-  }, [addressSelectedPickup, addressSelectedDestination]);
 
   useEffect(() => {
     setItemFocusing('1');
     fetchRoute();
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (
+        addressSelectedPickup.latitude &&
+        addressSelectedPickup.longitude &&
+        addressSelectedDestination.latitude &&
+        addressSelectedDestination.longitude
+      ) {
+        const pointData = getPointData(
+          {
+            latitude: addressSelectedPickup.latitude,
+            longitude: addressSelectedPickup.longitude,
+          },
+          {
+            latitude: addressSelectedDestination.latitude,
+            longitude: addressSelectedDestination.longitude,
+          },
+        );
+        fetchDriverNearby();
+        setGeoJSONPoints(pointData);
+      }
+    }, 500);
+  }, [addressSelectedPickup, addressSelectedDestination]);
+
+  useEffect(() => {
+    if (driversDataNearby?.length > 0) {
+      const features: Feature<Point>[] = driversDataNearby.map(driver => ({
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [driver.longitude, driver.latitude], // MapLibreGL yêu cầu [lng, lat]
+        },
+        properties: {
+          id: driver._id,
+          travelMode: driver.travelMode,
+          rotation: Math.random() * 180, // Góc ngẫu nhiên từ 0 đến 360 độ
+        },
+      }));
+
+      setGeoJSONDataDriver({
+        type: 'FeatureCollection',
+        features,
+      });
+    }
+  }, [driversDataNearby]);
+
+  console.log(totalDistance);
 
   return (
     <>
@@ -378,28 +416,63 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                 />
               </MapLibreGL.ShapeSource>
             )}
-            <MapLibreGL.Images images={{pickupIcon, destinationIcon}} />
+            <MapLibreGL.Images
+              images={{pickupIcon, destinationIcon, bikeIcon, carIcon}}
+            />
             {geoJSONPoints && (
               <MapLibreGL.ShapeSource id="pointSource" shape={geoJSONPoints}>
                 <MapLibreGL.SymbolLayer
                   id="pickupLayer"
+                  minZoomLevel={0}
                   filter={['==', ['get', 'icon'], 'pickupIcon']} // Chỉ áp dụng cho pickup
                   style={{
                     iconImage: 'pickupIcon',
                     iconSize: 0.3,
                     iconOffset: [0, -55], // Đẩy lên trên cao hơn
                     // iconAnchor: 'bottom',
+                    iconAllowOverlap: true,
+                    textAllowOverlap: true,
                   }}
                 />
 
                 <MapLibreGL.SymbolLayer
                   id="destinationLayer"
+                  minZoomLevel={0}
                   filter={['==', ['get', 'icon'], 'destinationIcon']} // Chỉ áp dụng cho destination
                   style={{
                     iconImage: 'destinationIcon',
                     iconSize: 0.48,
                     iconOffset: [0, -55], // Đẩy lên nhưng ít hơn pickup
                     // iconAnchor: 'bottom',
+                    iconAllowOverlap: true,
+                    textAllowOverlap: true,
+                  }}
+                />
+              </MapLibreGL.ShapeSource>
+            )}
+            {geoJSONDataDriver && (
+              <MapLibreGL.ShapeSource
+                id="driversSource"
+                shape={geoJSONDataDriver}>
+                <MapLibreGL.SymbolLayer
+                  id="driversLayer"
+                  style={{
+                    iconImage: [
+                      'match',
+                      ['get', 'travelMode'],
+                      'Bike',
+                      'bikeIcon',
+                      'Car',
+                      'carIcon',
+                      'BikePlus',
+                      'bikeIcon',
+                      'CarFamily',
+                      'carIcon',
+                      'defaultIcon', // Giá trị mặc định nếu không khớp
+                    ],
+                    iconSize: 0.09,
+                    iconAllowOverlap: true,
+                    iconRotate: ['get', 'rotation'], // Lấy giá trị xoay từ properties
                   }}
                 />
               </MapLibreGL.ShapeSource>
@@ -458,6 +531,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                     // viewabilityConfig={viewabilityConfig}
                     renderItem={({item, index}) => (
                       <ItemSelectVehicel
+                        totalDistance={totalDistance}
                         item={item}
                         onPress={(val: string) => setItemFocusing(val)}
                         itemFocusing={itemFocusing}></ItemSelectVehicel>

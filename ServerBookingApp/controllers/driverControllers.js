@@ -41,23 +41,28 @@ const findDriversNearby = asyncHandle(async (req, res) => {
 
     const radiusInMeters = 2000; // 2km = 2000m
 
-    const drivers = await driverModel.find({
-      location: {
-        $near: {
-          $geometry: { type: "Point", coordinates: [longitude, latitude] },
-          $maxDistance: radiusInMeters,
+    const drivers = await driverModel.find(
+      {
+        location: {
+          $near: {
+            $geometry: { type: "Point", coordinates: [longitude, latitude] },
+            $maxDistance: radiusInMeters,
+          },
         },
       },
-    });
+      "location.coordinates travelMode _id"
+    );
+
+    // Chuyển đổi dữ liệu để trả về đúng format mong muốn
+    const formattedDrivers = drivers.map((driver) => ({
+      _id: driver._id,
+      travelMode: driver.travelMode,
+      latitude: driver.location?.coordinates[1], // Lấy latitude từ coordinates
+      longitude: driver.location?.coordinates[0], // Lấy longitude từ coordinates
+    }));
 
     return res.status(200).json({
-      data: {
-        success: true,
-        rs:
-          drivers.length > 0
-            ? drivers
-            : `Tìm thấy ${drivers.length} tài xế trong bán kính ${radiusInKm}km.`,
-      },
+      data: formattedDrivers,
     });
   } catch (error) {
     console.error("Lỗi khi tìm tài xế gần:", error);

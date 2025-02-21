@@ -42,6 +42,7 @@ const verificationDriver = asyncHandle(async (req, res) => {
 
 const registerDriver = asyncHandle(async (req, res) => {
   const { firstname, lastname, email, password, mobile } = req.body;
+
   const newDriver = await driverModel.create({
     email,
     password,
@@ -49,8 +50,6 @@ const registerDriver = asyncHandle(async (req, res) => {
     firstname,
     lastname,
   });
-
-  console.log(newDriver);
 
   res.status(200).json({
     data: {

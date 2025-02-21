@@ -13,6 +13,8 @@ var authDriverRouter = require("./routes/authDriverRouter");
 
 const { errorsMiddleware } = require("./middlewares/errorsMiddleware");
 
+const booking = require("./controllers/sockets/booking");
+
 var app = express();
 
 const dbConnect = require("./config/database");
@@ -22,7 +24,7 @@ dbConnect();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -48,5 +50,14 @@ const http = require("http");
 const server = http
   .createServer(app)
   .listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const socketIO = require("socket.io");
+const io = socketIO(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+booking(io);
 
 module.exports = app;

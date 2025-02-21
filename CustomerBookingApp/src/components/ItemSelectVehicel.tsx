@@ -13,11 +13,12 @@ interface Props {
   item?: any;
   numberLineTitle?: number;
   itemFocusing?: string;
+  totalDistance: number;
   onPress?: (val: string) => void;
 }
 
 const ItemSelectVehicel = (props: Props) => {
-  const {item, numberLineTitle, onPress, itemFocusing} = props;
+  const {item, numberLineTitle, onPress, itemFocusing, totalDistance} = props;
 
   return (
     <TouchableOpacity
@@ -83,7 +84,9 @@ const ItemSelectVehicel = (props: Props) => {
               flex={0}
               font={fontFamilies.semiBold}
               size={13}
-              text={`${item.costCoefficient}.000đ`}
+              text={`${Math.ceil(
+                item.costCoefficient * totalDistance * 0.001,
+              )}.000đ`}
             />
             <TextComponent
               flex={0}
@@ -91,7 +94,9 @@ const ItemSelectVehicel = (props: Props) => {
               color={appColors.gray4}
               size={10}
               styles={{textDecorationLine: 'line-through'}}
-              text={`${item.costCoefficient * 1.5}.000đ`}
+              text={`${Math.ceil(
+                item.costCoefficient * 1.5 * totalDistance * 0.001,
+              )}.000đ`}
             />
           </View>
         </RowComponent>
