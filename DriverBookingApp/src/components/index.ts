@@ -23,6 +23,7 @@ import TextComponent from './TextComponent';
 // import ButtonImagePicker from './ButtonImagePicker';
 // import ItemBookingHome from './ItemBookingHome';
 // import ItemSelectVehicel from './ItemSelectVehicel';
+import OrderItemComponent from './OrderItemComponent';
 
 export {
   SpaceComponent,
@@ -47,4 +48,5 @@ export {
   // ButtonImagePicker,
   // ItemBookingHome,
   // ItemSelectVehicel,
+  OrderItemComponent,
 };

@@ -5,7 +5,7 @@ const {
   verificationDriver,
   forgotPasswordDriver,
   // handleLoginWithGoogle,
-} = require("../controllers/authDriverControllers");
+} = require("../controllers/restful/authDriverControllers");
 var authRouter = express.Router();
 
 /* GET Drivers listing. */

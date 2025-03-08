@@ -9,6 +9,7 @@ import {globalStyles} from '../styles/globalStyles';
 import ProfileNavigator from './ProfileNavigator';
 import HomeNavigator from './HomeNavigators';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import OrdersNavigators from './OrdersNavigators';
 
 const TabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -16,6 +17,7 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
+        // unmountOnBlur: true,
         headerShown: false,
         tabBarStyle: {
           height: Platform.OS === 'ios' ? 88 : 68,
@@ -33,7 +35,7 @@ const TabNavigator = () => {
               icon = <MaterialIcons name="home" size={size} color={color} />;
               break;
 
-            case 'Events':
+            case 'Orders':
               icon = <Calendar size={size} variant="Bold" color={color} />;
               break;
             case 'Map':
@@ -81,6 +83,7 @@ const TabNavigator = () => {
       {/* <Tab.Screen name="Events" component={EventNavigator} />
       <Tab.Screen name="Add" component={AddNewEventNavigator} />
       <Tab.Screen name="Map" component={MapNavigator} /> */}
+      <Tab.Screen name="Orders" component={OrdersNavigators} />
       <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>
   );

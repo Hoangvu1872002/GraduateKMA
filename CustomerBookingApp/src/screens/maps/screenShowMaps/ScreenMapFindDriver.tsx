@@ -29,6 +29,7 @@ import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {styles} from './ModalMapLocation.styles';
 // import {Portal} from 'react-native-portalize';
 import BottomSheet from '@gorhom/bottom-sheet';
+import socket from '../../../apis/socket';
 
 MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
 MapLibreGL.setConnected(true);
@@ -40,10 +41,18 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
   const {
     addressSelectedPickup,
     addressSelectedDestination,
+    totalDistance,
+    itemSelectVehicleSelected,
+    current,
   }: {
     addressSelectedPickup: LocationModelSuggest;
     addressSelectedDestination: LocationModelSuggest;
+    totalDistance: number;
+    itemSelectVehicleSelected: any;
+    current: any;
   } = route?.params;
+
+  // console.log(totalDistance, itemSelectVehicleSelected);
 
   const cameraRef = useRef<MapLibreGL.CameraRef>(null);
   const mapRef = useRef<MapLibreGL.MapViewRef>(null);
@@ -58,7 +67,15 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
   });
 
   const [zoomLevel, setZoomLevel] = useState<number>(15);
-  const [opacityScreen, setOpacityScreen] = useState(0);
+  const [idNewOrder, setIdNewOrder] = useState('');
+
+  useEffect(() => {
+    socket.on('notice-driver-receipted-order', data => {
+      console.log(data);
+
+      navigation.replace('ScreenMapFollowDriver', {data: data.billWithDriver});
+    });
+  }, []);
 
   useEffect(() => {
     if (!addressSelectedPickup) {
@@ -79,12 +96,21 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
     bottomSheetRef.current?.expand();
   }, []);
 
-  //   useEffect(() => {
-  //     console.log('a');
+  useEffect(() => {
+    socket.on('id-new-order', data => {
+      setIdNewOrder(data);
+    });
 
-  //     console.log(animatedOverlayStyle);
-  //     console.log('b');
-  //   }, [overlayOpacity.value]);
+    socket.emit('find-driver', {
+      addressSelectedPickup,
+      addressSelectedDestination,
+      totalDistance,
+      typeVehicleSelected: itemSelectVehicleSelected.type,
+      costVehicleSelected: itemSelectVehicleSelected.costCoefficient,
+      averageTimeVehicleSelected: itemSelectVehicleSelected.averageTime,
+      infCustomer: current,
+    });
+  }, []);
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
@@ -98,6 +124,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
           styles={[globalStyles.noSpaceCard, styles.buttonBack]}>
           <CardComponent
             onPress={() => {
+              socket.emit('notice-remove-order-from-user', idNewOrder);
               navigation.goBack();
             }}
             styles={[
@@ -201,7 +228,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                 font={fontFamilies.regular}
                 size={11}
                 color={appColors.gray}
-                text="Vivu Bike"></TextComponent>
+                text={itemSelectVehicleSelected.name}></TextComponent>
               <SpaceComponent height={9}></SpaceComponent>
               <View
                 style={{
@@ -211,14 +238,14 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                   borderRadius: 100,
                 }}></View>
               <SpaceComponent height={9}></SpaceComponent>
-              <RowComponent>
+              <RowComponent styles={{width: '100%'}} justify="flex-start">
                 <CardComponent
                   styles={[
                     globalStyles.noSpaceCard,
                     {width: 43, height: 43, borderRadius: 10},
                   ]}>
                   <Image
-                    source={require('../../../assets/images/bike.png')}
+                    source={itemSelectVehicleSelected.image}
                     style={{
                       flex: 1,
                       width: 45,
@@ -226,34 +253,44 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                   />
                 </CardComponent>
                 <SpaceComponent width={15}></SpaceComponent>
+
                 <RowComponent styles={{flex: 1}} justify="space-between">
-                  <View>
+                  <View style={{width: '45%'}}>
                     <TextComponent
                       size={13}
                       numOfLine={1}
                       font={fontFamilies.semiBold}
-                      text="Vivu Bike"
+                      text={itemSelectVehicleSelected.name}
                     />
                     <RowComponent justify="flex-start">
                       <Profile2User size="12" color={appColors.text} />
                       <SpaceComponent width={3} />
-                      <TextComponent numOfLine={2} size={12} text="2" />
+                      <TextComponent
+                        numOfLine={2}
+                        size={12}
+                        text={itemSelectVehicleSelected.numberSeat.toString()}
+                      />
                       <SpaceComponent width={3} />
                       <TextComponent numOfLine={2} size={12} text="->" />
                       <SpaceComponent width={3} />
                       <TextComponent
                         numOfLine={2}
                         size={12}
-                        text="Fast, convenient"
+                        text={itemSelectVehicleSelected.description}
                       />
                     </RowComponent>
                   </View>
-                  <View>
+                  <View style={{width: '20%'}}>
                     <TextComponent
                       flex={0}
+                      styles={{justifyContent: 'flex-end'}}
                       font={fontFamilies.semiBold}
                       size={13}
-                      text={`26.000đ`}
+                      text={`${Math.ceil(
+                        itemSelectVehicleSelected.costCoefficient *
+                          totalDistance *
+                          0.001,
+                      )}.000đ`}
                     />
                     <TextComponent
                       flex={0}
@@ -261,7 +298,12 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                       color={appColors.gray4}
                       size={10}
                       styles={{textDecorationLine: 'line-through'}}
-                      text={`${26 * 1.5}.000đ`}
+                      text={`${Math.ceil(
+                        itemSelectVehicleSelected.costCoefficient *
+                          1.5 *
+                          totalDistance *
+                          0.001,
+                      )}.000đ`}
                     />
                   </View>
                 </RowComponent>
@@ -371,6 +413,10 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                 {/* <TextComponent text="abc"></TextComponent> */}
                 <ButtonComponent
                   width={118}
+                  onPress={() => {
+                    socket.emit('notice-remove-order-from-user', idNewOrder);
+                    navigation.goBack();
+                  }}
                   styles={{paddingVertical: 7}}
                   color={appColors.red}
                   type="primary"

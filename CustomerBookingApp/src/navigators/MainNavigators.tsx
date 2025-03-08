@@ -5,6 +5,7 @@ import DrawerNavigator from './DrawerNavigator';
 import ScreenLocationBooking from '../screens/maps/screenSelectLocations/ScreenLocationBooking';
 import ModalMapConfirnRoute from '../screens/maps/screenShowMaps/ScreenlMapConfirmRoute';
 import ScreenMapFindDriver from '../screens/maps/screenShowMaps/ScreenMapFindDriver';
+import ScreenMapFollowDriver from '../screens/maps/screenShowMaps/ScreenMapFollowDriver';
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,10 @@ const MainNavigator = () => {
       <Stack.Screen
         name="ScreenMapFindDriver"
         component={ScreenMapFindDriver}
+      />
+      <Stack.Screen
+        name="ScreenMapFollowDriver"
+        component={ScreenMapFollowDriver}
       />
       {/* <Stack.Screen name="Main" component={TabNavigator}></Stack.Screen> */}
     </Stack.Navigator>

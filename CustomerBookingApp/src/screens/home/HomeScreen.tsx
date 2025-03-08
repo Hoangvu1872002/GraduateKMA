@@ -1,6 +1,6 @@
 // import GeoLocation from '@react-native-community/geolocation';
 // import messaging from '@react-native-firebase/messaging';
-import {useIsFocused} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import axios from 'axios';
 import {
   HambergerMenu,
@@ -9,7 +9,7 @@ import {
   SearchNormal1,
   Sort,
 } from 'iconsax-react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   FlatList,
   ImageBackground,
@@ -31,6 +31,7 @@ import {
   CircleComponent,
   EventItem,
   ItemBookingHome,
+  ItemOrderPending,
   LoadingComponent,
   RowComponent,
   SectionComponent,
@@ -57,6 +58,7 @@ import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 import data from '../../constants/data';
 import ModalLocationBooking from '../../modals/modalSelectLocation/ModalLocationBooking';
+import {apiGetBillsPending} from '../../apis';
 
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
@@ -67,11 +69,14 @@ const HomeScreen = ({navigation}: any) => {
   const [isOnline, setIsOnline] = useState<boolean>();
   const [unReadNotifications, setUnReadNotifications] = useState([]);
   const [isVibleModalLocation, setIsVibleModalLocation] = useState(false);
+  const [listOrderPending, setListOrderPending] = useState<any[]>([]);
 
   const isFocused = useIsFocused();
   // const user = useSelector(authSelector);
   const dispatch = useDispatch<AppDispatch>();
   const {isLoggedIn, current} = useSelector((state: RootState) => state.user);
+
+  // console.log(listOrderPending);
 
   // mẫu
   const itemEvent = {
@@ -89,6 +94,17 @@ const HomeScreen = ({navigation}: any) => {
     endAt: Date.now(),
     date: Date.now(),
   };
+
+  const fetchBillsPending = async () => {
+    const rs = await apiGetBillsPending();
+    setListOrderPending(rs.data.bills);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchBillsPending();
+    }, []),
+  );
 
   useEffect(() => {
     Geolocation.getCurrentPosition(
@@ -264,6 +280,17 @@ const HomeScreen = ({navigation}: any) => {
       clearTimeout(setTimeoutId);
     };
   }, [isLoggedIn]);
+
+  // useEffect(() => {
+  //   socket.on('connect', async () => {
+  //     console.log('✅ Connected to server:', socket.id);
+
+  //     if (socket.id) {
+  //       await apiUpdateSocketId({socketId: socket.id});
+  //       dispatch(getCurrent());
+  //     }
+  //   });
+  // }, []);
 
   // console.log(currentLocation);
 
@@ -448,6 +475,25 @@ const HomeScreen = ({navigation}: any) => {
           </RowComponent>
         </View>
       </SectionComponent>
+
+      <View style={{maxHeight: 130, width: '100%'}}>
+        <FlatList
+          data={listOrderPending}
+          showsVerticalScrollIndicator={false}
+          // style={[globalStyles.shadow]}
+          contentContainerStyle={{alignItems: 'center'}}
+          renderItem={({item, index}) => (
+            <View
+              style={{
+                width: 370,
+                justifyContent: 'center',
+                // backgroundColor: 'green',
+              }}>
+              <ItemOrderPending item={item}></ItemOrderPending>
+            </View>
+          )}
+        />
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}

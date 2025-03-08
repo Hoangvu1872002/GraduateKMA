@@ -5,9 +5,13 @@ import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {SplashScreen} from '../screens';
-import {RootState} from '../stores/redux';
+import {AppDispatch, RootState} from '../stores/redux';
 import MainNavigator from './MainNavigators';
 import AuthNavigator from './AuthNavigators';
+// import socket from '../apis/socket';
+// import {apiUpdateSocketId} from '../apis';
+// import {getCurrent} from '../stores/users/asyncAction';
+// import {addToListOrderpending} from '../stores/users/userSlide';
 
 const AppRouters = () => {
   const [isShowSplash, setIsShowSpash] = useState(true);
@@ -15,6 +19,14 @@ const AppRouters = () => {
   const {isLoggedIn} = useSelector((state: RootState) => state.user);
 
   // console.log(isLoggedIn);
+
+  // const dispatch = useDispatch<AppDispatch>();
+
+  // useEffect(() => {
+  //   socket.on('notice-driver-receipted-order', data => {
+  //     dispatch(addToListOrderpending(data.newBill));
+  //   });
+  // }, []);
 
   useEffect(() => {
     const timeOut = setTimeout(() => {

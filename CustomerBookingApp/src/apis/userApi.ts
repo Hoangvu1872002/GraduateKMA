@@ -11,3 +11,10 @@ export const apiGetAllUsers = () =>
     url: '/user/get-all-users',
     method: 'get',
   });
+
+export const apiUpdateSocketId = (data: {socketId: string | null}) =>
+  axiosClient({
+    url: '/user/update-user-socketId',
+    method: 'put',
+    data,
+  });

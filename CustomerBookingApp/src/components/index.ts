@@ -23,6 +23,7 @@ import DateTimePicker from './DateTimePicker';
 import ButtonImagePicker from './ButtonImagePicker';
 import ItemBookingHome from './ItemBookingHome';
 import ItemSelectVehicel from './ItemSelectVehicel';
+import ItemOrderPending from './ItemOrderPending';
 
 export {
   SpaceComponent,
@@ -47,4 +48,5 @@ export {
   ButtonImagePicker,
   ItemBookingHome,
   ItemSelectVehicel,
+  ItemOrderPending,
 };

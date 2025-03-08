@@ -1,5 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 import * as actions from './asyncAction';
+import {IBill} from '../../models/BillModel';
 
 export const userSlide = createSlice({
   name: 'user',
@@ -9,7 +10,7 @@ export const userSlide = createSlice({
     token: null,
     isLoading: false,
     mes: '',
-    // currentCart: null,
+    listOrderPending: [] as IBill[],
   },
   reducers: {
     login: (state, action) => {
@@ -29,6 +30,16 @@ export const userSlide = createSlice({
     clearMessage: state => {
       //   state.mes = "";
     },
+    // addToListOrderpending: (state, action) => {
+    //   console.log(state.listOrderPending);
+
+    //   state.listOrderPending = [...state.listOrderPending, action.payload];
+    // },
+    // removeFromListOrderPending: (state, action) => {
+    //   state.listOrderPending = state.listOrderPending.filter(
+    //     item => item._id !== action.payload.billId,
+    //   );
+    // },
   },
 
   extraReducers: builder => {
@@ -61,6 +72,12 @@ export const userSlide = createSlice({
   },
 });
 
-export const {login, logout, clearMessage} = userSlide.actions;
+export const {
+  login,
+  logout,
+  clearMessage,
+  // addToListOrderpending,
+  // removeFromListOrderPending,
+} = userSlide.actions;
 
 export default userSlide.reducer;

@@ -17,7 +17,7 @@ const driverSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    phoneNumber: {
+    mobile: {
       type: String,
       // required: true,
       // unique: true,
@@ -55,7 +55,7 @@ const driverSchema = new mongoose.Schema(
     ratings: [
       {
         star: { type: Number },
-        postedBy: { type: mongoose.Types.ObjectId, ref: "User" },
+        postedBy: { type: mongoose.Types.ObjectId, ref: "users" },
         comment: { type: String },
       },
     ],
@@ -73,6 +73,11 @@ const driverSchema = new mongoose.Schema(
         type: [Number],
         default: undefined, // Cho phép bỏ trống `coordinates`
       },
+    },
+    status: {
+      type: String,
+      enum: ["offline", "online", "busy"],
+      default: "offline",
     },
   },
   {

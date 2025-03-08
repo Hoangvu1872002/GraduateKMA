@@ -15,9 +15,9 @@ const userSchema = new mongoose.Schema(
     // givenName: {
     // 	type: String,
     // },
-    // familyName: {
-    // 	type: String,
-    // },
+    mobile: {
+      type: String,
+    },
     // bio: {
     // 	type: String,
     // },
@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
     refreshToken: {
+      type: String,
+    },
+    socketId: {
       type: String,
     },
     // fcmTokens: {

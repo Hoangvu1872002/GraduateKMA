@@ -10,6 +10,7 @@ var usersRouter = require("./routes/users");
 var driverRouter = require("./routes/driver");
 var authUserRouter = require("./routes/authUserRouter");
 var authDriverRouter = require("./routes/authDriverRouter");
+var billRouter = require("./routes/bill");
 
 const { errorsMiddleware } = require("./middlewares/errorsMiddleware");
 
@@ -36,6 +37,7 @@ app.use("/user", usersRouter);
 app.use("/driver", driverRouter);
 app.use("/auth-user", authUserRouter);
 app.use("/auth-driver", authDriverRouter);
+app.use("/bill", billRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

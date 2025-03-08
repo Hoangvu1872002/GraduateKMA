@@ -1,5 +1,13 @@
 import {createSlice} from '@reduxjs/toolkit';
 import * as actions from './asyncAction';
+import {IBillTemporary} from '../../../models/SelectModel';
+import {IBill} from '../../../models/BillModel';
+import socket from '../../apis/socket';
+
+interface Coordinates {
+  latitude: number;
+  longitude: number;
+}
 
 export const userSlide = createSlice({
   name: 'user',
@@ -9,7 +17,12 @@ export const userSlide = createSlice({
     token: null,
     isLoading: false,
     mes: '',
-    // currentCart: null,
+    currentLocation: {
+      latitude: 0,
+      longitude: 0,
+    } as Coordinates,
+    listOrderReceived: [] as IBillTemporary[],
+    orderPending: {} as IBill,
   },
   reducers: {
     login: (state, action) => {
@@ -28,6 +41,27 @@ export const userSlide = createSlice({
     },
     clearMessage: state => {
       //   state.mes = "";
+    },
+    setCurrentLocation: (state, action) => {
+      state.currentLocation = action.payload;
+      if (state.orderPending && Object.keys(state.orderPending).length !== 0) {
+        socket.emit('send-location-to-customer', {
+          idOrder: state.orderPending._id,
+          locationDriver: action.payload,
+        });
+      }
+      console.log('Updated currentLocation:', state.currentLocation);
+    },
+    addToListOrderReceived: (state, action) => {
+      state.listOrderReceived = [...state.listOrderReceived, action.payload];
+    },
+    removeFromListOrderReceived: (state, action) => {
+      state.listOrderReceived = state.listOrderReceived.filter(
+        item => item._id !== action.payload,
+      );
+    },
+    setOrderPending: (state, action) => {
+      state.orderPending = action.payload;
     },
   },
 
@@ -61,6 +95,14 @@ export const userSlide = createSlice({
   },
 });
 
-export const {login, logout, clearMessage} = userSlide.actions;
+export const {
+  login,
+  logout,
+  clearMessage,
+  setCurrentLocation,
+  addToListOrderReceived,
+  removeFromListOrderReceived,
+  setOrderPending,
+} = userSlide.actions;
 
 export default userSlide.reducer;

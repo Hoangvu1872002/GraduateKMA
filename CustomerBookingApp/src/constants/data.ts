@@ -1,4 +1,5 @@
 import {LocationModelSuggest} from '../models/LocationModel';
+import {ItemSelectVehicle} from '../models/SelectModel';
 
 const locationsDataFake: LocationModelSuggest[] = [
   {
@@ -80,15 +81,7 @@ const locationsDataFake: LocationModelSuggest[] = [
   },
 ];
 
-const itemSelectVehicle: {
-  id: string;
-  image: string;
-  name: string;
-  type: string;
-  numberSeat: number;
-  description: string;
-  costCoefficient: number;
-}[] = [
+const itemSelectVehicle: ItemSelectVehicle[] = [
   {
     id: '1',
     image: require('../assets/images/bike.png'),
@@ -97,6 +90,7 @@ const itemSelectVehicle: {
     numberSeat: 2,
     description: 'Fast, convenient',
     costCoefficient: 20,
+    averageTime: 2.2,
   },
 
   {
@@ -107,6 +101,7 @@ const itemSelectVehicle: {
     numberSeat: 4,
     description: 'Safe, clean',
     costCoefficient: 50,
+    averageTime: 1.6,
   },
   {
     id: '4',
@@ -116,6 +111,7 @@ const itemSelectVehicle: {
     numberSeat: 2,
     description: 'Luxury experience',
     costCoefficient: 25,
+    averageTime: 2,
   },
   {
     id: '3',
@@ -125,6 +121,7 @@ const itemSelectVehicle: {
     numberSeat: 7,
     description: 'Spacious space',
     costCoefficient: 80,
+    averageTime: 1.6,
   },
 ];
 

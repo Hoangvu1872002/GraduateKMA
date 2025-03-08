@@ -1,15 +1,19 @@
 import {View, Text, Button} from 'react-native';
 import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {shallowEqual, useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../stores/redux';
-import {logout} from '../../stores/users/userSlide';
+import {logout, setCurrentLocation} from '../../stores/users/userSlide';
 import Geolocation from '@react-native-community/geolocation';
 import axios from 'axios';
 import {apiUpdateLocationDriver} from '../../apis';
+import {getCurrent} from '../../stores/users/asyncAction';
+import socket from '../../apis/socket';
 
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const {isLoggedIn, current} = useSelector((state: RootState) => state.user);
+  const {isLoggedIn, current, currentLocation} = useSelector(
+    (state: RootState) => state.user,
+  );
 
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
@@ -29,20 +33,23 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
+    const setTimeoutId = setTimeout(() => {
+      if (isLoggedIn) dispatch(getCurrent());
+    }, 300);
+
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
+  }, [isLoggedIn]);
+
+  useEffect(() => {
     Geolocation.getCurrentPosition(
       async (position: any) => {
         if (position.coords) {
-          console.log(position.coords);
-
           await apiUpdateLocationDriver({
             longitude: position.coords.longitude,
             latitude: position.coords.latitude,
           });
-
-          // reverseGeoCode({
-          //   lat: position.coords.latitude,
-          //   long: position.coords.longitude,
-          // });
         }
       },
       (error: any) => {
@@ -53,17 +60,22 @@ const HomeScreen = () => {
     );
   }, []);
 
-  // useEffect(() => {
-  //   const watchId = Geolocation.watchPosition(
-  //     position => {
-  //       console.log(position.coords);
-  //     },
-  //     error => console.error('Lỗi lấy tọa độ:', error),
-  //     {enableHighAccuracy: true, distanceFilter: 1, interval: 5000},
-  //   );
+  useEffect(() => {
+    const watchId = Geolocation.watchPosition(
+      position => {
+        dispatch(
+          setCurrentLocation({
+            longitude: position.coords.longitude,
+            latitude: position.coords.latitude,
+          }),
+        );
+      },
+      error => console.error('Lỗi lấy tọa độ:', error),
+      {enableHighAccuracy: true, distanceFilter: 50, interval: 5000},
+    );
 
-  //   return () => Geolocation.clearWatch(watchId);
-  // }, []);
+    return () => Geolocation.clearWatch(watchId);
+  }, []);
 
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>

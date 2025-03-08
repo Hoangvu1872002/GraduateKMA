@@ -5,7 +5,7 @@ const {
   verificationUser,
   forgotPasswordUser,
   // handleLoginWithGoogle,
-} = require("../controllers/authUserControllers");
+} = require("../controllers/restful/authUserControllers");
 var authRouter = express.Router();
 
 /* GET users listing. */

@@ -39,8 +39,10 @@ import ItemSuggestLocation from '../../../components/ItemSuggestLocation';
 import {styles} from './ModalMapLocation.styles';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
 import data from '../../../constants/data';
-import ModalMapFindDriver from '../../../modals/modalMap/ModalMapFindDriver';
 import {apiGetAllDriverNearby} from '../../../apis';
+import {ItemSelectVehicle} from '../../../models/SelectModel';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../../stores/redux';
 
 interface Coordinates {
   latitude: number;
@@ -109,6 +111,8 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
     addressSelectedDestination: LocationModelSuggest;
   } = route?.params;
 
+  const {current} = useSelector((state: RootState) => state.user);
+
   const cameraRef = useRef<MapLibreGL.CameraRef | null>(null);
   const mapRef = useRef<MapLibreGL.MapViewRef>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(16);
@@ -121,6 +125,8 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
   const [itemFocusing, setItemFocusing] = useState<string>('1');
   const [totalDistance, setTotalDistance] = useState(0);
+  const [itemSelectVehicleSelected, setItemSelectVehicleSelected] =
+    useState<ItemSelectVehicle | null>(data.itemSelectVehicle[0]);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -202,6 +208,9 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
           [170, 50, 380, 50],
           0,
         );
+        await cameraRef.current?.setCamera({
+          animationDuration: 0, // Không animation để tránh dịch chuyển
+        });
       }, 500);
     } catch (error) {
       console.error('Error fetching route:', error);
@@ -273,8 +282,6 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
       });
     }
   }, [driversDataNearby]);
-
-  console.log(totalDistance);
 
   return (
     <>
@@ -533,7 +540,10 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                       <ItemSelectVehicel
                         totalDistance={totalDistance}
                         item={item}
-                        onPress={(val: string) => setItemFocusing(val)}
+                        onPress={(val: string) => {
+                          setItemFocusing(val);
+                          setItemSelectVehicleSelected(item);
+                        }}
                         itemFocusing={itemFocusing}></ItemSelectVehicel>
                     )}
                   />
@@ -604,9 +614,12 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                 <ButtonComponent
                   width={'95%'}
                   onPress={() => {
-                    navigation.navigate('ScreenMapFindDriver', {
+                    navigation.replace('ScreenMapFindDriver', {
                       addressSelectedPickup,
                       addressSelectedDestination,
+                      totalDistance,
+                      itemSelectVehicleSelected,
+                      current,
                     });
                   }}
                   styles={{paddingVertical: 10, marginBottom: 0}}
