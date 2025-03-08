@@ -100,7 +100,7 @@ MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
 MapLibreGL.setConnected(true);
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
 
 const ModalMapConfirnRoute = ({navigation, route}: any) => {
   const {
@@ -169,7 +169,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
           origin: `${addressSelectedPickup.latitude},${addressSelectedPickup.longitude}`,
           destination: `${addressSelectedDestination.latitude},${addressSelectedDestination.longitude}`,
           vehicle: 'bike',
-          api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
+          api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
         },
       });
 

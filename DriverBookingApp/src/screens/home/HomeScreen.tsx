@@ -18,7 +18,7 @@ const HomeScreen = () => {
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
 
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg`;
 
     try {
       const res = await axios.get(api);
@@ -71,7 +71,7 @@ const HomeScreen = () => {
         );
       },
       error => console.error('Lỗi lấy tọa độ:', error),
-      {enableHighAccuracy: true, distanceFilter: 50, interval: 5000},
+      {enableHighAccuracy: true, distanceFilter: 20, interval: 5000},
     );
 
     return () => Geolocation.clearWatch(watchId);

@@ -73,8 +73,8 @@ var billSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      default: "PENDING",
-      enum: ["PENDING", "COMPLETED", "CANCELED"],
+      default: "RECEIVED",
+      enum: ["RECEIVED", "PENDING", "COMPLETED", "CANCELED"],
     },
   },
   {

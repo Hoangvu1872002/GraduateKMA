@@ -159,7 +159,10 @@ module.exports = function (io) {
 
       socket
         .to(bill.userId.socketId)
-        .emit(`location-driver-shipping-${bill._id}`, data.locationDriver);
+        .emit(`location-driver-shipping-${bill._id}`, {
+          locationDriver: data.locationDriver,
+          statusBill: bill.status,
+        });
     });
 
     socket.on("notice-remove-order-from-user", async (data) => {

@@ -16,7 +16,7 @@ export interface IBill {
   travelMode: string;
   userId: any; // Mongoose ObjectId dưới dạng string
   driverId: any;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELED'; // Chỉ nhận giá trị này
+  status: 'RECEIVED' | 'PENDING' | 'COMPLETED' | 'CANCELED'; // Chỉ nhận giá trị này
   createdAt?: string; // Timestamp từ MongoDB (có thể không có khi tạo mới)
   updatedAt?: string;
 }

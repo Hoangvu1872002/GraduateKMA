@@ -22,7 +22,7 @@
         android:exported="true">
         <!-- <meta-data
     android:name="com.mapbox.token"
-    android:value="V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq" /> -->
+    android:value="K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc" /> -->
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

@@ -22,4 +22,35 @@ const getPendingBills = asyncHandle(async (req, res) => {
   }
 });
 
-module.exports = { getPendingBills };
+const updateBillStatus = asyncHandle(async (req, res) => {
+  try {
+    const { billId, status } = req.body; // Nhận billId và status từ request body
+    console.log(billId, status);
+
+    // Kiểm tra giá trị status hợp lệ
+    const validStatuses = ["RECEIVED", "PENDING", "COMPLETED", "CANCELED"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+    }
+
+    // Tìm và cập nhật trạng thái của bill
+    const updatedBill = await Bill.findByIdAndUpdate(
+      billId,
+      { status },
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    if (!updatedBill) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    console.log(`✅ Cập nhật đơn hàng ${billId} thành công: ${status}`);
+
+    return res.status(200).json({ data: { bill: updatedBill } });
+  } catch (error) {
+    console.error("❌ Lỗi khi cập nhật trạng thái đơn hàng:", error);
+    res.status(500).json({ message: "Lỗi server nội bộ" });
+  }
+});
+
+module.exports = { getPendingBills, updateBillStatus };

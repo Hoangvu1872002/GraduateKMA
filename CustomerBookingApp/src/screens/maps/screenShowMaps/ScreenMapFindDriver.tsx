@@ -24,7 +24,11 @@ import axios from 'axios';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {LocationModelSuggest} from '../../../models/LocationModel';
 import FastImage from 'react-native-fast-image';
-import {BottomSheetModal, BottomSheetModalProvider} from '@gorhom/bottom-sheet';
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
 
 import {styles} from './ModalMapLocation.styles';
 // import {Portal} from 'react-native-portalize';
@@ -35,7 +39,7 @@ MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
 MapLibreGL.setConnected(true);
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
 
 const ScreenMapFindDriver = ({navigation, route}: any) => {
   const {
@@ -214,7 +218,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
           ]} // SnapPoints tối thiểu 30%
           enablePanDownToClose={false} // Ngăn người dùng vuốt xuống để đóng
           style={{flex: 1}}>
-          <View
+          <BottomSheetView
             style={{
               height: '100%',
               // backgroundColor: 'coral',
@@ -424,7 +428,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                   text="Cancel Trip"></ButtonComponent>
               </View>
             </SectionComponent>
-          </View>
+          </BottomSheetView>
         </BottomSheet>
       </BottomSheetModalProvider>
     </View>

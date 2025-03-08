@@ -50,7 +50,7 @@ export const userSlide = createSlice({
           locationDriver: action.payload,
         });
       }
-      console.log('Updated currentLocation:', state.currentLocation);
+      // console.log('Updated currentLocation:', state.currentLocation);
     },
     addToListOrderReceived: (state, action) => {
       state.listOrderReceived = [...state.listOrderReceived, action.payload];
