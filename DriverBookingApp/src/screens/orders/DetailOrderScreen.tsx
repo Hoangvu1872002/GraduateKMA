@@ -43,6 +43,7 @@ MapLibreGL.setConnected(true);
 
 const pickupIcon = require('../../assets/images/ic_map_ic_pick.png');
 const destinationIcon = require('../../assets/images/icons_pickupmarker.png');
+const currentLocationFlag = require('../../assets/images/flag_current.png');
 
 const loadMap =
   'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
@@ -103,6 +104,7 @@ const DetailOrderScreen = ({navigation, route}: any) => {
   const getPointData = (
     pickup: Coordinates,
     destination: Coordinates,
+    currentLocation: Coordinates,
   ): PointFeature => ({
     type: 'FeatureCollection',
     features: [
@@ -121,6 +123,14 @@ const DetailOrderScreen = ({navigation, route}: any) => {
           coordinates: [destination.longitude, destination.latitude],
         },
         properties: {icon: 'destinationIcon'},
+      },
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [currentLocation.longitude, currentLocation.latitude],
+        },
+        properties: {icon: 'currentLocationFlag'},
       },
     ],
   });
@@ -227,6 +237,10 @@ const DetailOrderScreen = ({navigation, route}: any) => {
           {
             latitude: destinationAddress.latitude,
             longitude: destinationAddress.longitude,
+          },
+          {
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
           },
         );
 
@@ -352,7 +366,9 @@ const DetailOrderScreen = ({navigation, route}: any) => {
               />
             </MapLibreGL.ShapeSource>
           )}
-          <MapLibreGL.Images images={{pickupIcon, destinationIcon}} />
+          <MapLibreGL.Images
+            images={{pickupIcon, destinationIcon, currentLocationFlag}}
+          />
           {geoJSONPoints && (
             <MapLibreGL.ShapeSource id="pointSource" shape={geoJSONPoints}>
               <MapLibreGL.SymbolLayer
@@ -377,6 +393,20 @@ const DetailOrderScreen = ({navigation, route}: any) => {
                   iconImage: 'destinationIcon',
                   iconSize: 0.48,
                   iconOffset: [0, -55], // Đẩy lên nhưng ít hơn pickup
+                  // iconAnchor: 'bottom',
+                  iconAllowOverlap: true,
+                  textAllowOverlap: true,
+                }}
+              />
+
+              <MapLibreGL.SymbolLayer
+                id="currentLayer"
+                minZoomLevel={0}
+                filter={['==', ['get', 'icon'], 'currentLocationFlag']} // Chỉ áp dụng cho destination
+                style={{
+                  iconImage: 'currentLocationFlag',
+                  iconSize: 0.45,
+                  iconOffset: [22, -45], // Đẩy lên nhưng ít hơn pickup
                   // iconAnchor: 'bottom',
                   iconAllowOverlap: true,
                   textAllowOverlap: true,
@@ -514,18 +544,10 @@ const DetailOrderScreen = ({navigation, route}: any) => {
                   size={13}></TextComponent>
               </RowComponent>
               <RowComponent
-                justify="space-around"
                 styles={{
                   width: '100%',
                   height: 100,
                 }}>
-                <ButtonComponent
-                  width={118}
-                  styles={{paddingVertical: 10}}
-                  color={appColors.red}
-                  type="primary"
-                  textStyles={{flex: 0}}
-                  text="Skip Trip"></ButtonComponent>
                 <ButtonComponent
                   width={130}
                   onPress={() => {

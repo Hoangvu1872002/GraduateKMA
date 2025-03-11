@@ -164,18 +164,28 @@ module.exports = function (io) {
           statusBill: bill.status,
         });
     });
-
     socket.on("notice-remove-order-from-user", async (data) => {
       const deletedBill = await BillTemporary.findByIdAndDelete(data).select(
         "socketIdDriversReceived"
       );
-      console.log(deletedBill);
 
       deletedBill.socketIdDriversReceived.forEach((socketId) => {
         socket
           .to(socketId)
           .emit("notice-remove-order-from-user", deletedBill._id);
       });
+
+      console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
+    });
+
+    socket.on("notice-cancle-order-from-driver", async (data) => {
+      const deletedBill = await Bill.findByIdAndDelete(data)
+        .populate("userId", "socketId") // Lấy thông tin user
+        .select("userId"); // Chỉ cần lấy userId và thông tin liên quan
+
+      socket
+        .to(deletedBill.userId.socketId)
+        .emit("notice-cancle-order-from-driver", deletedBill._id);
 
       console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
     });

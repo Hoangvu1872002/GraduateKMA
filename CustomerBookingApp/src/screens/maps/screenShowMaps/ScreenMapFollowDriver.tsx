@@ -1,5 +1,5 @@
 import {View, Text, StatusBar, Image} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import {useSelector} from 'react-redux';
@@ -32,6 +32,7 @@ import BottomSheet, {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import {fontFamilies} from '../../../constants/fontFamilies';
+import {useFocusEffect} from '@react-navigation/native';
 
 interface Coordinates {
   latitude: number;
@@ -51,7 +52,7 @@ MapLibreGL.setConnected(true);
 
 const pickupIcon = require('../../../assets/images/ic_map_ic_pick.png');
 const destinationIcon = require('../../../assets/images/icons_pickupmarker.png');
-const bikeIcon = require('../../../assets/images/bike.png');
+const bikeIcon = require('../../../assets/images/img_vespa_top.png');
 const carIcon = require('../../../assets/images/car.png');
 
 const loadMap =
@@ -308,12 +309,31 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
     }, 500);
   }, [pickupAddress, destinationAddress]);
 
-  useEffect(() => {
-    socket.on(`location-driver-shipping-${_id}`, data => {
-      setCurrentDriverLocation(data.locationDriver);
-      setStatusBill(data.statusBill);
-    });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const handleLocationUpdate = (data: {
+        locationDriver: {latitude: number; longitude: number};
+        statusBill: string;
+      }) => {
+        setCurrentDriverLocation(data.locationDriver);
+        setStatusBill(data.statusBill);
+      };
+
+      const handleCancelOrder = (data: string) => {
+        if (data === _id) {
+          navigation.goBack();
+        }
+      };
+
+      socket.on(`location-driver-shipping-${_id}`, handleLocationUpdate);
+      socket.on('notice-cancle-order-from-driver', handleCancelOrder);
+
+      return () => {
+        socket.off(`location-driver-shipping-${_id}`, handleLocationUpdate);
+        socket.off('notice-cancle-order-from-driver', handleCancelOrder);
+      };
+    }, [_id]),
+  );
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
@@ -361,7 +381,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
           onPress={() => console.log('Map Pressed')}>
           <MapLibreGL.Camera
             ref={cameraRef}
-            animationDuration={0}
+            animationDuration={10}
             centerCoordinate={[105.772607, 20.980216]}
             zoomLevel={zoomLevel}
           />
@@ -471,7 +491,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 filter={['==', ['get', 'icon'], 'bikeIcon']} // Chỉ áp dụng cho pickup
                 style={{
                   iconImage: 'bikeIcon',
-                  iconSize: 0.1,
+                  iconSize: 0.2,
                   iconOffset: [0, -55], // Đẩy lên trên cao hơn
                   // iconAnchor: 'bottom',
                   iconAllowOverlap: true,

@@ -42,36 +42,40 @@ const HomeScreen = () => {
     };
   }, [isLoggedIn]);
 
-  useEffect(() => {
-    Geolocation.getCurrentPosition(
-      async (position: any) => {
-        if (position.coords) {
-          await apiUpdateLocationDriver({
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude,
-          });
-        }
-      },
-      (error: any) => {
-        console.log(error);
-      },
-      // {maximumAge: 0, timeout: 30000, enableHighAccuracy: true},
-      {},
-    );
-  }, []);
+  // useEffect(() => {
+  //   Geolocation.getCurrentPosition(
+  //     async (position: any) => {
+  //       if (position.coords) {
+  //         await apiUpdateLocationDriver({
+  //           longitude: position.coords.longitude,
+  //           latitude: position.coords.latitude,
+  //         });
+  //       }
+  //     },
+  //     (error: any) => {
+  //       console.log(error);
+  //     },
+  //     // {maximumAge: 0, timeout: 30000, enableHighAccuracy: true},
+  //     {},
+  //   );
+  // }, []);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
-      position => {
+      async position => {
         dispatch(
           setCurrentLocation({
             longitude: position.coords.longitude,
             latitude: position.coords.latitude,
           }),
         );
+        await apiUpdateLocationDriver({
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+        });
       },
       error => console.error('Lỗi lấy tọa độ:', error),
-      {enableHighAccuracy: true, distanceFilter: 20, interval: 5000},
+      {enableHighAccuracy: true, distanceFilter: 100, interval: 5000},
     );
 
     return () => Geolocation.clearWatch(watchId);

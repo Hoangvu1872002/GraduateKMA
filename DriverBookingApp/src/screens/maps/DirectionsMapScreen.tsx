@@ -21,9 +21,11 @@ import {BottomSheetModalProvider, BottomSheetView} from '@gorhom/bottom-sheet';
 import BottomSheet from '@gorhom/bottom-sheet';
 import {styles} from './ModalMapLocation.styles';
 import Geolocation from '@react-native-community/geolocation';
-import {shallowEqual, useSelector} from 'react-redux';
-import {RootState} from '../../stores/redux';
+import {shallowEqual, useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../stores/redux';
 import {apiUpdateStatusBill} from '../../apis';
+import socket from '../../apis/socket';
+import {setOrderPending} from '../../stores/users/userSlide';
 
 interface Coordinates {
   latitude: number;
@@ -43,8 +45,9 @@ MapLibreGL.setConnected(true);
 
 const pickupIcon = require('../../assets/images/ic_map_ic_pick.png');
 const destinationIcon = require('../../assets/images/icons_pickupmarker.png');
-const bikeIcon = require('../../assets/images/bike.png');
+const bikeIcon = require('../../assets/images/img_vespa_top.png');
 const carIcon = require('../../assets/images/car.png');
+const currentLocationFlag = require('../../assets/images/flag_current.png');
 
 const loadMap =
   'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
@@ -55,6 +58,8 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
   const {currentLocation, orderPending} = useSelector(
     (state: RootState) => state.user,
   );
+
+  const dispatch = useDispatch<AppDispatch>();
 
   // console.log(currentLocation);
 
@@ -70,6 +75,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
   const [geoJSONCurrentPoints, setGeoJSONCurrentPoints] =
     useState<PointFeature | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(16);
+  const [statusArrived, setStatusArrived] = useState(false);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -108,6 +114,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
   const getPointData = (
     pickup: Coordinates,
     destination: Coordinates,
+    currentLocation: Coordinates,
   ): PointFeature => ({
     type: 'FeatureCollection',
     features: [
@@ -126,6 +133,14 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
           coordinates: [destination.longitude, destination.latitude],
         },
         properties: {icon: 'destinationIcon'},
+      },
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [currentLocation.longitude, currentLocation.latitude],
+        },
+        properties: {icon: 'currentLocationFlag'},
       },
     ],
   });
@@ -184,6 +199,18 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
       };
 
       setGeoJSONDataCustomer(dataCustomer);
+
+      setTimeout(async () => {
+        await cameraRef.current?.fitBounds(
+          [currentLocation.longitude ?? 0, currentLocation.latitude ?? 0],
+          [pickupAddress.longitude ?? 0, pickupAddress.latitude ?? 0],
+          [170, 50, 380, 50],
+          0,
+        );
+        await cameraRef.current?.setCamera({
+          animationDuration: 0, // Không animation để tránh dịch chuyển
+        });
+      }, 500);
     } catch (error) {
       console.error('Error fetching route:', error);
     }
@@ -222,17 +249,6 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
   useEffect(() => {
     fetchRouteDriver();
     fetchRouteCustomer();
-    setTimeout(async () => {
-      await cameraRef.current?.fitBounds(
-        [currentLocation.longitude ?? 0, currentLocation.latitude ?? 0],
-        [pickupAddress.longitude ?? 0, pickupAddress.latitude ?? 0],
-        [170, 50, 380, 50],
-        0,
-      );
-      await cameraRef.current?.setCamera({
-        animationDuration: 0, // Không animation để tránh dịch chuyển
-      });
-    }, 500);
   }, []);
 
   useEffect(() => {
@@ -251,6 +267,10 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
           {
             latitude: destinationAddress.latitude,
             longitude: destinationAddress.longitude,
+          },
+          {
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
           },
         );
 
@@ -316,7 +336,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
           onPress={() => console.log('Map Pressed')}>
           <MapLibreGL.Camera
             ref={cameraRef}
-            animationDuration={0}
+            animationDuration={10}
             centerCoordinate={[105.772607, 20.980216]}
             zoomLevel={zoomLevel}
           />
@@ -350,7 +370,13 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
             </MapLibreGL.ShapeSource>
           )}
           <MapLibreGL.Images
-            images={{pickupIcon, destinationIcon, bikeIcon, carIcon}}
+            images={{
+              pickupIcon,
+              destinationIcon,
+              bikeIcon,
+              carIcon,
+              currentLocationFlag,
+            }}
           />
           {geoJSONPoints && (
             <MapLibreGL.ShapeSource id="pointSource" shape={geoJSONPoints}>
@@ -381,6 +407,20 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                   textAllowOverlap: true,
                 }}
               />
+
+              <MapLibreGL.SymbolLayer
+                id="currentLayer"
+                minZoomLevel={0}
+                filter={['==', ['get', 'icon'], 'currentLocationFlag']} // Chỉ áp dụng cho destination
+                style={{
+                  iconImage: 'currentLocationFlag',
+                  iconSize: 0.45,
+                  iconOffset: [22, -45], // Đẩy lên nhưng ít hơn pickup
+                  // iconAnchor: 'bottom',
+                  iconAllowOverlap: true,
+                  textAllowOverlap: true,
+                }}
+              />
             </MapLibreGL.ShapeSource>
           )}
           {geoJSONCurrentPoints && (
@@ -393,11 +433,12 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                 filter={['==', ['get', 'icon'], 'bikeIcon']} // Chỉ áp dụng cho pickup
                 style={{
                   iconImage: 'bikeIcon',
-                  iconSize: 0.1,
+                  iconSize: 0.2,
                   iconOffset: [0, -55], // Đẩy lên trên cao hơn
                   // iconAnchor: 'bottom',
                   iconAllowOverlap: true,
                   textAllowOverlap: true,
+                  // iconRotate: ['get', 'rotation'],
                 }}
               />
             </MapLibreGL.ShapeSource>
@@ -468,52 +509,83 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
               </RowComponent>
             </SectionComponent>
             <SectionComponent>
-              <RowComponent
-                justify="space-around"
-                styles={{
-                  width: '100%',
-                  height: 80,
-                }}>
-                <ButtonComponent
-                  width={118}
-                  styles={{paddingVertical: 10}}
-                  color={appColors.red}
-                  type="primary"
-                  textStyles={{flex: 0}}
-                  text="Skip Trip"></ButtonComponent>
-                <ButtonComponent
-                  width={180}
-                  onPress={async () => {
-                    setGeoJSONData(geoJSONDataCustomer);
-
-                    setTimeout(async () => {
-                      await cameraRef.current?.fitBounds(
-                        [
-                          pickupAddress.longitude ?? 0,
-                          pickupAddress.latitude ?? 0,
-                        ],
-                        [
-                          destinationAddress.longitude ?? 0,
-                          destinationAddress.latitude ?? 0,
-                        ],
-                        [170, 50, 380, 50],
-                        0,
+              {!statusArrived ? (
+                <RowComponent
+                  justify="space-around"
+                  styles={{
+                    width: '100%',
+                    height: 80,
+                  }}>
+                  <ButtonComponent
+                    onPress={() => {
+                      socket.emit(
+                        'notice-cancle-order-from-driver',
+                        orderPending._id,
                       );
-                      await cameraRef.current?.setCamera({
-                        animationDuration: 0, // Không animation để tránh dịch chuyển
+                      dispatch(setOrderPending({}));
+                      navigation.goBack();
+                    }}
+                    width={118}
+                    styles={{paddingVertical: 10}}
+                    color={appColors.red}
+                    type="primary"
+                    textStyles={{flex: 0}}
+                    text="Skip Trip"></ButtonComponent>
+                  <ButtonComponent
+                    width={180}
+                    onPress={async () => {
+                      setGeoJSONData(geoJSONDataCustomer);
+                      setStatusArrived(true);
+                      setTimeout(async () => {
+                        await cameraRef.current?.fitBounds(
+                          [
+                            pickupAddress.longitude ?? 0,
+                            pickupAddress.latitude ?? 0,
+                          ],
+                          [
+                            destinationAddress.longitude ?? 0,
+                            destinationAddress.latitude ?? 0,
+                          ],
+                          [170, 50, 380, 50],
+                          0,
+                        );
+                        await cameraRef.current?.setCamera({
+                          animationDuration: 0, // Không animation để tránh dịch chuyển
+                        });
+                      }, 500);
+                      await apiUpdateStatusBill({
+                        billId: orderPending._id,
+                        status: 'PENDING',
                       });
-                    }, 500);
-                    await apiUpdateStatusBill({
-                      billId: orderPending._id,
-                      status: 'PENDING',
-                    });
-                  }}
-                  styles={{paddingVertical: 10}}
-                  color={appColors.DarkSlateGrayBlue4}
-                  type="primary"
-                  textStyles={{flex: 0}}
-                  text="Arrived at pickup"></ButtonComponent>
-              </RowComponent>
+                    }}
+                    styles={{paddingVertical: 10}}
+                    color={appColors.DarkSlateGrayBlue4}
+                    type="primary"
+                    textStyles={{flex: 0}}
+                    text="Arrived at pickup"></ButtonComponent>
+                </RowComponent>
+              ) : (
+                <RowComponent
+                  justify="space-around"
+                  styles={{
+                    width: '100%',
+                    height: 80,
+                  }}>
+                  <ButtonComponent
+                    width={220}
+                    onPress={async () => {
+                      await apiUpdateStatusBill({
+                        billId: orderPending._id,
+                        status: 'COMPLETED',
+                      });
+                    }}
+                    styles={{paddingVertical: 10}}
+                    color={appColors.DarkSlateGrayBlue4}
+                    type="primary"
+                    textStyles={{flex: 0}}
+                    text="Arrived at destination"></ButtonComponent>
+                </RowComponent>
+              )}
             </SectionComponent>
           </BottomSheetView>
         </BottomSheet>

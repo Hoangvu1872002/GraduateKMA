@@ -75,7 +75,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
 
   useEffect(() => {
     socket.on('notice-driver-receipted-order', data => {
-      console.log(data);
+      // console.log(data);
 
       navigation.replace('ScreenMapFollowDriver', {data: data.billWithDriver});
     });
@@ -95,9 +95,6 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
     } else {
       console.log('abc3');
     }
-  }, []);
-  useEffect(() => {
-    bottomSheetRef.current?.expand();
   }, []);
 
   useEffect(() => {

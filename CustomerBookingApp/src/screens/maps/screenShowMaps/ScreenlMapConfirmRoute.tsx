@@ -68,7 +68,7 @@ interface PointFeature extends FeatureCollection {
 // Hàm tạo dữ liệu GeoJSON từ pickup & destination
 const pickupIcon = require('../../../assets/images/ic_map_ic_pick.png');
 const destinationIcon = require('../../../assets/images/icons_pickupmarker.png');
-const bikeIcon = require('../../../assets/images/bike.png');
+const bikeIcon = require('../../../assets/images/img_vespa_top.png');
 const carIcon = require('../../../assets/images/car.png');
 
 const getPointData = (
@@ -477,7 +477,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                       'carIcon',
                       'defaultIcon', // Giá trị mặc định nếu không khớp
                     ],
-                    iconSize: 0.09,
+                    iconSize: 0.2,
                     iconAllowOverlap: true,
                     iconRotate: ['get', 'rotation'], // Lấy giá trị xoay từ properties
                   }}

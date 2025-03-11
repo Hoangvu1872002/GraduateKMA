@@ -53,4 +53,26 @@ const updateBillStatus = asyncHandle(async (req, res) => {
   }
 });
 
-module.exports = { getPendingBills, updateBillStatus };
+const getBillById = asyncHandle(async (req, res) => {
+  try {
+    const { billId } = req.body; // Lấy billId từ request params
+
+    console.log(billId);
+
+    // Tìm đơn hàng theo ID và populate thông tin tài xế
+    const bill = await Bill.findById(billId).populate("driverId", "-password");
+
+    if (!bill) {
+      return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
+    }
+
+    console.log(`✅ Lấy thông tin đơn hàng thành công: ${billId}`);
+
+    return res.status(200).json({ data: bill });
+  } catch (error) {
+    console.error("❌ Lỗi khi tìm đơn hàng:", error);
+    res.status(500).json({ message: "Lỗi server nội bộ" });
+  }
+});
+
+module.exports = { getPendingBills, updateBillStatus, getBillById };

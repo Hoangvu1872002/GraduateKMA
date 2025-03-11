@@ -59,6 +59,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import data from '../../constants/data';
 import ModalLocationBooking from '../../modals/modalSelectLocation/ModalLocationBooking';
 import {apiGetBillsPending} from '../../apis';
+import socket from '../../apis/socket';
 
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
@@ -281,16 +282,11 @@ const HomeScreen = ({navigation}: any) => {
     };
   }, [isLoggedIn]);
 
-  // useEffect(() => {
-  //   socket.on('connect', async () => {
-  //     console.log('✅ Connected to server:', socket.id);
-
-  //     if (socket.id) {
-  //       await apiUpdateSocketId({socketId: socket.id});
-  //       dispatch(getCurrent());
-  //     }
-  //   });
-  // }, []);
+  useEffect(() => {
+    socket.on('notice-cancle-order-from-driver', data => {
+      fetchBillsPending();
+    });
+  }, []);
 
   // console.log(currentLocation);
 
