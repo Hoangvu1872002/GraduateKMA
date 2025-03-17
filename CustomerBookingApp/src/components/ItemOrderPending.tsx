@@ -33,7 +33,13 @@ const ItemOrderPending = (props: Props) => {
     <TouchableOpacity onPress={handleNavigatorScreenFollowDriver}>
       <RowComponent
         justify="space-between"
-        styles={{flex: 1, backgroundColor: '#EEE0E5', marginBottom: 2}}>
+        styles={{
+          // flex: 1,
+          // paddingHorizontal: 5,
+          backgroundColor: '#EEE5DE',
+          marginBottom: 2,
+          borderRadius: 10,
+        }}>
         <RowComponent
           justify="flex-start"
           // styles={{flex: 1, backgroundColor: '#EEE0E5', marginBottom: 2}}
@@ -42,8 +48,8 @@ const ItemOrderPending = (props: Props) => {
             <Image
               source={
                 item.driverId.travelMode === 'Bike'
-                  ? require('../assets/images/bike.png')
-                  : require('../assets/images/car.png')
+                  ? require('../assets/images/bike-white.png')
+                  : require('../assets/images/car-white.png')
               } // ✅ Không dùng uri
               style={{
                 width: 48,
@@ -80,7 +86,7 @@ const ItemOrderPending = (props: Props) => {
             </RowComponent>
           </View>
         </RowComponent>
-
+        <SpaceComponent width={10}></SpaceComponent>
         <View style={{marginRight: 10}}>
           <ArrowRight2 size="15" color={appColors.gray} variant="Outline" />
         </View>

@@ -161,7 +161,7 @@ module.exports = function (io) {
         .to(bill.userId.socketId)
         .emit(`location-driver-shipping-${bill._id}`, {
           locationDriver: data.locationDriver,
-          statusBill: bill.status,
+          // statusBill: bill.status,
         });
     });
     socket.on("notice-remove-order-from-user", async (data) => {
@@ -179,15 +179,55 @@ module.exports = function (io) {
     });
 
     socket.on("notice-cancle-order-from-driver", async (data) => {
-      const deletedBill = await Bill.findByIdAndDelete(data)
+      const updatedBill = await Bill.findByIdAndUpdate(
+        data,
+        { status: "COMPLETED" }, // Cập nhật trạng thái đơn hàng
+        { new: true } // Trả về document đã cập nhật
+      )
         .populate("userId", "socketId") // Lấy thông tin user
-        .select("userId"); // Chỉ cần lấy userId và thông tin liên quan
+        .select("userId"); // Chỉ lấy userId và socketId
 
-      socket
-        .to(deletedBill.userId.socketId)
-        .emit("notice-cancle-order-from-driver", deletedBill._id);
+      if (updatedBill) {
+        socket
+          .to(updatedBill.userId.socketId)
+          .emit("notice-complete-order-from-driver", updatedBill._id);
 
-      console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
+        console.log(
+          "✅ Đã cập nhật trạng thái đơn hàng thành COMPLETE và thông báo đến user!"
+        );
+      } else {
+        console.log("❌ Không tìm thấy đơn hàng hoặc cập nhật thất bại.");
+      }
+    });
+
+    socket.on("notice-arrival-at-pick-up-point", async (data) => {
+      const bill = await Bill.findById(data.idOrder).populate({
+        path: "userId",
+        select: "socketId", // Chỉ lấy trường socketId từ user
+      });
+
+      if (bill.socketId) {
+        socket
+          .to(bill.userId.socketId)
+          .emit("notice-arrival-at-pick-up-point", bill._id);
+      } else {
+        console.log("❌ Không tìm thấy đơn hàng.");
+      }
+    });
+
+    socket.on("notification-arrival-destination", async (data) => {
+      const bill = await Bill.findById(data.idOrder).populate({
+        path: "userId",
+        select: "socketId", // Chỉ lấy trường socketId từ user
+      });
+
+      if (bill.socketId) {
+        socket
+          .to(bill.userId.socketId)
+          .emit("notification-arrival-destination", bill._id);
+      } else {
+        console.log("❌ Không tìm thấy đơn hàng.");
+      }
     });
   });
 };

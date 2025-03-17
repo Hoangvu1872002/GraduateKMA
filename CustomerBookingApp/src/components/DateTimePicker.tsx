@@ -35,7 +35,7 @@ const DateTimePicker = (props: Props) => {
               : 'Choice'
           }`}
           flex={1}
-          font={fontFamilies.medium}
+          font={fontFamilies.regular}
           styles={{textAlign: 'center'}}
         />
         {type === 'time' ? (

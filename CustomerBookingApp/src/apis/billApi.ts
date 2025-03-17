@@ -12,3 +12,9 @@ export const apiGetBill = (data: {billId: string}) =>
     method: 'post',
     data,
   });
+
+export const apiAllBill = () =>
+  axiosClient({
+    url: '/bill/get-all-bill',
+    method: 'get',
+  });

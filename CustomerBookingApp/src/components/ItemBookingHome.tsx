@@ -1,4 +1,11 @@
-import {View, Text, StyleProp, ViewStyle, Image} from 'react-native';
+import {
+  View,
+  Text,
+  StyleProp,
+  ViewStyle,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
 import React from 'react';
 import {appColors} from '../constants/appColors';
 import TextComponent from './TextComponent';
@@ -20,13 +27,13 @@ const ItemBookingHome = (props: Props) => {
         alignItems: 'center',
         // backgroundColor: 'coral',
       }}>
-      <View
+      <TouchableOpacity
         style={[
           globalStyles.shadow,
           {
             backgroundColor: appColors.gray3,
-            height: 70,
-            width: 105,
+            height: 60,
+            width: 80,
             borderRadius: 10,
             justifyContent: 'center',
             alignItems: 'center',
@@ -36,15 +43,17 @@ const ItemBookingHome = (props: Props) => {
         <Image
           source={data.image}
           style={{
+            // backgroundColor: 'coral',
             flex: 1,
             width: 65,
-            resizeMode: 'cover',
+            resizeMode: 'contain',
           }}
         />
-      </View>
+      </TouchableOpacity>
       <View>
         <TextComponent
           text={data.title}
+          size={11}
           font={fontFamilies.semiBold}></TextComponent>
       </View>
     </View>

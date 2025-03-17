@@ -557,6 +557,9 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                         billId: orderPending._id,
                         status: 'PENDING',
                       });
+                      socket.emit('notice-arrival-at-pick-up-point', {
+                        idOrder: orderPending._id,
+                      });
                     }}
                     styles={{paddingVertical: 10}}
                     color={appColors.DarkSlateGrayBlue4}
@@ -577,6 +580,9 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                       await apiUpdateStatusBill({
                         billId: orderPending._id,
                         status: 'COMPLETED',
+                      });
+                      socket.emit('notification-arrival-destination', {
+                        idOrder: orderPending._id,
                       });
                     }}
                     styles={{paddingVertical: 10}}

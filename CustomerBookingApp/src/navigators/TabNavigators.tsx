@@ -10,9 +10,9 @@ import {globalStyles} from '../styles/globalStyles';
 import ExploreNavigator from './ExploreNavigator';
 
 import EventNavigator from './EventNavigator';
-import MapNavigator from './MapNavigator';
 import ProfileNavigator from './ProfileNavigator';
 import AddNewEventNavigator from './AddNewEventNavigator';
+import HistoryNavigator from './HistoryNavigator';
 
 const TabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -40,7 +40,7 @@ const TabNavigator = () => {
             case 'Events':
               icon = <Calendar size={size} variant="Bold" color={color} />;
               break;
-            case 'Map':
+            case 'History':
               icon = <Location size={size} variant="Bold" color={color} />;
               break;
             case 'Profile':
@@ -84,7 +84,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Explore" component={ExploreNavigator} />
       <Tab.Screen name="Events" component={EventNavigator} />
       <Tab.Screen name="Add" component={AddNewEventNavigator} />
-      <Tab.Screen name="Map" component={MapNavigator} />
+      <Tab.Screen name="History" component={HistoryNavigator} />
       <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>
   );

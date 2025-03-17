@@ -313,10 +313,10 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
     useCallback(() => {
       const handleLocationUpdate = (data: {
         locationDriver: {latitude: number; longitude: number};
-        statusBill: string;
+        // statusBill: string;
       }) => {
         setCurrentDriverLocation(data.locationDriver);
-        setStatusBill(data.statusBill);
+        // setStatusBill(data.statusBill);
       };
 
       const handleCancelOrder = (data: string) => {
@@ -325,12 +325,27 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
         }
       };
 
+      const handleUpdateStatusBill = (data: string) => {
+        if (data === _id) {
+          setStatusBill('PENDING');
+        }
+      };
+
+      const handleCompleteBill = (data: string) => {
+        if (data === _id) {
+        }
+      };
+
       socket.on(`location-driver-shipping-${_id}`, handleLocationUpdate);
       socket.on('notice-cancle-order-from-driver', handleCancelOrder);
+      socket.on('notice-arrival-at-pick-up-point', handleUpdateStatusBill);
+      socket.on('notification-arrival-destination', handleCompleteBill);
 
       return () => {
         socket.off(`location-driver-shipping-${_id}`, handleLocationUpdate);
         socket.off('notice-cancle-order-from-driver', handleCancelOrder);
+        socket.off('notice-arrival-at-pick-up-point', handleUpdateStatusBill);
+        socket.off('notification-arrival-destination', handleCompleteBill);
       };
     }, [_id]),
   );

@@ -24,8 +24,10 @@ import ButtonImagePicker from './ButtonImagePicker';
 import ItemBookingHome from './ItemBookingHome';
 import ItemSelectVehicel from './ItemSelectVehicel';
 import ItemOrderPending from './ItemOrderPending';
+import HistoryItemComponent from './HistoryItemComponent';
 
 export {
+  HistoryItemComponent,
   SpaceComponent,
   TextComponent,
   ButtonComponent,

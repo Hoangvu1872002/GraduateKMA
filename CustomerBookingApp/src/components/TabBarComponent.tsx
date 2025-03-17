@@ -14,10 +14,10 @@ const TabBarComponent = (props: Props) => {
   return (
     <RowComponent
       styles={{
-        marginBottom: 10,
+        marginBottom: 5,
         paddingHorizontal: 16,
       }}>
-      <TextComponent text={title} title flex={1} size={18} />
+      <TextComponent text={title} title flex={1} size={16} />
       {onPress && (
         <RowComponent onPress={onPress}>
           <TextComponent text="See All " size={12} color={appColors.text2} />

@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StatusBar,
   Platform,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import React, {ReactNode} from 'react';
 import {globalStyles} from '../styles/globalStyles';
@@ -25,10 +27,19 @@ interface Props {
   children: ReactNode;
   back?: boolean;
   backModal?: () => void;
+  turnOffSafeArea?: boolean;
 }
 
 const ContainerComponent = (props: Props) => {
-  const {children, isScroll, isImageBackground, title, back, backModal} = props;
+  const {
+    children,
+    isScroll,
+    isImageBackground,
+    title,
+    back,
+    backModal,
+    turnOffSafeArea,
+  } = props;
 
   const navigation: any = useNavigation();
 
@@ -91,16 +102,28 @@ const ContainerComponent = (props: Props) => {
       </SafeAreaView>
     </ImageBackground>
   ) : (
-    <SafeAreaView style={[globalStyles.container]}>
-      {/* <StatusBar barStyle={'dark-content'} /> */}
-      <View
-        style={[
-          globalStyles.container,
-          // {paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0},
-        ]}>
-        {headerComponent()}
-      </View>
-    </SafeAreaView>
+    <>
+      {turnOffSafeArea ? (
+        <View
+          style={[
+            globalStyles.container,
+            // {paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0},
+          ]}>
+          {headerComponent()}
+        </View>
+      ) : (
+        <SafeAreaView style={[globalStyles.container]}>
+          {/* <StatusBar barStyle={'dark-content'} /> */}
+          <View
+            style={[
+              globalStyles.container,
+              // {paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0},
+            ]}>
+            {headerComponent()}
+          </View>
+        </SafeAreaView>
+      )}
+    </>
   );
 };
 

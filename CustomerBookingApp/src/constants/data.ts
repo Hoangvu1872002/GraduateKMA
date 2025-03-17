@@ -133,14 +133,26 @@ const itemBookingHomeData: {
 }[] = [
   {
     id: '1',
-    image: require('../assets/images/banner_bike_fare_calcualtion_info.png'),
+    image: require('../assets/images/bike-white.png'),
     title: 'Bike',
     type: 'bike',
   },
   {
     id: '2',
-    image: require('../assets/images/banner_taxi_fare_calcualtion_info.png'),
+    image: require('../assets/images/car-white.png'),
     title: 'Taxi',
+    type: 'taxi',
+  },
+  {
+    id: '3',
+    image: require('../assets/images/delivery.png'),
+    title: 'Delivery',
+    type: 'delivery',
+  },
+  {
+    id: '4',
+    image: require('../assets/images/car-black.png'),
+    title: 'Airport car',
     type: 'taxi',
   },
 ];

@@ -9,9 +9,10 @@ import {
   SearchNormal1,
   Sort,
 } from 'iconsax-react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   FlatList,
+  Image,
   ImageBackground,
   Modal,
   Platform,
@@ -60,6 +61,10 @@ import data from '../../constants/data';
 import ModalLocationBooking from '../../modals/modalSelectLocation/ModalLocationBooking';
 import {apiGetBillsPending} from '../../apis';
 import socket from '../../apis/socket';
+import MapLibreGL from '@maplibre/maplibre-react-native';
+
+const loadMap =
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
 
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
@@ -71,6 +76,16 @@ const HomeScreen = ({navigation}: any) => {
   const [unReadNotifications, setUnReadNotifications] = useState([]);
   const [isVibleModalLocation, setIsVibleModalLocation] = useState(false);
   const [listOrderPending, setListOrderPending] = useState<any[]>([]);
+  const [centerCoords, setCenterCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  }>({
+    latitude: 20.980216,
+    longitude: 105.772607,
+  });
+
+  const cameraRef = useRef<MapLibreGL.CameraRef>(null);
+  const mapRef = useRef<MapLibreGL.MapViewRef>(null);
 
   const isFocused = useIsFocused();
   // const user = useSelector(authSelector);
@@ -116,6 +131,13 @@ const HomeScreen = ({navigation}: any) => {
             lat: position.coords.latitude,
             long: position.coords.longitude,
           });
+          cameraRef.current?.setCamera({
+            centerCoordinate: [
+              position.coords.longitude,
+              position.coords.latitude,
+            ],
+            animationDuration: 1000, // Di chuyển mượt
+          });
         }
       },
       (error: any) => {
@@ -125,89 +147,6 @@ const HomeScreen = ({navigation}: any) => {
       {},
     );
   }, []);
-
-  // useEffect(() => {
-  //   GeoLocation.getCurrentPosition(
-  //     (position: any) => {
-  //       if (position.coords) {
-  //         reverseGeoCode({
-  //           lat: position.coords.latitude,
-  //           long: position.coords.longitude,
-  //         });
-  //       }
-  //     },
-  //     (error: any) => {
-  //       console.log(error);
-  //     },
-  //     {},
-  //   );
-
-  //   getEvents();
-  //   getEventsData();
-  //   messaging().onMessage(async (mess: any) => {
-  //     Toast.show({
-  //       text1: mess.notification.title,
-  //       text2: mess.notification.body,
-  //       onPress: () => {
-  //         const id = mess.data ? mess.data.eventId : '';
-  //         id && navigation.navigate('EventDetail', {id});
-  //       },
-  //     });
-  //   });
-
-  //   messaging()
-  //     .getInitialNotification()
-  //     .then((mess: any) => {
-  //       const id = mess && mess.data ? mess.data.id : '';
-  //       id && handleLinking(`${appInfo.domain}/detail/${mess.data.id}`);
-  //     });
-
-  //   // checkNetWork();
-
-  //   firestore()
-  //     .collection('notifcation')
-  //     .where('idRead', '==', false)
-  //     .where('uid', '==', user.id)
-  //     .onSnapshot(snap => {
-  //       if (snap.empty) {
-  //         setUnReadNotifications([]);
-  //       } else {
-  //         const items: any = [];
-
-  //         snap.forEach(item =>
-  //           items.push({
-  //             id: item.id,
-  //             ...item.data(),
-  //           }),
-  //         );
-
-  //         setUnReadNotifications(items);
-  //       }
-  //     });
-  // }, []);
-
-  // useEffect(() => {
-  //   getNearByEvents();
-  // }, [currentLocation]);
-
-  // useEffect(() => {
-  //   if (isFocused) {
-  //     getEvents();
-  //     getNearByEvents();
-  //   }
-  // }, [isFocused]);
-
-  // const checkNetWork = () => {
-  //   NetInfo.addEventListener(state => {
-  //     setIsOnline(state.isConnected ?? false);
-  //   });
-  // };
-
-  // const getNearByEvents = () => {
-  //   currentLocation &&
-  //     currentLocation.position &&
-  //     getEvents(currentLocation.position.lat, currentLocation.position.lng);
-  // };
 
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
@@ -226,52 +165,6 @@ const HomeScreen = ({navigation}: any) => {
     }
   };
 
-  // const getEvents = async (lat?: number, long?: number, distance?: number) => {
-  //   const api = `${
-  //     lat && long
-  //       ? `/get-events?lat=${lat}&long=${long}&distance=${
-  //           distance ?? 5
-  //         }&limit=5&isUpcoming=true`
-  //       : `/get-events?limit=5&isUpcoming=true`
-  //   }`;
-
-  //   if (events.length === 0 || nearbyEvents.length === 0) {
-  //     setIsLoading(true);
-  //   }
-  //   try {
-  //     const res: any = await eventAPI.HandleEvent(api);
-
-  //     setIsLoading(false);
-  //     res &&
-  //       res.data &&
-  //       (lat && long ? setNearbyEvents(res.data) : setEvents(res.data));
-  //   } catch (error) {
-  //     setIsLoading(false);
-  //     console.log(`Get event error in home screen line 74 ${error}`);
-  //   }
-  // };
-
-  // const getEventsData = async (
-  //   lat?: number,
-  //   long?: number,
-  //   distance?: number,
-  // ) => {
-  //   const api = `/get-events`;
-  //   try {
-  //     const res = await eventAPI.HandleEvent(api);
-
-  //     const data = res.data;
-
-  //     const items: EventModel[] = [];
-
-  //     data.forEach((item: any) => items.push(item));
-
-  //     setEventData(items);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   useEffect(() => {
     const setTimeoutId = setTimeout(() => {
       if (isLoggedIn) dispatch(getCurrent());
@@ -284,6 +177,9 @@ const HomeScreen = ({navigation}: any) => {
 
   useEffect(() => {
     socket.on('notice-cancle-order-from-driver', data => {
+      fetchBillsPending();
+    });
+    socket.on('notice-arrival-at-pick-up-point', data => {
       fetchBillsPending();
     });
   }, []);
@@ -360,43 +256,7 @@ const HomeScreen = ({navigation}: any) => {
               </CircleComponent>
             </RowComponent>
             <SpaceComponent height={20} />
-            {/* <RowComponent>
-            <RowComponent
-              styles={{flex: 1}}
-              onPress={() => navigation.navigate('SearchEvents')}>
-              <SearchNormal1
-                variant="TwoTone"
-                color={appColors.white}
-                size={20}
-              />
-              <View
-                style={{
-                  width: 1,
-                  backgroundColor: appColors.gray2,
-                  marginHorizontal: 10,
-                  height: 20,
-                }}
-              />
-              <TextComponent
-                flex={1}
-                text="Search..."
-                color={appColors.gray2}
-                size={16}
-              />
-            </RowComponent>
-            <TagComponent
-              bgColor={'#5D56F3'}
-              onPress={() =>
-                navigation.navigate('SearchEvents', {isFilter: true})
-              }
-              label="Filters"
-              icon={
-                <CircleComponent size={20} color="#B1AEFA">
-                  <Sort size={16} color="#5D56F3" />
-                </CircleComponent>
-              }
-            />
-          </RowComponent> */}
+
             <RowComponent justify="space-between">
               <TextComponent
                 text={`Hello, ${
@@ -436,7 +296,8 @@ const HomeScreen = ({navigation}: any) => {
             globalStyles.shadow,
             {
               backgroundColor: appColors.white,
-              height: 95,
+              // height: 95,
+              height: 60,
               borderWidth: 0.5,
               borderColor: appColors.gray3,
               borderRadius: 12,
@@ -449,7 +310,8 @@ const HomeScreen = ({navigation}: any) => {
             styles={{
               backgroundColor: appColors.WhiteSmoke,
               // flex: 1,
-              height: '45%',
+              // height: '45%',
+              height: '86%',
               borderRadius: 12,
               margin: 4,
               paddingLeft: 15,
@@ -460,36 +322,26 @@ const HomeScreen = ({navigation}: any) => {
               font={fontFamilies.medium}
               text="Where do you want to go?"></TextComponent>
           </RowComponent>
-          <RowComponent
-            justify="center"
-            styles={{
-              alignItems: 'center',
-              height: '43%',
-              paddingHorizontal: 5,
-            }}>
-            <CategoriesList isFill />
-          </RowComponent>
         </View>
       </SectionComponent>
 
-      <View style={{maxHeight: 130, width: '100%'}}>
-        <FlatList
-          data={listOrderPending}
-          showsVerticalScrollIndicator={false}
-          // style={[globalStyles.shadow]}
-          contentContainerStyle={{alignItems: 'center'}}
-          renderItem={({item, index}) => (
-            <View
-              style={{
-                width: 370,
-                justifyContent: 'center',
-                // backgroundColor: 'green',
-              }}>
-              <ItemOrderPending item={item}></ItemOrderPending>
+      <SectionComponent
+        styles={{
+          height: 110,
+          // backgroundColor: 'black',
+          justifyContent: 'center',
+          // alignItems: 'center',
+          // marginTop: 10,
+          paddingBottom: 0,
+        }}>
+        <RowComponent justify="space-between" styles={{flex: 1}}>
+          {data.itemBookingHomeData.map(e => (
+            <View key={e.id} style={{width: '25%'}}>
+              <ItemBookingHome data={e}></ItemBookingHome>
             </View>
-          )}
-        />
-      </View>
+          ))}
+        </RowComponent>
+      </SectionComponent>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -498,136 +350,123 @@ const HomeScreen = ({navigation}: any) => {
             flex: 1,
             // backgroundColor: 'coral',
             // marginTop: Platform.OS === 'ios' ? 22 : 18,
-            marginTop: 10,
+            // marginTop: 10,
           },
         ]}>
-        <SectionComponent
-          styles={{
-            height: 110,
-            // backgroundColor: 'black',
-            justifyContent: 'center',
-            // alignItems: 'center',
-            // marginTop: 10,
-            paddingBottom: 0,
-          }}>
-          <RowComponent justify="flex-start" styles={{flex: 1}}>
-            {data.itemBookingHomeData.map(e => (
-              <View key={e.id} style={{width: '35%'}}>
-                <ItemBookingHome data={e}></ItemBookingHome>
-              </View>
-            ))}
-          </RowComponent>
-        </SectionComponent>
-        {/* <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
-          <TabBarComponent
-            title="Upcoming Events"
-            onPress={() =>
-              navigation.navigate('ExploreEvents', {
-                key: 'upcoming',
-                title: 'Upcoming Events',
-              })
-            }
-          />
-          {events.length > 0 ? (
-            <FlatList
-              showsHorizontalScrollIndicator={false}
-              horizontal
-              data={events}
-              renderItem={({item, index}) => (
-                <EventItem key={`event${index}`} item={item} type="card" />
-              )}
-            />
-          ) : (
-            <LoadingComponent isLoading={isLoading} values={events.length} />
-          )}
-        </SectionComponent> */}
+        <View
+          style={{
+            marginTop: 5,
+            maxHeight: 85,
+            // width: '92%',
+            borderWidth: 0.2,
+            borderColor: '#EED5D2',
+            backgroundColor: '#F8F8FF',
 
-        {/* mẫu */}
-        <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
-          <TabBarComponent title="Upcoming Events" onPress={() => {}} />
+            // margin: 'auto',
+            padding: 5,
+            // borderRadius: 10,
+          }}>
           <FlatList
+            data={listOrderPending}
             showsHorizontalScrollIndicator={false}
             horizontal
-            data={Array.from({length: 5})}
+            style={[globalStyles.shadow]}
+            contentContainerStyle={{
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             renderItem={({item, index}) => (
-              <EventItem key={`event${index}`} item={itemEvent} type="card" />
+              <View
+                style={{
+                  // width: 300,
+                  justifyContent: 'center',
+                  paddingHorizontal: 5,
+                  // backgroundColor: 'green',
+                }}>
+                <ItemOrderPending item={item}></ItemOrderPending>
+              </View>
             )}
           />
-        </SectionComponent>
+        </View>
+        {/* </SectionComponent> */}
+        <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 20}}>
+          <TabBarComponent title="Upcoming Events" onPress={() => {}} />
+          <View
+            style={{
+              marginTop: 10,
+              // maxHeight: 85,
+              // width: '92%',
+              borderWidth: 0.2,
+              borderColor: '#EED5D2',
+              backgroundColor: '#F8F8FF',
 
-        <SectionComponent>
-          <ImageBackground
-            source={require('../../assets/images/invite-image.png')}
-            style={{flex: 1, padding: 16, minHeight: 127}}
-            imageStyle={{
-              resizeMode: 'cover',
-              borderRadius: 12,
+              // margin: 'auto',
+              padding: 5,
+              // borderRadius: 10,
             }}>
-            <TextComponent text="Invite your friends" title />
-            <TextComponent text="Get $20 for ticket" />
-
-            <RowComponent justify="flex-start">
-              <TouchableOpacity
-                onPress={() => console.log('fafafa')}
-                style={[
-                  globalStyles.button,
-                  {
-                    marginTop: 12,
-                    backgroundColor: '#00F8FF',
-                    paddingHorizontal: 28,
-                  },
-                ]}>
-                <TextComponent
-                  text="INVITE"
-                  font={fontFamilies.bold}
-                  color={appColors.white}
-                />
-              </TouchableOpacity>
-            </RowComponent>
-          </ImageBackground>
-        </SectionComponent>
-        {/* <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 24}}>
-          <TabBarComponent
-            title="Nearby You"
-            onPress={() =>
-              navigation.navigate('ExploreEvents', {
-                key: 'nearby',
-                title: 'Nearby You',
-              })
-            }
-          />
-          {nearbyEvents.length > 0 ? (
             <FlatList
               showsHorizontalScrollIndicator={false}
               horizontal
-              data={nearbyEvents}
+              data={Array.from({length: 5})}
               renderItem={({item, index}) => (
-                <EventItem key={`event${index}`} item={item} type="card" />
+                <EventItem key={`event${index}`} item={itemEvent} type="card" />
               )}
             />
-          ) : (
-            <LoadingComponent
-              isLoading={isLoading}
-              values={nearbyEvents.length}
+          </View>
+        </SectionComponent>
+
+        <TextComponent
+          text="Current location"
+          styles={{marginBottom: 5, paddingHorizontal: 16, marginTop: 10}}
+          title
+          flex={1}
+          size={16}
+        />
+
+        <View
+          style={{
+            height: 190,
+            padding: 5,
+            backgroundColor: appColors.gray2,
+            marginTop: 10,
+          }}>
+          <MapLibreGL.MapView
+            styleURL={loadMap}
+            style={{flex: 1}}
+            ref={mapRef}
+            zoomEnabled={false} // Tắt zoom
+            scrollEnabled={false} // Tắt cuộn (di chuyển bản đồ)
+            rotateEnabled={false} // Tắt xoay bản đồ
+            pitchEnabled={false} // Tắt thay đổi góc nhìn
+            onPress={() => console.log('Map Pressed')}>
+            <MapLibreGL.Camera
+              ref={cameraRef}
+              animationDuration={0}
+              centerCoordinate={[105.772607, 20.980216]}
+              zoomLevel={11}
             />
-          )}
-        </SectionComponent> */}
-      </ScrollView>
-
-      {/* <ModalLocationBooking
-        visible={isVibleModalLocation}
-        onClose={() => setIsVibleModalLocation(false)}
-        onSelect={val => {
-          // setAddressSelected(val);
-          // onSelect(val);
-        }}
-      /> */}
-
-      {/* <Modal animationType="fade" style={[{flex: 1}]} visible={!isOnline}>
-        <View style={[globalStyles.center, {flex: 1}]}>
-          <Text>Network error</Text>
+            <MapLibreGL.UserLocation />
+          </MapLibreGL.MapView>
         </View>
-      </Modal> */}
+
+        <View
+          style={{
+            alignItems: 'center',
+            width: '100%',
+          }}>
+          <Image
+            source={require('../../assets/images/banner-home.png')} // ✅ Không dùng uri
+            style={{
+              width: 180,
+              height: 180,
+
+              padding: 10,
+              borderRadius: 12,
+              resizeMode: 'contain',
+            }}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 };

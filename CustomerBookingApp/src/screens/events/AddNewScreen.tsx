@@ -1,4 +1,4 @@
-import {Image, StatusBar, View} from 'react-native';
+import {Image, Platform, StatusBar, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
   ButtonComponent,
@@ -24,6 +24,8 @@ import {appColors} from '../../constants/appColors';
 import {EventModel} from '../../models/EventModel';
 import {RootState} from '../../stores/redux';
 import {apiGetAllUsers} from '../../apis';
+import {globalStyles} from '../../styles/globalStyles';
+import {fontFamilies} from '../../constants/fontFamilies';
 // import eventAPI from '../apis/eventApi';
 
 const initValues = {
@@ -162,14 +164,39 @@ const AddNewScreen = ({navigation}: any) => {
   };
 
   return (
-    <ContainerComponent isScroll>
+    <ContainerComponent isScroll turnOffSafeArea>
       {/* <StatusBar translucent /> */}
       {/* <StatusBar translucent barStyle={'light-content'} /> */}
+      <StatusBar translucent barStyle={'light-content'} />
+      <View style={[globalStyles.shadow, {height: 95, borderRadius: 20}]}>
+        <View
+          style={[
+            globalStyles.shadow,
+            {
+              backgroundColor: appColors.primary,
+              // height: Platform.OS === 'android' ? 168 : 182,
+              // height: 182,
+              height: 85,
+              width: '100%',
+              borderBottomLeftRadius: 20,
+              borderBottomRightRadius: 20,
+              justifyContent: 'center',
+              // borderWidth: 1,
+              alignItems: 'center',
+              paddingTop:
+                Platform.OS === 'android' ? StatusBar.currentHeight : 52,
+            },
+          ]}>
+          <TextComponent
+            title
+            text="Add new event"
+            font={fontFamilies.bold}
+            color={appColors.WhiteSmoke}></TextComponent>
+        </View>
+      </View>
+
       <SectionComponent>
-        <TextComponent text="Add new" title />
-      </SectionComponent>
-      <SectionComponent>
-        {eventData.photoUrl || fileSelected ? (
+        {/* {eventData.photoUrl || fileSelected ? (
           <Image
             source={{
               uri: eventData.photoUrl ? eventData.photoUrl : fileSelected.uri,
@@ -187,7 +214,7 @@ const AddNewScreen = ({navigation}: any) => {
           //     ? handleChangeValue('photoUrl', val.value as string)
           //     : handleFileSelected(val.value)
           // }
-        />
+        /> */}
         <InputComponent
           placeholder="Title"
           value={eventData.title}
@@ -204,7 +231,7 @@ const AddNewScreen = ({navigation}: any) => {
           // onChange={() => {}}
           onChange={val => handleChangeValue('description', val)}
         />
-        <RowComponent
+        {/* <RowComponent
           styles={{
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -244,7 +271,7 @@ const AddNewScreen = ({navigation}: any) => {
               onSelect={val => handleChangeValue('category', val)}
             />
           </View>
-        </RowComponent>
+        </RowComponent> */}
 
         <RowComponent>
           <View style={{width: '35%'}}>
@@ -264,7 +291,7 @@ const AddNewScreen = ({navigation}: any) => {
           />
         </RowComponent>
 
-        <DropdownPicker
+        {/* <DropdownPicker
           label="Invited users"
           values={usersSelects}
           onSelect={() => {}}
@@ -273,7 +300,7 @@ const AddNewScreen = ({navigation}: any) => {
           // }
           selected={eventData.users}
           multible
-        />
+        /> */}
         {/* <InputComponent
           placeholder="Title Address"
           allowClear

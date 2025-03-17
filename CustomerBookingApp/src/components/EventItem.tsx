@@ -1,4 +1,4 @@
-import {Bookmark, Bookmark2, Location} from 'iconsax-react-native';
+import {Bookmark, Bookmark2, Location, TimerStart} from 'iconsax-react-native';
 import React from 'react';
 import {
   AvatarGroup,
@@ -10,7 +10,7 @@ import {
 import {appColors} from '../constants/appColors';
 import {appInfo} from '../constants/appInfos';
 import {EventModel} from '../models/EventModel';
-import {Image, ImageBackground, View} from 'react-native';
+import {Image, ImageBackground, TouchableOpacity, View} from 'react-native';
 import {fontFamilies} from '../constants/fontFamilies';
 import {globalStyles} from '../styles/globalStyles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -25,24 +25,36 @@ interface Props {
 
 const EventItem = (props: Props) => {
   const {item, type} = props;
-  // console.log(item);
+  console.log(item);
 
   const navigation: any = useNavigation();
 
   return (
-    <CardComponent
-      isShadow
-      styles={{width: appInfo.sizes.WIDTH * 0.7}}
-      onPress={() => navigation.navigate('EventDetail', {item})}>
+    <View>
       {type === 'card' ? (
-        <>
-          <ImageBackground
-            style={{flex: 1, marginBottom: 12, height: 131, padding: 10}}
-            source={require('../assets/images/event-image.png')}
-            imageStyle={{
-              resizeMode: 'cover',
+        <TouchableOpacity
+          style={{
+            width: appInfo.sizes.WIDTH * 0.7,
+            marginHorizontal: 5,
+            // overflow: 'hidden',
+          }}
+          onPress={() => navigation.navigate('EventDetail', {item})}>
+          <View
+            style={{
+              flex: 1,
+              marginBottom: 1,
+              height: 110,
+              padding: 10,
+              // backgroundColor: 'coral',
+              backgroundColor: '#EEE5DE',
               borderRadius: 12,
-            }}>
+            }}
+            // source={require('../assets/images/event-image.png')}
+            // imageStyle={{
+            //   resizeMode: 'cover',
+            //   borderRadius: 12,
+            // }}
+          >
             <RowComponent justify="space-between">
               <CardComponent
                 styles={[globalStyles.noSpaceCard]}
@@ -60,34 +72,60 @@ const EventItem = (props: Props) => {
                   text="JUNE"
                 />
               </CardComponent>
-              <CardComponent
-                styles={[globalStyles.noSpaceCard]}
-                color="#ffffffB3">
-                <MaterialIcons
-                  name="bookmark"
-                  color={appColors.danger2}
-                  size={22}
+              <SpaceComponent width={10}></SpaceComponent>
+              <View>
+                <TextComponent
+                  numOfLine={1}
+                  text={item.title}
+                  styles={{width: '85%'}}
+                  title
+                  size={15}
                 />
-              </CardComponent>
+                <RowComponent>
+                  <Location
+                    size={18}
+                    color={appColors.danger2}
+                    variant="Bold"
+                  />
+                  <SpaceComponent width={8} />
+                  <TextComponent
+                    flex={1}
+                    numOfLine={1}
+                    title
+                    // text={item.locationAddress}
+                    text={item.location.address}
+                    size={12}
+                    color={appColors.text2}
+                  />
+                </RowComponent>
+              </View>
             </RowComponent>
-          </ImageBackground>
-          <TextComponent numOfLine={1} text={item.title} title size={18} />
-          <AvatarGroup />
-          <RowComponent>
-            <Location size={18} color={appColors.text3} variant="Bold" />
-            <SpaceComponent width={8} />
+            <SpaceComponent height={6}></SpaceComponent>
             <TextComponent
-              flex={1}
-              numOfLine={1}
-              // text={item.locationAddress}
-              text={item.location.address}
-              size={12}
               color={appColors.text2}
+              numOfLine={2}
+              text={item.description}
+              // title
+              size={11}
             />
-          </RowComponent>
-        </>
+            <SpaceComponent height={2}></SpaceComponent>
+            <RowComponent justify="flex-end">
+              <TimerStart size="14" color="#FF8A65" />
+              <SpaceComponent width={5}></SpaceComponent>
+              <TextComponent
+                // numOfLine={1}
+                title
+                // text={item.locationAddress}
+                size={12}
+                color={appColors.text2}
+                text="18/07/2025"></TextComponent>
+            </RowComponent>
+          </View>
+        </TouchableOpacity>
       ) : (
-        <>
+        <CardComponent
+          styles={{width: appInfo.sizes.WIDTH * 0.7}}
+          onPress={() => navigation.navigate('EventDetail', {item})}>
           <RowComponent>
             <Image
               source={{uri: item.photoUrl}}
@@ -125,9 +163,9 @@ const EventItem = (props: Props) => {
               </RowComponent>
             </View>
           </RowComponent>
-        </>
+        </CardComponent>
       )}
-    </CardComponent>
+    </View>
   );
 };
 
