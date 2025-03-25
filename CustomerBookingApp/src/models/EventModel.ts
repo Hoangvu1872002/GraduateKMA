@@ -1,25 +1,24 @@
 export interface EventModel {
-  __v: number;
   _id: string;
   authorId: string;
-  category: string;
+  status: string;
   createdAt: string;
   description: string;
   endAt: number;
   locationAddress: string;
-  locationTitle: string;
+  main_name_place: string;
   photoUrl: string;
-  position: Position;
+  latitude: number;
+  longitude: number;
   price: string;
-  date: number;
+  dateEnd: number;
   startAt: number;
   title: string;
   updatedAt: string;
-  users: any[];
 }
 
-export interface Position {
-  _id: string;
-  lat: number;
-  long: number;
-}
+// export interface Position {
+//   _id: string;
+//   lat: number;
+//   long: number;
+// }

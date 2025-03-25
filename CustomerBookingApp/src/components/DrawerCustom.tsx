@@ -53,31 +53,31 @@ const DrawerCustom = ({navigation}: any) => {
       title: 'Message',
       icon: <Message2 size={size} color={color} />,
     },
-    {
-      key: 'Calendar',
-      title: 'Calendar',
-      icon: <Calendar size={size} color={color} />,
-    },
-    {
-      key: 'Bookmark',
-      title: 'Bookmark',
-      icon: <Bookmark2 size={size} color={color} />,
-    },
-    {
-      key: 'ContactUs',
-      title: 'Contact Us',
-      icon: <Sms size={size} color={color} />,
-    },
-    {
-      key: 'Settings',
-      title: 'Settings',
-      icon: <Setting2 size={size} color={color} />,
-    },
-    {
-      key: 'HelpAndFAQs',
-      title: 'Help & FAQs',
-      icon: <MessageQuestion size={size} color={color} />,
-    },
+    // {
+    //   key: 'Calendar',
+    //   title: 'Calendar',
+    //   icon: <Calendar size={size} color={color} />,
+    // },
+    // {
+    //   key: 'Bookmark',
+    //   title: 'Bookmark',
+    //   icon: <Bookmark2 size={size} color={color} />,
+    // },
+    // {
+    //   key: 'ContactUs',
+    //   title: 'Contact Us',
+    //   icon: <Sms size={size} color={color} />,
+    // },
+    // {
+    //   key: 'Settings',
+    //   title: 'Settings',
+    //   icon: <Setting2 size={size} color={color} />,
+    // },
+    // {
+    //   key: 'HelpAndFAQs',
+    //   title: 'Help & FAQs',
+    //   icon: <MessageQuestion size={size} color={color} />,
+    // },
     {
       key: 'SignOut',
       title: 'Sign Out',
@@ -117,16 +117,11 @@ const DrawerCustom = ({navigation}: any) => {
         handleLogout();
         break;
 
-      // case 'MyProfile':
-      //   navigation.navigate('Profile', {
-      //     screen: 'ProfileScreen',
-      //     params: {
-      //       id: auth.id,
-      //     },
-      //   });
-      //   break;
+      case 'Message':
+        navigation.navigate('Message');
+        break;
+
       default:
-        // console.log(key);
         break;
     }
 

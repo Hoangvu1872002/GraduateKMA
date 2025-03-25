@@ -39,7 +39,6 @@ import ItemSuggestLocation from '../../../components/ItemSuggestLocation';
 import dataFake from '../../../constants/data';
 import {ScrollView} from 'react-native-gesture-handler';
 import Geolocation from '@react-native-community/geolocation';
-import ModalMapConfirnRoute from '../../../modals/modalMap/ModalMapConfirnRoute';
 import ModalMapLocation from '../../../modals/modalMap/ModalMapLocation';
 
 const ScreenLocationBooking = ({navigation, route}: any) => {
@@ -253,6 +252,20 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
       setLocationsDestination([]); // Clear suggestions nếu input rỗng
     }
   }, [debouncedInputDestination, inputFocusing]);
+
+  useEffect(() => {
+    if (route.params?.item) {
+      setSearchKeyDestination(route.params.item.main_name_place);
+
+      setAddressSelectedDestination({
+        place_id: route.params.item.place_id,
+        description: route.params.item.locationAddress,
+        main_name_place: route.params.item.main_name_place,
+        latitude: route.params.item.latitude,
+        longitude: route.params.item.longitude,
+      });
+    }
+  }, []);
 
   return (
     <>

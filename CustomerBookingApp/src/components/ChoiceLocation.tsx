@@ -12,16 +12,15 @@ import {useNavigation} from '@react-navigation/native';
 
 interface Props {
   onSelect: (val: any) => void;
+  addressSelected: LocationModelSuggest | null;
+  setAddressSelected: (val: LocationModelSuggest) => void;
 }
 
 const ChoiceLocation = (props: Props) => {
-  const navigation: any = useNavigation();
-  const {onSelect} = props;
+  const {onSelect, addressSelected, setAddressSelected} = props;
 
   const [isVibleModalLocation, setIsVibleModalLocation] = useState(false);
   const [isVibleModalMapLocation, setIsVibleModalMapLocation] = useState(false);
-  const [addressSelected, setAddressSelected] =
-    useState<LocationModelSuggest>();
 
   // const isFocused = useIsFocused();
 

@@ -9,7 +9,7 @@ export const userSlide = createSlice({
     current: null,
     token: null,
     isLoading: false,
-    mes: '',
+
     listOrderPending: [] as IBill[],
   },
   reducers: {

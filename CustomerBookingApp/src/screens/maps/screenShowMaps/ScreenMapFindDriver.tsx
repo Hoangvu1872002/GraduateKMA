@@ -18,9 +18,6 @@ import {
 } from 'iconsax-react-native';
 import {appColors} from '../../../constants/appColors';
 import MapLibreGL from '@maplibre/maplibre-react-native';
-import Geolocation from '@react-native-community/geolocation';
-import {useFocusEffect} from '@react-navigation/native';
-import axios from 'axios';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {LocationModelSuggest} from '../../../models/LocationModel';
 import FastImage from 'react-native-fast-image';

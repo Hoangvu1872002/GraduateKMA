@@ -16,16 +16,18 @@ import {globalStyles} from '../styles/globalStyles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import {DateTime} from '../utils/DateTime';
+import moment from 'moment';
 
 interface Props {
   // item: EventModel;
-  item: any;
+  item: EventModel;
   type: 'card' | 'list';
 }
 
 const EventItem = (props: Props) => {
   const {item, type} = props;
-  console.log(item);
+
+  // console.log(item.main_name_place);
 
   const navigation: any = useNavigation();
 
@@ -55,21 +57,21 @@ const EventItem = (props: Props) => {
             //   borderRadius: 12,
             // }}
           >
-            <RowComponent justify="space-between">
+            <RowComponent justify="flex-start">
               <CardComponent
-                styles={[globalStyles.noSpaceCard]}
+                styles={[globalStyles.noSpaceCard, {width: 60}]}
                 color="#ffffffB3">
                 <TextComponent
                   color={appColors.danger2}
                   font={fontFamilies.bold}
                   size={18}
-                  text="10"
+                  text={moment(item.dateEnd).format('DD')}
                 />
                 <TextComponent
                   color={appColors.danger2}
                   font={fontFamilies.semiBold}
                   size={10}
-                  text="JUNE"
+                  text={moment(item.dateEnd).format('MMMM')}
                 />
               </CardComponent>
               <SpaceComponent width={10}></SpaceComponent>
@@ -77,7 +79,7 @@ const EventItem = (props: Props) => {
                 <TextComponent
                   numOfLine={1}
                   text={item.title}
-                  styles={{width: '85%'}}
+                  styles={{width: 200}}
                   title
                   size={15}
                 />
@@ -89,26 +91,29 @@ const EventItem = (props: Props) => {
                   />
                   <SpaceComponent width={8} />
                   <TextComponent
+                    // styles={{width: 80}}
                     flex={1}
                     numOfLine={1}
                     title
                     // text={item.locationAddress}
-                    text={item.location.address}
+                    text={item.main_name_place}
                     size={12}
-                    color={appColors.text2}
+                    color={appColors.text}
                   />
                 </RowComponent>
               </View>
             </RowComponent>
             <SpaceComponent height={6}></SpaceComponent>
+
             <TextComponent
               color={appColors.text2}
               numOfLine={2}
               text={item.description}
+              styles={{height: 30}}
               // title
               size={11}
             />
-            <SpaceComponent height={2}></SpaceComponent>
+            {/* <SpaceComponent height={2}></SpaceComponent> */}
             <RowComponent justify="flex-end">
               <TimerStart size="14" color="#FF8A65" />
               <SpaceComponent width={5}></SpaceComponent>
@@ -118,7 +123,9 @@ const EventItem = (props: Props) => {
                 // text={item.locationAddress}
                 size={12}
                 color={appColors.text2}
-                text="18/07/2025"></TextComponent>
+                text={moment(item.createdAt).format(
+                  'mm:HH - DD/MM/YYYY',
+                )}></TextComponent>
             </RowComponent>
           </View>
         </TouchableOpacity>
@@ -140,15 +147,15 @@ const EventItem = (props: Props) => {
             <View
               style={{
                 flex: 1,
-                justifyContent: 'space-between',
+                justifyContent: 'flex-start',
                 height: '100%',
               }}>
-              <TextComponent
+              {/* <TextComponent
                 color={appColors.primary}
                 text={`${DateTime.GetDayString(item.date)} • ${DateTime.GetTime(
                   new Date(item.startAt),
                 )}`}
-              />
+              /> */}
               <TextComponent text={item.title} title size={19} numOfLine={2} />
               <RowComponent>
                 <Location size={18} color={appColors.text3} variant="Bold" />
@@ -156,7 +163,7 @@ const EventItem = (props: Props) => {
                 <TextComponent
                   flex={1}
                   numOfLine={1}
-                  text={item.location.address}
+                  text={item.main_name_place}
                   size={12}
                   color={appColors.text2}
                 />

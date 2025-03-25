@@ -5,7 +5,7 @@ export const appInfo = {
     WIDTH: Dimensions.get('window').width,
     HEIGHT: Dimensions.get('window').height,
   },
-  BASE_URL: 'http://192.168.68.122:5002',
+  BASE_URL: 'http://192.168.1.39:5002',
   GoogleApiKey: 'AIzaSyCbtwJ3e1wGs0RcFkgQPtaLwg0P4XxkELA',
   monthNames: [
     'January',

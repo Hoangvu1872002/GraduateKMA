@@ -59,7 +59,7 @@ import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 import data from '../../constants/data';
 import ModalLocationBooking from '../../modals/modalSelectLocation/ModalLocationBooking';
-import {apiGetBillsPending} from '../../apis';
+import {apiGetBillsPending, apiGetEventLastest} from '../../apis';
 import socket from '../../apis/socket';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 
@@ -84,7 +84,7 @@ const HomeScreen = ({navigation}: any) => {
     longitude: 105.772607,
   });
 
-  const cameraRef = useRef<MapLibreGL.CameraRef>(null);
+  const cameraRef = useRef<MapLibreGL.CameraRef | null>(null);
   const mapRef = useRef<MapLibreGL.MapViewRef>(null);
 
   const isFocused = useIsFocused();
@@ -95,30 +95,21 @@ const HomeScreen = ({navigation}: any) => {
   // console.log(listOrderPending);
 
   // mẫu
-  const itemEvent = {
-    title: 'International Band Music Concert',
-    description:
-      'Enjoy your favorite dishe and a lovely your friends and family and have a great time. Food from local food trucks will be available for purchase.',
-    location: {
-      title: 'Gala Convention Center',
-      address: '36 Guild Street London, UK',
-    },
-    imageUrl: '',
-    users: [''],
-    authorId: '',
-    startAt: Date.now(),
-    endAt: Date.now(),
-    date: Date.now(),
-  };
 
   const fetchBillsPending = async () => {
     const rs = await apiGetBillsPending();
     setListOrderPending(rs.data.bills);
   };
 
+  const fetchEventLastest = async () => {
+    const rs = await apiGetEventLastest();
+    setEvents(rs.data.rs);
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchBillsPending();
+      fetchEventLastest();
     }, []),
   );
 
@@ -132,11 +123,12 @@ const HomeScreen = ({navigation}: any) => {
             long: position.coords.longitude,
           });
           cameraRef.current?.setCamera({
+            zoomLevel: 11,
             centerCoordinate: [
               position.coords.longitude,
               position.coords.latitude,
             ],
-            animationDuration: 1000, // Di chuyển mượt
+            animationDuration: 0, // Di chuyển mượt
           });
         }
       },
@@ -184,8 +176,6 @@ const HomeScreen = ({navigation}: any) => {
     });
   }, []);
 
-  // console.log(currentLocation);
-
   return (
     <View style={[globalStyles.container]}>
       <StatusBar barStyle={'light-content'} />
@@ -223,6 +213,8 @@ const HomeScreen = ({navigation}: any) => {
                   <TextComponent
                     text={`${currentLocation}`}
                     flex={0}
+                    styles={{width: 230}}
+                    numOfLine={1}
                     color={appColors.white}
                     font={fontFamilies.medium}
                     size={13}
@@ -284,10 +276,6 @@ const HomeScreen = ({navigation}: any) => {
             </RowComponent>
             <SpaceComponent height={20} />
           </View>
-
-          {/* <View style={{marginBottom: -16}}>
-          <CategoriesList isFill />
-        </View> */}
         </View>
       </LinearGradient>
       <SectionComponent styles={{marginTop: -85}}>
@@ -407,9 +395,9 @@ const HomeScreen = ({navigation}: any) => {
             <FlatList
               showsHorizontalScrollIndicator={false}
               horizontal
-              data={Array.from({length: 5})}
+              data={events}
               renderItem={({item, index}) => (
-                <EventItem key={`event${index}`} item={itemEvent} type="card" />
+                <EventItem key={`event${index}`} item={item} type="card" />
               )}
             />
           </View>
@@ -427,7 +415,7 @@ const HomeScreen = ({navigation}: any) => {
           style={{
             height: 190,
             padding: 5,
-            backgroundColor: appColors.gray2,
+            backgroundColor: '#EEE5DE',
             marginTop: 10,
           }}>
           <MapLibreGL.MapView
@@ -442,7 +430,7 @@ const HomeScreen = ({navigation}: any) => {
             <MapLibreGL.Camera
               ref={cameraRef}
               animationDuration={0}
-              centerCoordinate={[105.772607, 20.980216]}
+              centerCoordinate={[centerCoords.longitude, centerCoords.latitude]}
               zoomLevel={11}
             />
             <MapLibreGL.UserLocation />

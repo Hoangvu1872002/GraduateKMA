@@ -23,9 +23,11 @@ import {appColors} from '../../constants/appColors';
 // import storage from '@react-native-firebase/storage';
 import {EventModel} from '../../models/EventModel';
 import {RootState} from '../../stores/redux';
-import {apiGetAllUsers} from '../../apis';
+import {apiCreateEvent, apiGetAllUsers} from '../../apis';
 import {globalStyles} from '../../styles/globalStyles';
 import {fontFamilies} from '../../constants/fontFamilies';
+import Toast from 'react-native-toast-message';
+import {LocationModelSuggest} from '../../models/LocationModel';
 // import eventAPI from '../apis/eventApi';
 
 const initValues = {
@@ -37,14 +39,14 @@ const initValues = {
     lat: '',
     long: '',
   },
-  photoUrl: '',
-  users: [],
+  // photoUrl: '',
+  // users: [],
   authorId: '',
   // startAt: Date.now(),
   endAt: Date.now(),
   date: Date.now(),
-  price: '',
-  category: '',
+  // price: '',
+  // category: '',
 };
 
 const AddNewScreen = ({navigation}: any) => {
@@ -57,13 +59,15 @@ const AddNewScreen = ({navigation}: any) => {
     ...initValues,
     authorId: current._id,
   });
-  const [usersSelects, setUsersSelects] = useState<SelectModel[]>([]);
-  const [fileSelected, setFileSelected] = useState<any>();
+  // const [usersSelects, setUsersSelects] = useState<SelectModel[]>([]);
+  // const [fileSelected, setFileSelected] = useState<any>();
   const [errorsMess, setErrorsMess] = useState<string[]>([]);
+  const [addressSelected, setAddressSelected] =
+    useState<LocationModelSuggest | null>(null);
 
-  useEffect(() => {
-    handleGetAllUsers();
-  }, []);
+  // useEffect(() => {
+  //   handleGetAllUsers();
+  // }, []);
 
   useEffect(() => {
     const mess = Validate.EventValidation(eventData);
@@ -81,61 +85,57 @@ const AddNewScreen = ({navigation}: any) => {
     setEventData(items);
   };
 
-  const handleGetAllUsers = async () => {
-    try {
-      const res: any = await apiGetAllUsers();
+  // const handleGetAllUsers = async () => {
+  //   try {
+  //     const res: any = await apiGetAllUsers();
 
-      if (res && res.data && res.data.rs) {
-        const items: SelectModel[] = [];
+  //     if (res && res.data && res.data.rs) {
+  //       const items: SelectModel[] = [];
 
-        res.data.rs.forEach(
-          (item: any) =>
-            item.email &&
-            items.push({
-              label: item.email,
-              value: item._id,
-            }),
-        );
+  //       res.data.rs.forEach(
+  //         (item: any) =>
+  //           item.email &&
+  //           items.push({
+  //             label: item.email,
+  //             value: item._id,
+  //           }),
+  //       );
 
-        setUsersSelects(items);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // const handleAddEvent = async () => {
-  //   if (fileSelected) {
-  //     const filename = `${fileSelected.filename ?? `image-${Date.now()}`}.${
-  //       fileSelected.path.split('.')[1]
-  //     }`;
-  //     const path = `images/${filename}`;
-
-  //     const res = storage().ref(path).putFile(fileSelected.path);
-
-  //     res.on(
-  //       'state_changed',
-  //       snap => {
-  //         console.log(snap.bytesTransferred);
-  //       },
-  //       error => {
-  //         console.log(error);
-  //       },
-  //       () => {
-  //         storage()
-  //           .ref(path)
-  //           .getDownloadURL()
-  //           .then(url => {
-  //             eventData.photoUrl = url;
-
-  //             handlePustEvent(eventData);
-  //           });
-  //       },
-  //     );
-  //   } else {
-  //     handlePustEvent(eventData);
+  //       setUsersSelects(items);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
   //   }
   // };
+
+  const handleAddEvent = async () => {
+    const rs = await apiCreateEvent(eventData);
+
+    if (rs.data.success) {
+      setEventData({
+        ...initValues,
+        authorId: current._id,
+      });
+
+      setAddressSelected(null);
+
+      Toast.show({
+        type: 'success',
+        text1: 'Success!',
+        autoHide: true,
+        text2: 'Add event success',
+        visibilityTime: 2000,
+      });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Error!',
+        autoHide: true,
+        text2: 'Error, please review the input data!',
+        visibilityTime: 3000,
+      });
+    }
+  };
 
   // const handlePustEvent = async (event: EventModel) => {
   //   const api = `/add-new`;
@@ -195,7 +195,7 @@ const AddNewScreen = ({navigation}: any) => {
         </View>
       </View>
 
-      <SectionComponent>
+      <SectionComponent styles={{marginTop: 30}}>
         {/* {eventData.photoUrl || fileSelected ? (
           <Image
             source={{
@@ -308,10 +308,16 @@ const AddNewScreen = ({navigation}: any) => {
           // onChange={() => {}}
           onChange={val => handleChangeValue('locationTitle', val)}
         /> */}
-        <ChoiceLocation onSelect={val => handleLocation(val)} />
+        <ChoiceLocation
+          addressSelected={addressSelected}
+          onSelect={val => handleLocation(val)}
+          setAddressSelected={(val: LocationModelSuggest) =>
+            setAddressSelected(val)
+          }
+        />
       </SectionComponent>
 
-      {errorsMess.length > 0 && (
+      {/* {errorsMess.length > 0 && (
         <SectionComponent>
           {errorsMess.map(mess => (
             <TextComponent
@@ -322,13 +328,33 @@ const AddNewScreen = ({navigation}: any) => {
             />
           ))}
         </SectionComponent>
-      )}
+      )} */}
+
+      <View
+        style={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: 270,
+        }}>
+        <Image
+          source={require('../../assets/images/banner-add-event.png')} // ✅ Không dùng uri
+          style={{
+            width: 180,
+            height: 180,
+
+            padding: 10,
+            borderRadius: 12,
+            resizeMode: 'contain',
+          }}
+        />
+      </View>
 
       <SectionComponent>
         <ButtonComponent
           disable={errorsMess.length > 0}
           text="Add New"
-          // onPress={handleAddEvent}
+          onPress={handleAddEvent}
           type="primary"
         />
       </SectionComponent>
