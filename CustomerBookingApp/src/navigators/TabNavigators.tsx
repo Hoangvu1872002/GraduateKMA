@@ -13,6 +13,7 @@ import EventNavigator from './EventNavigator';
 import ProfileNavigator from './ProfileNavigator';
 import AddNewEventNavigator from './AddNewEventNavigator';
 import HistoryNavigator from './HistoryNavigator';
+import MessageNavigator from './MessageNavigator';
 
 const TabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -47,17 +48,17 @@ const TabNavigator = () => {
               icon = <User size={size} variant="Bold" color={color} />;
               break;
 
-            case 'Add':
+            case 'Message':
               icon = (
-                <CircleComponent
-                  size={52}
-                  styles={[
-                    globalStyles.shadow,
-                    {marginTop: 10},
-                    // {marginTop: Platform.OS === 'ios' ? -50 : -60},
-                  ]}>
-                  <AddSquare size={24} color={appColors.white} variant="Bold" />
-                </CircleComponent>
+                // <CircleComponent
+                //   size={52}
+                //   styles={[
+                //     globalStyles.shadow,
+                //     {marginTop: 10},
+                //     // {marginTop: Platform.OS === 'ios' ? -50 : -60},
+                //   ]}>
+                <AddSquare size={24} color={color} variant="Bold" />
+                // </CircleComponent>
               );
               break;
           }
@@ -68,7 +69,7 @@ const TabNavigator = () => {
         },
         tabBarLabelPosition: 'below-icon',
         tabBarLabel({focused}) {
-          return route.name === 'Add' ? null : (
+          return (
             <TextComponent
               text={route.name}
               flex={0}
@@ -83,7 +84,7 @@ const TabNavigator = () => {
       })}>
       <Tab.Screen name="Explore" component={ExploreNavigator} />
       <Tab.Screen name="Events" component={EventNavigator} />
-      <Tab.Screen name="Add" component={AddNewEventNavigator} />
+      <Tab.Screen name="Message" component={MessageNavigator} />
       <Tab.Screen name="History" component={HistoryNavigator} />
       <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>

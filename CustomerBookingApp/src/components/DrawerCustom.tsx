@@ -48,11 +48,11 @@ const DrawerCustom = ({navigation}: any) => {
       title: 'My Profile',
       icon: <User size={size} color={color} />,
     },
-    {
-      key: 'Message',
-      title: 'Message',
-      icon: <Message2 size={size} color={color} />,
-    },
+    // {
+    //   key: 'Message',
+    //   title: 'Message',
+    //   icon: <Message2 size={size} color={color} />,
+    // },
     // {
     //   key: 'Calendar',
     //   title: 'Calendar',

@@ -6,6 +6,7 @@ import EventsScreen from './events/EventsScreen';
 import HomeScreen from './home/HomeScreen';
 import ProfileScreen from './profiles/ProfileScreen';
 import SplashScreen from './splash/SplashScreen';
+import ListRoomMessageScreen from './message/ListRoomMessageScreen';
 
 export {
   HomeScreen,
@@ -17,6 +18,7 @@ export {
   //   AddNewScreen,
   EventsScreen,
   ProfileScreen,
+  ListRoomMessageScreen,
   //   SearchEvents,
   //   EventDetail,
 };

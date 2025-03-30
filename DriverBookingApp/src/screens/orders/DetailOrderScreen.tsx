@@ -1,6 +1,6 @@
 import {View, Text, StatusBar, Image} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {IBillTemporary} from '../../../models/SelectModel';
+import {IBillTemporary} from '../../models/SelectModel';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import axios from 'axios';

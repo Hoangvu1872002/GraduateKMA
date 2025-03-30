@@ -12,6 +12,7 @@ var authUserRouter = require("./routes/authUserRouter");
 var authDriverRouter = require("./routes/authDriverRouter");
 var billRouter = require("./routes/bill");
 var eventRouter = require("./routes/event");
+var roomChatRouter = require("./routes/roomChat");
 
 const { errorsMiddleware } = require("./middlewares/errorsMiddleware");
 
@@ -40,6 +41,7 @@ app.use("/auth-user", authUserRouter);
 app.use("/auth-driver", authDriverRouter);
 app.use("/bill", billRouter);
 app.use("/event", eventRouter);
+app.use("/room-chat", roomChatRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

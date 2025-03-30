@@ -224,7 +224,7 @@ const HomeScreen = ({navigation}: any) => {
 
               <CircleComponent
                 onPress={() => dispatch(logout({}))}
-                // onPress={() => navigation.navigate('NotificationsScreen')}
+                // onPress={() => {}}
                 color="#524CE0"
                 size={36}>
                 <View>
@@ -378,7 +378,12 @@ const HomeScreen = ({navigation}: any) => {
         </View>
         {/* </SectionComponent> */}
         <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 20}}>
-          <TabBarComponent title="Upcoming Events" onPress={() => {}} />
+          <TabBarComponent
+            title="Upcoming Events"
+            onPress={() => {
+              navigation.navigate('Events');
+            }}
+          />
           <View
             style={{
               marginTop: 10,

@@ -6,6 +6,7 @@ import ScreenLocationBooking from '../screens/maps/screenSelectLocations/ScreenL
 import ModalMapConfirnRoute from '../screens/maps/screenShowMaps/ScreenlMapConfirmRoute';
 import ScreenMapFindDriver from '../screens/maps/screenShowMaps/ScreenMapFindDriver';
 import ScreenMapFollowDriver from '../screens/maps/screenShowMaps/ScreenMapFollowDriver';
+import RoomMessageScreen from '../screens/message/RoomMessageScreen';
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
 
@@ -31,7 +32,7 @@ const MainNavigator = () => {
         name="ScreenMapFollowDriver"
         component={ScreenMapFollowDriver}
       />
-      {/* <Stack.Screen name="Main" component={TabNavigator}></Stack.Screen> */}
+      <Stack.Screen name="RoomMessageScreen" component={RoomMessageScreen} />
     </Stack.Navigator>
   );
 };

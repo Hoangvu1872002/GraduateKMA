@@ -1,6 +1,9 @@
 const driverModel = require("../../models/driverModel");
 const BillTemporary = require("../../models/billTemporaryModel");
 const Bill = require("../../models/billModel");
+const RoomChat = require("../../models/roomChatModal");
+
+const mongoose = require("mongoose"); // Erase if already required
 
 module.exports = function (io) {
   io.of("/booking").on("connection", (socket) => {
@@ -147,11 +150,41 @@ module.exports = function (io) {
       });
 
       await BillTemporary.findByIdAndDelete(data.idBillTemporary);
+
+      // Kiểm tra xem phòng chat đã tồn tại chưa
+      let roomChat = await RoomChat.findOne({
+        user: bill.userId,
+        driver: data.infDriver._id,
+      });
+
+      // Tạo tin nhắn mặc định
+      const defaultMessage = {
+        id: new mongoose.Types.ObjectId().toString(),
+        sender: data.infDriver._id,
+        message: "Tôi đang đến điểm đón",
+        isRead: false,
+        createdAt: new Date(),
+      };
+
+      if (!roomChat) {
+        // Nếu chưa có phòng, tạo phòng mới
+        roomChat = new RoomChat({
+          user: bill.userId,
+          driver: data.infDriver._id,
+          listMessages: [defaultMessage],
+          lastestMesage: defaultMessage,
+        });
+
+        await roomChat.save();
+      } else {
+        // Nếu đã có phòng, chỉ cập nhật tin nhắn
+        roomChat.listMessages.push(defaultMessage);
+        roomChat.lastestMesage = defaultMessage;
+        await roomChat.save();
+      }
     });
 
     socket.on("send-location-to-customer", async (data) => {
-      console.log(data);
-
       const bill = await Bill.findById(data.idOrder).populate({
         path: "userId",
         select: "socketId", // Chỉ lấy trường socketId từ user
@@ -227,6 +260,62 @@ module.exports = function (io) {
           .emit("notification-arrival-destination", bill._id);
       } else {
         console.log("❌ Không tìm thấy đơn hàng.");
+      }
+    });
+
+    socket.on("sendMessage", async ({ roomId, senderId, message }) => {
+      try {
+        if (!roomId || !senderId || !message) {
+          return socket.emit("error", { message: "Thiếu dữ liệu đầu vào" });
+        }
+
+        // Tạo tin nhắn mới
+        const messageData = {
+          id: new mongoose.Types.ObjectId().toString(),
+          sender: new mongoose.Types.ObjectId(senderId),
+          message,
+          isRead: false,
+          createdAt: new Date(),
+        };
+
+        // Tìm phòng chat theo roomId
+        let roomChat = await RoomChat.findById(roomId)
+          .populate("user", "socketId") // Lấy socketId của user
+          .populate("driver", "socketId"); // Lấy socketId của driver
+        if (!roomChat) {
+          return socket.emit("error", {
+            message: "Không tìm thấy phòng chat",
+          });
+        }
+
+        // Thêm tin nhắn vào danh sách và cập nhật tin nhắn mới nhất
+        roomChat.listMessages.push(messageData);
+        roomChat.lastestMesage = messageData;
+        await roomChat.save();
+
+        if (roomChat.user.socketId) {
+          // Gửi tin nhắn trực tiếp đến tài xế nếu đang online
+
+          io.of("/booking").to(roomChat.user.socketId).emit("receiveMessage");
+          console.log(
+            `📩 Gửi tin nhắn đến user (socket: ${roomChat.user.socketId})`
+          );
+        } else {
+          console.log("🚫 Tài xế hiện không online.");
+        }
+
+        if (roomChat.driver.socketId) {
+          // Gửi tin nhắn trực tiếp đến tài xế nếu đang online
+          io.of("/booking").to(roomChat.driver.socketId).emit("receiveMessage");
+          console.log(
+            `📩 Gửi tin nhắn đến tài xế (socket: ${roomChat.driver.socketId})`
+          );
+        } else {
+          console.log("🚫 Tài xế hiện không online.");
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi gửi tin nhắn:", error);
+        socket.emit("error", { message: "Lỗi server nội bộ" });
       }
     });
   });
