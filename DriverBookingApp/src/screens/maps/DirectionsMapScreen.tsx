@@ -1,6 +1,6 @@
-import {View, Text, StatusBar, Image} from 'react-native';
+import {View, Text, StatusBar, Image, Modal} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {IBillTemporary} from '../../../models/SelectModel';
+import {IBillTemporary} from '../../models/SelectModel';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 import axios from 'axios';
@@ -76,6 +76,9 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
     useState<PointFeature | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(16);
   const [statusArrived, setStatusArrived] = useState(false);
+  const [distanceToDestination, setDistanceToDestination] =
+    useState<string>('');
+  const [isWarningModalVisible, setIsWarningModalVisible] = useState(false);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -200,6 +203,11 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
 
       setGeoJSONDataCustomer(dataCustomer);
 
+      // Lấy quãng đường và thời gian từ API
+      const distance = responseCustomer.data.routes[0].legs[0].distance.text;
+
+      setDistanceToDestination(distance); // Lưu quãng đường
+
       setTimeout(async () => {
         await cameraRef.current?.fitBounds(
           [currentLocation.longitude ?? 0, currentLocation.latitude ?? 0],
@@ -300,302 +308,402 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
         translucent={true}
         backgroundColor="transparent"
       />
-      <RowComponent
-        styles={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-        }}>
-        <SectionComponent
-          styles={[globalStyles.noSpaceCard, styles.buttonBack]}>
-          <CardComponent
-            onPress={() => {
-              // onCloseMap();
-              // clearData();
-              navigation.goBack();
-            }}
-            styles={[
-              globalStyles.noSpaceCard,
-              globalStyles.shadow,
-              {width: 40, height: 40, borderRadius: 100},
-            ]}
-            color={appColors.white}>
-            <ArrowCircleLeft2 size="30" color={appColors.gray} />
-          </CardComponent>
-        </SectionComponent>
-      </RowComponent>
-
-      <View style={{flex: 1}}>
-        <MapLibreGL.MapView
-          styleURL={loadMap}
-          style={{flex: 1}}
-          compassEnabled={false}
-          ref={mapRef}
-          zoomEnabled={true}
-          onPress={() => console.log('Map Pressed')}>
-          <MapLibreGL.Camera
-            ref={cameraRef}
-            animationDuration={10}
-            centerCoordinate={[105.772607, 20.980216]}
-            zoomLevel={zoomLevel}
-          />
-          {/* <MapLibreGL.UserLocation /> */}
-          {geoJSONData && (
-            <MapLibreGL.ShapeSource id="routeSource" shape={geoJSONData}>
-              <MapLibreGL.LineLayer
-                id="routeBorder"
-                // layerIndex={1}
-                style={{
-                  lineColor: '#2F4F4F', // Màu viền (xám đậm hoặc đen)
-                  lineWidth: 10, // Lớn hơn đường chính
-                  lineOpacity: 0.8,
-                  lineJoin: 'round',
-                  lineCap: 'round',
-                }}
-              />
-
-              {/* Lớp đường chính - màu sáng hơn, mỏng hơn */}
-              <MapLibreGL.LineLayer
-                id="routeLine"
-                // layerIndex={10}
-                style={{
-                  lineColor: '#99FFFF', // Màu chính (xanh dương nhạt)
-                  lineWidth: 6, // Nhỏ hơn lớp viền
-                  lineOpacity: 0.9,
-                  lineJoin: 'round',
-                  lineCap: 'round',
-                }}
-              />
-            </MapLibreGL.ShapeSource>
-          )}
-          <MapLibreGL.Images
-            images={{
-              pickupIcon,
-              destinationIcon,
-              bikeIcon,
-              carIcon,
-              currentLocationFlag,
-            }}
-          />
-          {geoJSONPoints && (
-            <MapLibreGL.ShapeSource id="pointSource" shape={geoJSONPoints}>
-              <MapLibreGL.SymbolLayer
-                id="pickupLayer"
-                minZoomLevel={0}
-                filter={['==', ['get', 'icon'], 'pickupIcon']} // Chỉ áp dụng cho pickup
-                style={{
-                  iconImage: 'pickupIcon',
-                  iconSize: 0.3,
-                  iconOffset: [0, -55], // Đẩy lên trên cao hơn
-                  // iconAnchor: 'bottom',
-                  iconAllowOverlap: true,
-                  textAllowOverlap: true,
-                }}
-              />
-
-              <MapLibreGL.SymbolLayer
-                id="destinationLayer"
-                minZoomLevel={0}
-                filter={['==', ['get', 'icon'], 'destinationIcon']} // Chỉ áp dụng cho destination
-                style={{
-                  iconImage: 'destinationIcon',
-                  iconSize: 0.48,
-                  iconOffset: [0, -55], // Đẩy lên nhưng ít hơn pickup
-                  // iconAnchor: 'bottom',
-                  iconAllowOverlap: true,
-                  textAllowOverlap: true,
-                }}
-              />
-
-              <MapLibreGL.SymbolLayer
-                id="currentLayer"
-                minZoomLevel={0}
-                filter={['==', ['get', 'icon'], 'currentLocationFlag']} // Chỉ áp dụng cho destination
-                style={{
-                  iconImage: 'currentLocationFlag',
-                  iconSize: 0.45,
-                  iconOffset: [22, -45], // Đẩy lên nhưng ít hơn pickup
-                  // iconAnchor: 'bottom',
-                  iconAllowOverlap: true,
-                  textAllowOverlap: true,
-                }}
-              />
-            </MapLibreGL.ShapeSource>
-          )}
-          {geoJSONCurrentPoints && (
-            <MapLibreGL.ShapeSource
-              id="pointSourceCurrent"
-              shape={geoJSONCurrentPoints}>
-              <MapLibreGL.SymbolLayer
-                id="currentPoint"
-                minZoomLevel={0}
-                filter={['==', ['get', 'icon'], 'bikeIcon']} // Chỉ áp dụng cho pickup
-                style={{
-                  iconImage: 'bikeIcon',
-                  iconSize: 0.2,
-                  iconOffset: [0, -55], // Đẩy lên trên cao hơn
-                  // iconAnchor: 'bottom',
-                  iconAllowOverlap: true,
-                  textAllowOverlap: true,
-                  // iconRotate: ['get', 'rotation'],
-                }}
-              />
-            </MapLibreGL.ShapeSource>
-          )}
-        </MapLibreGL.MapView>
-      </View>
-
-      <BottomSheetModalProvider>
-        <BottomSheet
-          enableDynamicSizing={false}
-          ref={bottomSheetRef}
-          snapPoints={['18%', '24%']} // SnapPoints tối thiểu 30%
-          // enablePanDownToClose={false} // Ngăn người dùng vuốt xuống để đóng
-          style={{flex: 1}}>
-          <BottomSheetView
+      <View>
+        <Modal
+          visible={isWarningModalVisible}
+          transparent={true}
+          animationType="fade"
+          statusBarTranslucent={true}
+          onRequestClose={() => setIsWarningModalVisible(false)}>
+          <View
             style={{
-              height: '100%',
-              // backgroundColor: 'coral',
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)', // Nền mờ
             }}>
-            <SectionComponent>
+            <View
+              style={{
+                width: '80%', // Chiều rộng Modal
+                backgroundColor: '#FFF',
+                borderRadius: 16, // Bo góc mềm mại hơn
+                padding: 25, // Padding rộng hơn
+                alignItems: 'center',
+                shadowColor: '#000', // Hiệu ứng đổ bóng
+                shadowOffset: {width: 0, height: 4},
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5, // Đổ bóng trên Android
+              }}>
               <TextComponent
                 font={fontFamilies.medium}
-                text="You are moving to the pick up point"></TextComponent>
-              <SpaceComponent height={5}></SpaceComponent>
+                size={15} // Font lớn hơn
+                text={`You are still too far from the destination!`}
+                color={appColors.text}
+                styles={{textAlign: 'center', marginBottom: 8}} // Căn giữa và thêm khoảng cách
+              />
+              <SpaceComponent height={15}></SpaceComponent>
+              <TextComponent
+                font={fontFamilies.bold} // Font đậm hơn để nhấn mạnh
+                size={18} // Font lớn hơn để nổi bật
+                text={`Remaining distance: ${distanceToDestination}`}
+                color={appColors.red} // Màu đỏ để thu hút sự chú ý
+                styles={{textAlign: 'center', marginBottom: 16}} // Căn giữa và thêm khoảng cách
+              />
+              <SpaceComponent height={20} />
+              <ButtonComponent
+                onPress={() => setIsWarningModalVisible(false)} // Đóng modal
+                width={140} // Nút lớn hơn
+                styles={{paddingVertical: 12, marginBottom: 0}} // Padding nút lớn hơn
+                color={appColors.DarkSlateGrayBlue4}
+                type="primary"
+                textStyles={{flex: 0, fontSize: 16}} // Font chữ lớn hơn
+                text="OK"
+              />
+            </View>
+          </View>
+        </Modal>
+      </View>
+      <View style={{flex: 1}}>
+        <RowComponent
+          styles={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+          }}>
+          <SectionComponent
+            styles={[globalStyles.noSpaceCard, styles.buttonBack]}>
+            <CardComponent
+              onPress={() => {
+                // onCloseMap();
+                // clearData();
+                navigation.goBack();
+              }}
+              styles={[
+                globalStyles.noSpaceCard,
+                globalStyles.shadow,
+                {width: 40, height: 40, borderRadius: 100},
+              ]}
+              color={appColors.white}>
+              <ArrowCircleLeft2 size="30" color={appColors.gray} />
+            </CardComponent>
+          </SectionComponent>
+        </RowComponent>
 
-              <SpaceComponent height={9}></SpaceComponent>
+        <View style={{flex: 1}}>
+          <MapLibreGL.MapView
+            styleURL={loadMap}
+            style={{flex: 1}}
+            compassEnabled={false}
+            ref={mapRef}
+            zoomEnabled={true}
+            onPress={() => console.log('Map Pressed')}>
+            <MapLibreGL.Camera
+              ref={cameraRef}
+              animationDuration={10}
+              centerCoordinate={[105.772607, 20.980216]}
+              zoomLevel={zoomLevel}
+            />
+            {/* <MapLibreGL.UserLocation /> */}
+            {geoJSONData && (
+              <MapLibreGL.ShapeSource id="routeSource" shape={geoJSONData}>
+                <MapLibreGL.LineLayer
+                  id="routeBorder"
+                  // layerIndex={1}
+                  style={{
+                    lineColor: '#2F4F4F', // Màu viền (xám đậm hoặc đen)
+                    lineWidth: 10, // Lớn hơn đường chính
+                    lineOpacity: 0.8,
+                    lineJoin: 'round',
+                    lineCap: 'round',
+                  }}
+                />
+
+                {/* Lớp đường chính - màu sáng hơn, mỏng hơn */}
+                <MapLibreGL.LineLayer
+                  id="routeLine"
+                  // layerIndex={10}
+                  style={{
+                    lineColor: '#99FFFF', // Màu chính (xanh dương nhạt)
+                    lineWidth: 6, // Nhỏ hơn lớp viền
+                    lineOpacity: 0.9,
+                    lineJoin: 'round',
+                    lineCap: 'round',
+                  }}
+                />
+              </MapLibreGL.ShapeSource>
+            )}
+            <MapLibreGL.Images
+              images={{
+                pickupIcon,
+                destinationIcon,
+                bikeIcon,
+                carIcon,
+                currentLocationFlag,
+              }}
+            />
+            {geoJSONPoints && (
+              <MapLibreGL.ShapeSource id="pointSource" shape={geoJSONPoints}>
+                <MapLibreGL.SymbolLayer
+                  id="pickupLayer"
+                  minZoomLevel={0}
+                  filter={['==', ['get', 'icon'], 'pickupIcon']} // Chỉ áp dụng cho pickup
+                  style={{
+                    iconImage: 'pickupIcon',
+                    iconSize: 0.3,
+                    iconOffset: [0, -55], // Đẩy lên trên cao hơn
+                    // iconAnchor: 'bottom',
+                    iconAllowOverlap: true,
+                    textAllowOverlap: true,
+                  }}
+                />
+
+                <MapLibreGL.SymbolLayer
+                  id="destinationLayer"
+                  minZoomLevel={0}
+                  filter={['==', ['get', 'icon'], 'destinationIcon']} // Chỉ áp dụng cho destination
+                  style={{
+                    iconImage: 'destinationIcon',
+                    iconSize: 0.48,
+                    iconOffset: [0, -55], // Đẩy lên nhưng ít hơn pickup
+                    // iconAnchor: 'bottom',
+                    iconAllowOverlap: true,
+                    textAllowOverlap: true,
+                  }}
+                />
+
+                <MapLibreGL.SymbolLayer
+                  id="currentLayer"
+                  minZoomLevel={0}
+                  filter={['==', ['get', 'icon'], 'currentLocationFlag']} // Chỉ áp dụng cho destination
+                  style={{
+                    iconImage: 'currentLocationFlag',
+                    iconSize: 0.45,
+                    iconOffset: [22, -45], // Đẩy lên nhưng ít hơn pickup
+                    // iconAnchor: 'bottom',
+                    iconAllowOverlap: true,
+                    textAllowOverlap: true,
+                  }}
+                />
+              </MapLibreGL.ShapeSource>
+            )}
+            {geoJSONCurrentPoints && (
+              <MapLibreGL.ShapeSource
+                id="pointSourceCurrent"
+                shape={geoJSONCurrentPoints}>
+                <MapLibreGL.SymbolLayer
+                  id="currentPoint"
+                  minZoomLevel={0}
+                  filter={['==', ['get', 'icon'], 'bikeIcon']} // Chỉ áp dụng cho pickup
+                  style={{
+                    iconImage: 'bikeIcon',
+                    iconSize: 0.2,
+                    iconOffset: [0, -55], // Đẩy lên trên cao hơn
+                    // iconAnchor: 'bottom',
+                    iconAllowOverlap: true,
+                    textAllowOverlap: true,
+                    // iconRotate: ['get', 'rotation'],
+                  }}
+                />
+              </MapLibreGL.ShapeSource>
+            )}
+          </MapLibreGL.MapView>
+        </View>
+
+        <BottomSheetModalProvider>
+          <BottomSheet
+            enableDynamicSizing={false}
+            ref={bottomSheetRef}
+            snapPoints={['18%', '28%']} // SnapPoints tối thiểu 30%
+            // enablePanDownToClose={false} // Ngăn người dùng vuốt xuống để đóng
+            style={{flex: 1}}>
+            <BottomSheetView
+              style={{
+                height: '100%',
+                // backgroundColor: 'coral',
+              }}>
+              <SectionComponent>
+                <SpaceComponent height={5} />
+                <TextComponent
+                  font={fontFamilies.medium}
+                  size={12}
+                  color={appColors.text2}
+                  text="You are moving to the pick up point"
+                />
+
+                {/* Hiển thị quãng đường và thời gian */}
+                <SpaceComponent height={3} />
+                <TextComponent
+                  font={fontFamilies.semiBold}
+                  size={14}
+                  text={`Remaining distance: ${distanceToDestination}`}
+                  color={appColors.text}
+                />
+
+                <SpaceComponent height={20} />
+                <View
+                  style={{
+                    height: 3,
+                    width: '100%',
+                    backgroundColor: appColors.BlueDarkTurquoise,
+                    borderRadius: 100,
+                  }}
+                />
+                <SpaceComponent height={9} />
+              </SectionComponent>
               <View
                 style={{
-                  height: 3,
+                  height: 7,
                   width: '100%',
-                  backgroundColor: appColors.BlueDarkTurquoise,
+                  backgroundColor: appColors.WhiteSmoke,
                   borderRadius: 100,
                 }}></View>
               <SpaceComponent height={9}></SpaceComponent>
-            </SectionComponent>
-            <View
-              style={{
-                height: 7,
-                width: '100%',
-                backgroundColor: appColors.WhiteSmoke,
-                borderRadius: 100,
-              }}></View>
-            <SpaceComponent height={9}></SpaceComponent>
-            <SectionComponent
-              styles={{
-                borderBottomWidth: 0.5,
-                borderBottomColor: appColors.gray2,
-              }}>
-              <RowComponent justify="flex-start">
-                <Location size="16" color="#FF8A65" variant="Bold" />
-                <SpaceComponent width={20}></SpaceComponent>
-                <View>
-                  <SpaceComponent height={10}></SpaceComponent>
-                  <TextComponent
-                    numOfLine={1}
-                    font={fontFamilies.medium}
-                    text={destinationAddress.main_name_place}></TextComponent>
-                  <SpaceComponent height={4}></SpaceComponent>
-                  <TextComponent
-                    size={11}
-                    numOfLine={1}
-                    font={fontFamilies.regular}
-                    text={
-                      destinationAddress.description ||
-                      'Not data for description'
-                    }></TextComponent>
-                </View>
-              </RowComponent>
-            </SectionComponent>
-            <SectionComponent>
-              {!statusArrived ? (
-                <RowComponent
-                  justify="space-around"
-                  styles={{
-                    width: '100%',
-                    height: 80,
-                  }}>
-                  <ButtonComponent
-                    onPress={() => {
-                      socket.emit(
-                        'notice-cancle-order-from-driver',
-                        orderPending._id,
-                      );
-                      dispatch(setOrderPending({}));
-                      navigation.goBack();
-                    }}
-                    width={118}
-                    styles={{paddingVertical: 10}}
-                    color={appColors.red}
-                    type="primary"
-                    textStyles={{flex: 0}}
-                    text="Skip Trip"></ButtonComponent>
-                  <ButtonComponent
-                    width={180}
-                    onPress={async () => {
-                      setGeoJSONData(geoJSONDataCustomer);
-                      setStatusArrived(true);
-                      setTimeout(async () => {
-                        await cameraRef.current?.fitBounds(
-                          [
-                            pickupAddress.longitude ?? 0,
-                            pickupAddress.latitude ?? 0,
-                          ],
-                          [
-                            destinationAddress.longitude ?? 0,
-                            destinationAddress.latitude ?? 0,
-                          ],
-                          [170, 50, 380, 50],
-                          0,
+              <SectionComponent
+                styles={{
+                  borderBottomWidth: 0.5,
+                  borderBottomColor: appColors.gray2,
+                }}>
+                <RowComponent justify="flex-start">
+                  <Location size="16" color="#FF8A65" variant="Bold" />
+                  <SpaceComponent width={20}></SpaceComponent>
+                  <View>
+                    <SpaceComponent height={10}></SpaceComponent>
+                    {/* Hiển thị điểm đón hoặc điểm đến dựa trên trạng thái */}
+                    <TextComponent
+                      numOfLine={1}
+                      font={fontFamilies.medium}
+                      text={
+                        !statusArrived
+                          ? pickupAddress.main_name_place // Điểm đón
+                          : destinationAddress.main_name_place // Điểm đến
+                      }></TextComponent>
+                    <SpaceComponent height={4}></SpaceComponent>
+                    <TextComponent
+                      size={11}
+                      numOfLine={1}
+                      font={fontFamilies.regular}
+                      text={
+                        !statusArrived
+                          ? pickupAddress.description ||
+                            'No description available' // Mô tả điểm đón
+                          : destinationAddress.description ||
+                            'No description available' // Mô tả điểm đến
+                      }></TextComponent>
+                  </View>
+                </RowComponent>
+              </SectionComponent>
+              <SectionComponent>
+                {!statusArrived ? (
+                  <RowComponent
+                    justify="space-around"
+                    styles={{
+                      width: '100%',
+                      height: 80,
+                    }}>
+                    <ButtonComponent
+                      onPress={() => {
+                        socket.emit(
+                          'notice-cancle-order-from-driver',
+                          orderPending._id,
                         );
-                        await cameraRef.current?.setCamera({
-                          animationDuration: 0, // Không animation để tránh dịch chuyển
+                        dispatch(setOrderPending({}));
+                        navigation.goBack();
+                      }}
+                      width={118}
+                      styles={{paddingVertical: 10}}
+                      color={appColors.red}
+                      type="primary"
+                      textStyles={{flex: 0}}
+                      text="Skip Trip"></ButtonComponent>
+                    <ButtonComponent
+                      width={180}
+                      onPress={async () => {
+                        // Kiểm tra khoảng cách trước khi xác nhận
+                        const distanceInMeters =
+                          parseFloat(distanceToDestination.replace(' km', '')) *
+                          1000; // Chuyển đổi km sang mét
+                        // if (distanceInMeters > 50) {
+                        //   setIsWarningModalVisible(true); // Hiển thị modal cảnh báo
+                        //   return;
+                        // }
+
+                        // Nếu thỏa mãn điều kiện, thực hiện logic xác nhận
+                        setGeoJSONData(geoJSONDataCustomer);
+                        setStatusArrived(true);
+                        setTimeout(async () => {
+                          await cameraRef.current?.fitBounds(
+                            [
+                              pickupAddress.longitude ?? 0,
+                              pickupAddress.latitude ?? 0,
+                            ],
+                            [
+                              destinationAddress.longitude ?? 0,
+                              destinationAddress.latitude ?? 0,
+                            ],
+                            [170, 50, 380, 50],
+                            0,
+                          );
+                          await cameraRef.current?.setCamera({
+                            animationDuration: 0, // Không animation để tránh dịch chuyển
+                          });
+                        }, 500);
+                        await apiUpdateStatusBill({
+                          billId: orderPending._id,
+                          status: 'PENDING',
                         });
-                      }, 500);
-                      await apiUpdateStatusBill({
-                        billId: orderPending._id,
-                        status: 'PENDING',
-                      });
-                      socket.emit('notice-arrival-at-pick-up-point', {
-                        idOrder: orderPending._id,
-                      });
-                    }}
-                    styles={{paddingVertical: 10}}
-                    color={appColors.DarkSlateGrayBlue4}
-                    type="primary"
-                    textStyles={{flex: 0}}
-                    text="Arrived at pickup"></ButtonComponent>
-                </RowComponent>
-              ) : (
-                <RowComponent
-                  justify="space-around"
-                  styles={{
-                    width: '100%',
-                    height: 80,
-                  }}>
-                  <ButtonComponent
-                    width={220}
-                    onPress={async () => {
-                      await apiUpdateStatusBill({
-                        billId: orderPending._id,
-                        status: 'COMPLETED',
-                      });
-                      socket.emit('notification-arrival-destination', {
-                        idOrder: orderPending._id,
-                      });
-                    }}
-                    styles={{paddingVertical: 10}}
-                    color={appColors.DarkSlateGrayBlue4}
-                    type="primary"
-                    textStyles={{flex: 0}}
-                    text="Arrived at destination"></ButtonComponent>
-                </RowComponent>
-              )}
-            </SectionComponent>
-          </BottomSheetView>
-        </BottomSheet>
-      </BottomSheetModalProvider>
+                        socket.emit('notice-arrival-at-pick-up-point', {
+                          idOrder: orderPending._id,
+                        });
+                      }}
+                      styles={{paddingVertical: 10}}
+                      color={appColors.DarkSlateGrayBlue4}
+                      type="primary"
+                      textStyles={{flex: 0}}
+                      text="Arrived at pickup"></ButtonComponent>
+                  </RowComponent>
+                ) : (
+                  <RowComponent
+                    justify="space-around"
+                    styles={{
+                      width: '100%',
+                      height: 80,
+                    }}>
+                    <ButtonComponent
+                      width={220}
+                      onPress={async () => {
+                        // Kiểm tra khoảng cách trước khi xác nhận
+                        const distanceInMeters =
+                          parseFloat(distanceToDestination.replace(' km', '')) *
+                          1000; // Chuyển đổi km sang mét
+                        // if (distanceInMeters > 50) {
+                        //   setIsWarningModalVisible(true); // Hiển thị modal cảnh báo
+                        //   return;
+                        // }
+
+                        // Nếu thỏa mãn điều kiện, thực hiện logic xác nhận
+                        await apiUpdateStatusBill({
+                          billId: orderPending._id,
+                          status: 'COMPLETED',
+                        });
+                        socket.emit('notification-arrival-destination', {
+                          idOrder: orderPending._id,
+                        });
+                        navigation.navigate('ConfirmInfBill', {data});
+                      }}
+                      styles={{paddingVertical: 10}}
+                      color={appColors.DarkSlateGrayBlue4}
+                      type="primary"
+                      textStyles={{flex: 0}}
+                      text="Arrived at destination"></ButtonComponent>
+                  </RowComponent>
+                )}
+              </SectionComponent>
+            </BottomSheetView>
+          </BottomSheet>
+        </BottomSheetModalProvider>
+      </View>
     </View>
   );
 };

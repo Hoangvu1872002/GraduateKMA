@@ -11,6 +11,8 @@ var driverRouter = require("./routes/driver");
 var authUserRouter = require("./routes/authUserRouter");
 var authDriverRouter = require("./routes/authDriverRouter");
 var billRouter = require("./routes/bill");
+var stripeRouter = require("./routes/stripe");
+var billTemRouter = require("./routes/billTem");
 var eventRouter = require("./routes/event");
 var roomChatRouter = require("./routes/roomChat");
 
@@ -40,7 +42,9 @@ app.use("/driver", driverRouter);
 app.use("/auth-user", authUserRouter);
 app.use("/auth-driver", authDriverRouter);
 app.use("/bill", billRouter);
+app.use("/bill-tem", billTemRouter);
 app.use("/event", eventRouter);
+app.use("/stripe", stripeRouter);
 app.use("/room-chat", roomChatRouter);
 
 // catch 404 and forward to error handler

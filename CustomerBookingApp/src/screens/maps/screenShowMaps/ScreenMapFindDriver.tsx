@@ -72,13 +72,14 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
 
   useEffect(() => {
     socket.on('notice-driver-receipted-order', data => {
-      // console.log(data);
-
       navigation.replace('ScreenMapFollowDriver', {data: data.billWithDriver});
     });
   }, []);
 
   useEffect(() => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current.expand(); // Mở BottomSheet khi modal được mở
+    }
     if (!addressSelectedPickup) {
     } else if (
       addressSelectedPickup &&
@@ -284,11 +285,11 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                       styles={{justifyContent: 'flex-end'}}
                       font={fontFamilies.semiBold}
                       size={13}
-                      text={`${Math.ceil(
+                      text={`${(
                         itemSelectVehicleSelected.costCoefficient *
-                          totalDistance *
-                          0.001,
-                      )}.000đ`}
+                        totalDistance *
+                        0.001
+                      ).toFixed(2)} $`}
                     />
                     <TextComponent
                       flex={0}
@@ -296,12 +297,12 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
                       color={appColors.gray4}
                       size={10}
                       styles={{textDecorationLine: 'line-through'}}
-                      text={`${Math.ceil(
+                      text={`${(
                         itemSelectVehicleSelected.costCoefficient *
-                          1.5 *
-                          totalDistance *
-                          0.001,
-                      )}.000đ`}
+                        1.5 *
+                        totalDistance *
+                        0.001
+                      ).toFixed(2)} $`}
                     />
                   </View>
                 </RowComponent>

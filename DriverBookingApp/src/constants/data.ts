@@ -96,7 +96,7 @@ const itemSelectVehicle: {
     type: 'Bike',
     numberSeat: 2,
     description: 'Fast, convenient',
-    costCoefficient: 10,
+    costCoefficient: 0.4,
   },
 
   {
@@ -106,25 +106,25 @@ const itemSelectVehicle: {
     type: 'Car',
     numberSeat: 4,
     description: 'Safe, clean',
-    costCoefficient: 20,
+    costCoefficient: 0.7,
   },
   {
     id: '4',
     image: require('../assets/images/bike.png'),
-    name: 'Vivu Bike Super',
-    type: 'Bike Super',
+    name: 'Vivu Bike Plus',
+    type: 'BikePlus',
     numberSeat: 2,
     description: 'Luxury experience',
-    costCoefficient: 10,
+    costCoefficient: 0.5,
   },
   {
     id: '3',
     image: require('../assets/images/car.png'),
     name: 'Vivu Car Family',
-    type: 'Car Family',
+    type: 'CarFamily',
     numberSeat: 7,
     description: 'Spacious space',
-    costCoefficient: 30,
+    costCoefficient: 0.9,
   },
 ];
 

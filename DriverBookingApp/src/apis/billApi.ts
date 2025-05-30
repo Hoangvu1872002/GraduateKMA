@@ -6,3 +6,16 @@ export const apiUpdateStatusBill = (data: {billId: string; status: string}) =>
     method: 'put',
     data,
   });
+
+export const apiAllBillDriver = () =>
+  axiosClient({
+    url: '/bill/get-all-bill-driver',
+    method: 'get',
+  });
+
+export const apiGetBill = (data: {billId: string}) =>
+  axiosClient({
+    url: '/bill/get-bill',
+    method: 'post',
+    data,
+  });

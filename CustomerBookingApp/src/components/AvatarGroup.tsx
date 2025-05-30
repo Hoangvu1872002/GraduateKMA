@@ -10,14 +10,14 @@ interface Props {
 
 const AvatarGroup = (props: Props) => {
   const {size} = props;
-  const photoUrl =
+  const avatar =
     'https://gamek.mediacdn.vn/133514250583805952/2022/5/18/photo-1-16528608926331302726659.jpg';
   return (
     <RowComponent justify="flex-start" styles={{marginVertical: 10}}>
       {Array.from({length: 3}).map((item, index) => (
         <Image
           key={`img${index}`}
-          source={{uri: photoUrl}}
+          source={{uri: avatar}}
           style={{
             width: size ?? 24,
             height: size ?? 24,

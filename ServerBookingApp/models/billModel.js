@@ -56,6 +56,10 @@ var billSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    orderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "orders",
+    },
     travelMode: {
       type: String,
       required: true,

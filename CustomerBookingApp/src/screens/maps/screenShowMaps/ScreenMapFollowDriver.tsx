@@ -1,4 +1,4 @@
-import {View, Text, StatusBar, Image} from 'react-native';
+import {View, Text, StatusBar, Image, Linking} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
 import MapLibreGL from '@maplibre/maplibre-react-native';
@@ -86,7 +86,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
 
   const [statusBill, setStatusBill] = useState(data.status);
 
-  // console.log(statusBill);
+  console.log(driverId);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -608,11 +608,15 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                     />
                   </CardComponent>
                   <SpaceComponent width={10}></SpaceComponent>
+
                   <CardComponent
                     onPress={() => {
-                      // onCloseMap();
-                      // clearData();
-                      // navigation.goBack();
+                      const phoneNumber = driverId.mobile; // Thay thế bằng số điện thoại của tài xế
+                      if (phoneNumber) {
+                        Linking.openURL(`tel:${phoneNumber}`); // Mở ứng dụng gọi điện với số điện thoại
+                      } else {
+                        console.error('Phone number is not available');
+                      }
                     }}
                     styles={[
                       globalStyles.noSpaceCard,
@@ -689,7 +693,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 <TextComponent
                   font={fontFamilies.medium}
                   size={13}
-                  text={`${data.cost}.000đ`}></TextComponent>
+                  text={`${data.cost.toFixed(2)} $`}></TextComponent>
               </RowComponent>
             </SectionComponent>
             <View

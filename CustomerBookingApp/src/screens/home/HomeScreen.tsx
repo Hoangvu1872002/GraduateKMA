@@ -3,6 +3,8 @@
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import axios from 'axios';
 import {
+  ArrowCircleRight,
+  Chart,
   HambergerMenu,
   Location,
   Notification,
@@ -52,7 +54,7 @@ import {globalStyles} from '../../styles/globalStyles';
 import {useDispatch, useSelector} from 'react-redux';
 // import {authSelector} from '../../redux/reducers/authReducer';
 import {appInfo} from '../../constants/appInfos';
-import {logout} from '../../stores/users/userSlide';
+import {logout, setStateSelectVehicle} from '../../stores/users/userSlide';
 import {AppDispatch, RootState} from '../../stores/redux';
 import {getCurrent} from '../../stores/users/asyncAction';
 import Geolocation from '@react-native-community/geolocation';
@@ -108,6 +110,7 @@ const HomeScreen = ({navigation}: any) => {
 
   useFocusEffect(
     useCallback(() => {
+      dispatch(setStateSelectVehicle(null));
       fetchBillsPending();
       fetchEventLastest();
     }, []),
@@ -316,10 +319,7 @@ const HomeScreen = ({navigation}: any) => {
       <SectionComponent
         styles={{
           height: 110,
-          // backgroundColor: 'black',
           justifyContent: 'center',
-          // alignItems: 'center',
-          // marginTop: 10,
           paddingBottom: 0,
         }}>
         <RowComponent justify="space-between" styles={{flex: 1}}>
@@ -341,6 +341,49 @@ const HomeScreen = ({navigation}: any) => {
             // marginTop: 10,
           },
         ]}>
+        <SectionComponent styles={{paddingHorizontal: 0, paddingTop: 10}}>
+          <TabBarComponent title="Expense management" />
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate('Dashboard');
+            }}
+            style={{
+              marginTop: 10,
+              marginHorizontal: 15,
+              borderRadius: 12,
+
+              // maxHeight: 85,
+              // width: '92%',
+              borderWidth: 0.8,
+              borderColor: appColors.gray3,
+              backgroundColor: '#F8F8FF',
+
+              // margin: 'auto',
+              padding: 5,
+              // borderRadius: 10,
+            }}>
+            <RowComponent justify="space-between">
+              <RowComponent justify="flex-start" styles={{padding: 8, gap: 20}}>
+                <Chart size="30" color="#FF8A65" variant="Bold" />
+                <View>
+                  <TextComponent
+                    font={fontFamilies.semiBold}
+                    text="Your spending"></TextComponent>
+                  <TextComponent
+                    size={12}
+                    text="Track and report your spending"></TextComponent>
+                </View>
+              </RowComponent>
+              <ArrowCircleRight
+                style={{marginRight: 10}}
+                size="22"
+                color="#FF8A65"
+              />
+            </RowComponent>
+          </TouchableOpacity>
+        </SectionComponent>
+
+        <TabBarComponent title="Order pending" />
         <View
           style={{
             marginTop: 5,

@@ -1,4 +1,4 @@
-import {Image, Platform, StatusBar, View} from 'react-native';
+import {Image, Platform, StatusBar, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
   ButtonComponent,
@@ -28,6 +28,7 @@ import {globalStyles} from '../../styles/globalStyles';
 import {fontFamilies} from '../../constants/fontFamilies';
 import Toast from 'react-native-toast-message';
 import {LocationModelSuggest} from '../../models/LocationModel';
+import {ArrowLeft} from 'iconsax-react-native';
 // import eventAPI from '../apis/eventApi';
 
 const initValues = {
@@ -39,7 +40,7 @@ const initValues = {
     lat: '',
     long: '',
   },
-  // photoUrl: '',
+  // avatar: '',
   // users: [],
   authorId: '',
   // startAt: Date.now(),
@@ -151,7 +152,7 @@ const AddNewScreen = ({navigation}: any) => {
 
   // const handleFileSelected = (val: ImageOrVideo) => {
   //   setFileSelected(val);
-  //   handleChangeValue('photoUrl', val.path);
+  //   handleChangeValue('avatar', val.path);
   // };
 
   const handleLocation = (val: any) => {
@@ -187,19 +188,32 @@ const AddNewScreen = ({navigation}: any) => {
                 Platform.OS === 'android' ? StatusBar.currentHeight : 52,
             },
           ]}>
-          <TextComponent
-            title
-            text="Add new event"
-            font={fontFamilies.bold}
-            color={appColors.WhiteSmoke}></TextComponent>
+          <RowComponent justify="flex-start" styles={{flex: 1, marginLeft: 20}}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{
+                width: 48,
+                height: 48,
+                justifyContent: 'center',
+              }}>
+              <ArrowLeft size={28} color={appColors.white} />
+            </TouchableOpacity>
+            <TextComponent
+              flex={1}
+              font={fontFamilies.semiBold}
+              text="Add new event"
+              title
+              color={appColors.white}
+            />
+          </RowComponent>
         </View>
       </View>
 
       <SectionComponent styles={{marginTop: 30}}>
-        {/* {eventData.photoUrl || fileSelected ? (
+        {/* {eventData.avatar || fileSelected ? (
           <Image
             source={{
-              uri: eventData.photoUrl ? eventData.photoUrl : fileSelected.uri,
+              uri: eventData.avatar ? eventData.avatar : fileSelected.uri,
             }}
             style={{width: '100%', height: 250, marginBottom: 12}}
             resizeMode="cover"
@@ -211,7 +225,7 @@ const AddNewScreen = ({navigation}: any) => {
           onSelect={() => {}}
           // onSelect={(val: any) =>
           //   val.type === 'url'
-          //     ? handleChangeValue('photoUrl', val.value as string)
+          //     ? handleChangeValue('avatar', val.value as string)
           //     : handleFileSelected(val.value)
           // }
         /> */}

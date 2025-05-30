@@ -28,16 +28,22 @@ import socket from '../../apis/socket';
 
 const ListRoomMessageScreen = ({navigation}: any) => {
   const [listRoom, setListRoom] = useState<IRoomChatClient[]>([]);
+  const [searchText, setSearchText] = useState('');
+
   const fetchRoomData = async () => {
     try {
       const response = await apiGetAllRoomChat();
-      // console.log(response?.data?.roomChats[0].lastestMesage);
-
       setListRoom(response?.data?.roomChats);
     } catch (error) {
       console.error('Lỗi tải dữ liệu:', error);
     }
   };
+
+  const filteredRooms = listRoom.filter(room =>
+    `${room.driver.firstname} ${room.driver.lastname}`
+      .toLowerCase()
+      .includes(searchText.trim().toLowerCase()),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -53,7 +59,6 @@ const ListRoomMessageScreen = ({navigation}: any) => {
       return () => {
         // Khi màn hình mất focus, tắt lắng nghe sự kiện socket
         socket.off('receiveMessage', handleReceiveMessage);
-        // console.log('❌ Socket listener removed');
       };
     }, []),
   );
@@ -71,14 +76,11 @@ const ListRoomMessageScreen = ({navigation}: any) => {
             globalStyles.shadow,
             {
               backgroundColor: appColors.primary,
-              // height: Platform.OS === 'android' ? 168 : 182,
-              // height: 182,
               height: 85,
               width: '100%',
               borderBottomLeftRadius: 20,
               borderBottomRightRadius: 20,
               justifyContent: 'center',
-              // borderWidth: 1,
               alignItems: 'center',
               paddingTop:
                 Platform.OS === 'android' ? StatusBar.currentHeight : 52,
@@ -94,16 +96,25 @@ const ListRoomMessageScreen = ({navigation}: any) => {
 
       <View style={{flex: 1, marginTop: 20}}>
         <SectionComponent styles={{flex: 1}}>
+          {/* Ô tìm kiếm */}
+          <InputComponent
+            placeholder="Tìm kiếm theo tên tài xế..."
+            value={searchText}
+            onChange={setSearchText}
+            styles={{
+              marginBottom: 12,
+              borderRadius: 10,
+              backgroundColor: '#fff',
+              paddingHorizontal: 10,
+              borderWidth: 1,
+              borderColor: appColors.gray3,
+            }}
+          />
           <FlatList
             style={{flex: 1}}
             showsVerticalScrollIndicator={false}
-            data={listRoom}
+            data={filteredRooms}
             keyExtractor={item => item._id}
-            ListEmptyComponent={
-              <SectionComponent>
-                <TextComponent text="Data not found!!!" />
-              </SectionComponent>
-            }
             renderItem={({item, index}) => (
               <TouchableOpacity
                 key={index}
@@ -144,23 +155,6 @@ const ListRoomMessageScreen = ({navigation}: any) => {
                         .substring(0, 1)
                         .toUpperCase()}`}
                     />
-                    {/* <View
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'absolute',
-                        right: -10,
-                        top: -8,
-                        backgroundColor: 'coral',
-                        width: 22,
-                        height: 22,
-                        borderRadius: 100,
-                      }}>
-                      <TextComponent
-                        styles={{flex: 0, paddingVertical: 0}}
-                        text={item.members.length.toString()}
-                      />
-                    </View> */}
                   </View>
                   <View
                     style={{

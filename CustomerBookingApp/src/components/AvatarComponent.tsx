@@ -15,7 +15,7 @@ import {globalStyles} from '../styles/globalStyles';
 // import userAPI from '../apis/userApi';
 
 interface Props {
-  photoURL?: string;
+  avatar?: string;
   uid?: string;
   name?: string;
   size?: number;
@@ -24,18 +24,18 @@ interface Props {
 }
 
 const AvatarComponent = (props: Props) => {
-  const {photoURL, name, size, styles, onPress, uid} = props;
+  const {avatar, name, size, styles, onPress, uid} = props;
 
-  const [profile, setProfile] = useState<{name?: string; photoUrl?: string}>({
+  const [profile, setProfile] = useState<{name?: string; avatar?: string}>({
     name: name ?? '',
-    photoUrl: photoURL ?? '',
+    avatar: avatar ?? '',
   });
 
   //   useEffect(() => {
-  //     if (!photoURL && uid) {
+  //     if (!avatar && uid) {
   //       getUserProfile();
   //     }
-  //   }, [photoURL, uid]);
+  //   }, [avatar, uid]);
 
   //   const getUserProfile = async () => {
   //     const api = `/get-profile?uid=${uid}`;
@@ -43,7 +43,7 @@ const AvatarComponent = (props: Props) => {
   //       const res: any = await userAPI.HandleUser(api);
   //       setProfile({
   //         name: res.data.name,
-  //         photoUrl: res.data.photoUrl,
+  //         avatar: res.data.avatar,
   //       });
   //     } catch (error) {
   //       console.log(error);
@@ -52,9 +52,9 @@ const AvatarComponent = (props: Props) => {
 
   return (
     <TouchableOpacity disabled={!onPress} onPress={onPress}>
-      {photoURL ? (
+      {avatar ? (
         <Image
-          source={{uri: photoURL}}
+          source={{uri: avatar}}
           style={[
             {
               width: size ?? 40,

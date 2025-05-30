@@ -111,7 +111,14 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
     addressSelectedDestination: LocationModelSuggest;
   } = route?.params;
 
-  const {current} = useSelector((state: RootState) => state.user);
+  const {current, stateSelectVehicle} = useSelector(
+    (state: RootState) => state.user,
+  );
+
+  const filteredItemSelectVehicle =
+    !stateSelectVehicle || stateSelectVehicle === 'delivery'
+      ? data.itemSelectVehicle
+      : data.itemSelectVehicle.filter(item => item.type === stateSelectVehicle);
 
   const cameraRef = useRef<MapLibreGL.CameraRef | null>(null);
   const mapRef = useRef<MapLibreGL.MapViewRef>(null);
@@ -125,8 +132,11 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
   const [itemFocusing, setItemFocusing] = useState<string>('1');
   const [totalDistance, setTotalDistance] = useState(0);
+  const [filteredDriversNearby, setFilteredDriversNearby] = useState<Driver[]>(
+    [],
+  );
   const [itemSelectVehicleSelected, setItemSelectVehicleSelected] =
-    useState<ItemSelectVehicle | null>(data.itemSelectVehicle[0]);
+    useState<ItemSelectVehicle | null>(filteredItemSelectVehicle[0]);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -233,7 +243,17 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
   };
 
   useEffect(() => {
-    setItemFocusing('1');
+    console.log(itemSelectVehicleSelected?.type);
+
+    setFilteredDriversNearby(
+      driversDataNearby.filter(
+        driver => driver.travelMode === itemSelectVehicleSelected?.type,
+      ),
+    );
+  }, [itemSelectVehicleSelected, driversDataNearby]);
+
+  useEffect(() => {
+    setItemFocusing(itemSelectVehicleSelected?.id || '1');
     fetchRoute();
   }, []);
 
@@ -262,8 +282,8 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
   }, [addressSelectedPickup, addressSelectedDestination]);
 
   useEffect(() => {
-    if (driversDataNearby?.length > 0) {
-      const features: Feature<Point>[] = driversDataNearby.map(driver => ({
+    if (filteredDriversNearby?.length > 0) {
+      const features: Feature<Point>[] = filteredDriversNearby.map(driver => ({
         type: 'Feature',
         geometry: {
           type: 'Point',
@@ -280,8 +300,13 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
         type: 'FeatureCollection',
         features,
       });
+    } else {
+      setGeoJSONDataDriver({
+        type: 'FeatureCollection',
+        features: [],
+      });
     }
-  }, [driversDataNearby]);
+  }, [filteredDriversNearby]);
 
   return (
     <>
@@ -534,7 +559,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                   <FlatList
                     showsVerticalScrollIndicator={false}
                     style={{marginBottom: -8}}
-                    data={data.itemSelectVehicle}
+                    data={filteredItemSelectVehicle}
                     // viewabilityConfig={viewabilityConfig}
                     renderItem={({item, index}) => (
                       <ItemSelectVehicel

@@ -59,6 +59,10 @@ var billTemporarySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    orderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "orders",
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",

@@ -11,6 +11,8 @@ import HomeNavigator from './HomeNavigators';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import OrdersNavigators from './OrdersNavigators';
 import MessageNavigator from './MessageNavigator';
+import HistoryScreen from '../screens/history/HistoryScreen';
+import HistoryNavigator from './HistoryNavigator';
 
 const TabNavigator = () => {
   const Tab = createBottomTabNavigator();
@@ -35,8 +37,10 @@ const TabNavigator = () => {
             case 'Home':
               icon = <MaterialIcons name="home" size={size} color={color} />;
               break;
-
             case 'Orders':
+              icon = <Calendar size={size} variant="Bold" color={color} />;
+              break;
+            case 'History':
               icon = <Calendar size={size} variant="Bold" color={color} />;
               break;
             case 'Message':
@@ -85,6 +89,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Add" component={AddNewEventNavigator} />
        */}
       <Tab.Screen name="Orders" component={OrdersNavigators} />
+      <Tab.Screen name="History" component={HistoryNavigator} />
       <Tab.Screen name="Message" component={MessageNavigator} />
       <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>

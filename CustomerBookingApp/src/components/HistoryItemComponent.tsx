@@ -10,57 +10,89 @@ import {fontFamilies} from '../constants/fontFamilies';
 import SpaceComponent from './SpaceComponent';
 import {ArrowRight2, Box} from 'iconsax-react-native';
 import ButtonComponent from './ButtonComponent';
+import {useNavigation} from '@react-navigation/native';
 
 interface Props {
   item: IBill;
 }
 
+const getStatusStyles = (status: string) => {
+  switch (status) {
+    case 'RECEIVED':
+      return {backgroundColor: '#4CAF50', textColor: '#FFFFFF'}; // Màu nền xanh lá, chữ trắng
+    case 'PENDING':
+      return {backgroundColor: '#FFC107', textColor: '#000000'}; // Màu nền vàng, chữ đen
+    case 'COMPLETED':
+      return {backgroundColor: '#2196F3', textColor: '#FFFFFF'}; // Màu nền xanh dương, chữ trắng
+    case 'CANCELED':
+      return {backgroundColor: '#F44336', textColor: '#FFFFFF'}; // Màu nền đỏ, chữ trắng
+    default:
+      return {backgroundColor: 'coral', textColor: appColors.text2}; // Mặc định
+  }
+};
+
 const HistoryItemComponent = (props: Props) => {
+  const navigation: any = useNavigation();
+
   const {item} = props;
+
+  const {backgroundColor, textColor} = getStatusStyles(item.status);
 
   return (
     <View
       style={{
         backgroundColor: appColors.white,
-        height: 130,
-        width: '100%',
-        marginVertical: 5,
-        paddingVertical: 10,
+        borderRadius: 12, // Bo góc
+        shadowColor: '#000', // Thêm bóng
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3, // Bóng trên Android
+        marginVertical: 8, // Khoảng cách giữa các item
+        paddingHorizontal: 0, // Thêm padding
+        paddingTop: 10,
       }}>
       <SectionComponent>
-        <RowComponent justify="space-between">
+        {/* Thời gian và trạng thái */}
+        <RowComponent justify="space-between" styles={{marginBottom: 2}}>
           <TextComponent
             font={fontFamilies.medium}
             color={appColors.text2}
             size={12}
-            text={moment(item.createdAt).format(
-              'HH:mm, DD/MM',
-            )}></TextComponent>
+            text={moment(item.createdAt).format('HH:mm, DD/MM')}
+          />
           <View
             style={{
-              backgroundColor: 'coral',
+              backgroundColor: backgroundColor,
               paddingVertical: 3,
-              paddingHorizontal: 8,
+              paddingHorizontal: 5,
+              borderRadius: 5, // Bo góc trạng thái
             }}>
             <TextComponent
               font={fontFamilies.medium}
-              color={appColors.text2}
-              size={12}
-              text={item.status}></TextComponent>
+              color={textColor}
+              size={10}
+              text={item.status}
+            />
           </View>
         </RowComponent>
-        <RowComponent justify="space-between">
-          <RowComponent
-            justify="flex-start"
-            // styles={{flex: 1, backgroundColor: '#EEE0E5', marginBottom: 2}}
-          >
+
+        {/* Thông tin chuyến đi */}
+        <RowComponent
+          justify="space-between"
+          styles={{
+            paddingBottom: 2,
+            borderBottomWidth: 0.8,
+            borderColor: appColors.gray5,
+          }}>
+          <RowComponent justify="flex-start">
             <View style={{paddingVertical: 5}}>
               <Image
                 source={
                   item.travelMode === 'Bike'
                     ? require('../assets/images/bike-white.png')
                     : require('../assets/images/car-white.png')
-                } // ✅ Không dùng uri
+                }
                 style={{
                   width: 50,
                   height: 50,
@@ -71,57 +103,80 @@ const HistoryItemComponent = (props: Props) => {
                 }}
               />
             </View>
-            <SpaceComponent width={10}></SpaceComponent>
+            <SpaceComponent width={10} />
             <View>
               <RowComponent>
                 <Box size="16" color="#1874CD" variant="Bold" />
-                <SpaceComponent width={8}></SpaceComponent>
+                <SpaceComponent width={8} />
                 <TextComponent
-                  text={item.pickupAddress.main_name_place}
+                  styles={{width: 200}}
+                  text={`${item.pickupAddress.main_name_place} - ${item.pickupAddress.description}`}
+                  numOfLine={1}
                   size={14}
-                  font={fontFamilies.medium}></TextComponent>
+                  font={fontFamilies.medium}
+                />
               </RowComponent>
-              <SpaceComponent height={5}></SpaceComponent>
+              <SpaceComponent height={5} />
               <RowComponent justify="flex-start">
                 <Box size="16" color="coral" variant="Bold" />
-                <SpaceComponent width={8}></SpaceComponent>
+                <SpaceComponent width={8} />
                 <TextComponent
-                  text={item.destinationAddress.main_name_place}
+                  styles={{width: 200}}
+                  text={`${item.destinationAddress.main_name_place} - ${item.destinationAddress.description}`}
+                  numOfLine={1}
                   size={14}
-                  font={fontFamilies.medium}></TextComponent>
-                <SpaceComponent width={5}></SpaceComponent>
+                  font={fontFamilies.medium}
+                />
               </RowComponent>
             </View>
           </RowComponent>
           <TextComponent
-            text={`${item.cost.toString()}.000đ`}
-            size={14}
-            font={fontFamilies.medium}></TextComponent>
+            text={`${item.cost.toFixed(2).toString()} $`}
+            size={16}
+            font={fontFamilies.bold} // Font đậm hơn cho giá tiền
+            color="black" // Màu nổi bật
+          />
         </RowComponent>
-        <RowComponent justify="flex-end" styles={{marginTop: 2}}>
+
+        {/* Nút hành động */}
+        <RowComponent justify="flex-end" styles={{marginTop: 8}}>
           <ButtonComponent
-            width={60}
-            textStyles={{fontSize: 14, color: appColors.text}}
+            onPress={() =>
+              navigation.navigate('DetailHistory', {_id: item._id})
+            }
+            width={80}
+            textStyles={{fontSize: 14, color: 'white'}}
             type="primary"
             text="Detail"
             color={appColors.DarkSlateGrayBlue4}
             styles={{
+              marginBottom: 0,
+              width: 60,
               paddingHorizontal: 0,
-              paddingVertical: 5,
-            }}></ButtonComponent>
-
-          <SpaceComponent width={5}></SpaceComponent>
-
+              paddingVertical: 4,
+              borderRadius: 6, // Bo góc nút
+            }}
+          />
+          <SpaceComponent width={8} />
           <ButtonComponent
-            width={100}
-            textStyles={{fontSize: 14, color: appColors.text}}
+            width={120}
+            textStyles={{fontSize: 14, color: 'white'}}
             type="primary"
             color="#FFC125"
+            onPress={() => {
+              if (item) {
+                navigation.push('ScreenLocationBooking', {item: item});
+              }
+            }}
             text="Book again"
             styles={{
+              width: 90,
+              marginBottom: 0,
               paddingHorizontal: 0,
-              paddingVertical: 5,
-            }}></ButtonComponent>
+              paddingVertical: 4,
+              borderRadius: 6, // Bo góc nút
+            }}
+          />
         </RowComponent>
       </SectionComponent>
     </View>

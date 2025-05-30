@@ -46,8 +46,20 @@ const updateUserSocketId = asyncHandle(async (req, res) => {
   }
 });
 
+const getUserById = asyncHandle(async (req, res) => {
+  const { _id } = req.body;
+  console.log("🚀 getUserById", _id);
+
+  const user = await userModel.findById(_id).select("-refreshToken -password");
+
+  return res.status(200).json({
+    data: { success: user ? true : false, rs: user ? user : "User not found!" },
+  });
+});
+
 module.exports = {
   getCurrent,
   getAllUser,
   updateUserSocketId,
+  getUserById,
 };

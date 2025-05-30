@@ -26,7 +26,7 @@ const driverSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    photoUrl: {
+    avatar: {
       type: String,
     },
     refreshToken: {

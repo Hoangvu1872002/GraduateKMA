@@ -11,6 +11,9 @@ import {appColors} from '../constants/appColors';
 import TextComponent from './TextComponent';
 import {fontFamilies} from '../constants/fontFamilies';
 import {globalStyles} from '../styles/globalStyles';
+import {useDispatch} from 'react-redux';
+import {setStateSelectVehicle} from '../stores/users/userSlide';
+import {useNavigation} from '@react-navigation/native';
 
 interface Props {
   data?: any;
@@ -19,6 +22,8 @@ interface Props {
 
 const ItemBookingHome = (props: Props) => {
   const {data} = props;
+  const dispatch = useDispatch();
+  const navigation: any = useNavigation();
 
   return (
     <View
@@ -28,6 +33,10 @@ const ItemBookingHome = (props: Props) => {
         // backgroundColor: 'coral',
       }}>
       <TouchableOpacity
+        onPress={() => {
+          dispatch(setStateSelectVehicle(data.type));
+          navigation.navigate('ScreenLocationBooking');
+        }}
         style={[
           globalStyles.shadow,
           {

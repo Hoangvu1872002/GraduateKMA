@@ -84,9 +84,9 @@ const ItemSelectVehicel = (props: Props) => {
               flex={0}
               font={fontFamilies.semiBold}
               size={13}
-              text={`${Math.ceil(
-                item.costCoefficient * totalDistance * 0.001,
-              )}.000đ`}
+              text={`${(item.costCoefficient * totalDistance * 0.001).toFixed(
+                2,
+              )} $`}
             />
             <TextComponent
               flex={0}
@@ -94,9 +94,12 @@ const ItemSelectVehicel = (props: Props) => {
               color={appColors.gray4}
               size={10}
               styles={{textDecorationLine: 'line-through'}}
-              text={`${Math.ceil(
-                item.costCoefficient * 1.5 * totalDistance * 0.001,
-              )}.000đ`}
+              text={`${(
+                item.costCoefficient *
+                1.5 *
+                totalDistance *
+                0.001
+              ).toFixed(2)} $`}
             />
           </View>
         </RowComponent>

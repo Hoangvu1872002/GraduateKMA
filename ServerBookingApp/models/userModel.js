@@ -12,15 +12,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    // givenName: {
-    // 	type: String,
-    // },
     mobile: {
       type: String,
     },
-    // bio: {
-    // 	type: String,
-    // },
     email: {
       type: String,
       required: true,
@@ -30,27 +24,52 @@ const userSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
-    photoUrl: {
+    avatar: {
       type: String,
     },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
+    },
+    cart: [
+      {
+        product: { type: mongoose.Types.ObjectId, ref: "Product" },
+        quantity: Number,
+        color: String,
+        price: Number,
+        thumbnail: String,
+        title: String,
+        discount: String,
+      },
+    ],
+    address: {
+      type: String,
+      required: true,
+    },
+    wishlist: [{ type: mongoose.Types.ObjectId, ref: "Product" }],
+    isBocked: {
+      type: String,
+      default: "Active",
+    },
     refreshToken: {
+      type: String,
+    },
+    passwordChangeAt: {
+      type: String,
+    },
+    passwordResetToken: {
+      type: String,
+    },
+    passwordResetExprires: {
+      type: String,
+    },
+    registerToken: {
       type: String,
     },
     socketId: {
       type: String,
     },
-    // fcmTokens: {
-    // 	type: [String],
-    // },
-    // following: {
-    // 	type: [String],
-    // },
-    // followers: {
-    // 	type: [String],
-    // },
-    // interests: {
-    // 	type: [String],
-    // },
   },
   {
     timestamps: true,

@@ -8,7 +8,7 @@ export interface EventModel {
   endAt: number;
   locationAddress: string;
   locationTitle: string;
-  photoUrl: string;
+  avatar: string;
   position: Position;
   price: string;
   date: number;

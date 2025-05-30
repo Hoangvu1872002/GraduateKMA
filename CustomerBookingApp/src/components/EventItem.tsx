@@ -17,17 +17,42 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
 import {DateTime} from '../utils/DateTime';
 import moment from 'moment';
+import {apiDeleteEvent} from '../apis';
+import Toast from 'react-native-toast-message';
 
 interface Props {
   // item: EventModel;
   item: EventModel;
+  fetchDataEvent: () => void;
   type: 'card' | 'list';
 }
 
 const EventItem = (props: Props) => {
-  const {item, type} = props;
+  const {item, type, fetchDataEvent} = props;
 
   // console.log(item.main_name_place);
+
+  const handleDeleteEvent = async () => {
+    const response = await apiDeleteEvent({eventId: item._id});
+    if (response.data.success) {
+      fetchDataEvent();
+      Toast.show({
+        type: 'success',
+        text1: 'Success!',
+        autoHide: true,
+        text2: 'Delete event success',
+        visibilityTime: 2000,
+      });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Error!',
+        autoHide: true,
+        text2: 'Error!',
+        visibilityTime: 3000,
+      });
+    }
+  };
 
   const navigation: any = useNavigation();
 
@@ -36,7 +61,7 @@ const EventItem = (props: Props) => {
       {type === 'card' ? (
         <TouchableOpacity
           style={{
-            width: appInfo.sizes.WIDTH * 0.7,
+            width: appInfo.sizes.WIDTH * 0.65,
             marginHorizontal: 5,
             // overflow: 'hidden',
           }}
@@ -130,47 +155,153 @@ const EventItem = (props: Props) => {
           </View>
         </TouchableOpacity>
       ) : (
-        <CardComponent
-          styles={{width: appInfo.sizes.WIDTH * 0.7}}
-          onPress={() => navigation.navigate('EventDetail', {item})}>
-          <RowComponent>
-            <Image
-              source={{uri: item.photoUrl}}
-              style={{
-                width: 79,
-                height: 92,
-                borderRadius: 12,
-                resizeMode: 'cover',
-              }}
-            />
-            <SpaceComponent width={12} />
+        <View
+          style={{
+            width: appInfo.sizes.WIDTH * 0.92,
+            marginHorizontal: appInfo.sizes.WIDTH * 0.04,
+            minHeight: 120,
+            marginBottom: 18,
+            borderRadius: 16,
+            backgroundColor: '#fff',
+            shadowColor: '#000',
+            shadowOpacity: 0.07,
+            shadowRadius: 8,
+            elevation: 3,
+            borderWidth: 1,
+            borderColor: '#EEE5DE',
+          }}
+          // activeOpacity={0.85}
+        >
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'center',
+              padding: 14,
+              borderRadius: 16,
+              backgroundColor: 'white',
+              position: 'relative',
+            }}>
+            {/* Nút góc trên bên phải */}
             <View
               style={{
-                flex: 1,
-                justifyContent: 'flex-start',
-                height: '100%',
+                position: 'absolute',
+                top: 10,
+                right: 14,
+                flexDirection: 'row',
+                gap: 1,
+                zIndex: 2,
               }}>
-              {/* <TextComponent
-                color={appColors.primary}
-                text={`${DateTime.GetDayString(item.date)} • ${DateTime.GetTime(
-                  new Date(item.startAt),
-                )}`}
-              /> */}
-              <TextComponent text={item.title} title size={19} numOfLine={2} />
+              <TouchableOpacity
+                style={{
+                  padding: 6,
+                  backgroundColor: appColors.text3,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: '#EEE5DE',
+                  marginRight: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={() => navigation.navigate('EventDetail', {item})}>
+                <MaterialIcons
+                  name="visibility"
+                  size={20}
+                  color={appColors.primary}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  padding: 6,
+                  backgroundColor: appColors.text3,
+                  borderRadius: 8,
+                  borderWidth: 1,
+                  borderColor: '#EEE5DE',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onPress={() => {
+                  handleDeleteEvent();
+                }}>
+                <MaterialIcons
+                  name="delete"
+                  size={20}
+                  color={appColors.danger2}
+                />
+              </TouchableOpacity>
+            </View>
+            <CardComponent
+              styles={[
+                globalStyles.noSpaceCard,
+                {
+                  width: 60,
+                  height: 60,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginRight: 14,
+                  backgroundColor: '#fff',
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: appColors.text3,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.05,
+                  shadowRadius: 4,
+                  elevation: 0,
+                },
+              ]}
+              color="#fff">
+              <TextComponent
+                color={appColors.danger2}
+                font={fontFamilies.bold}
+                size={20}
+                text={moment(item.dateEnd).format('DD')}
+              />
+              <TextComponent
+                color={appColors.danger2}
+                font={fontFamilies.semiBold}
+                size={11}
+                text={moment(item.dateEnd).format('MMM')}
+              />
+            </CardComponent>
+            <View style={{flex: 1, justifyContent: 'center'}}>
+              <TextComponent
+                numOfLine={1}
+                text={item.title}
+                styles={{marginBottom: 2, maxWidth: 190}}
+                title
+                size={16}
+              />
               <RowComponent>
-                <Location size={18} color={appColors.text3} variant="Bold" />
-                <SpaceComponent width={8} />
+                <Location size={16} color={appColors.danger2} variant="Bold" />
+                <SpaceComponent width={6} />
                 <TextComponent
                   flex={1}
                   numOfLine={1}
+                  title
                   text={item.main_name_place}
+                  size={13}
+                  color={appColors.text}
+                />
+              </RowComponent>
+              <TextComponent
+                color={appColors.text2}
+                numOfLine={2}
+                text={item.description}
+                styles={{marginTop: 6, marginBottom: 4}}
+                size={11}
+              />
+              <RowComponent justify="flex-end">
+                <TimerStart size="14" color="#FF8A65" />
+                <SpaceComponent width={5} />
+                <TextComponent
                   size={12}
                   color={appColors.text2}
+                  text={moment(item.createdAt).format('HH:mm - DD/MM/YYYY')}
                 />
               </RowComponent>
             </View>
-          </RowComponent>
-        </CardComponent>
+          </View>
+        </View>
       )}
     </View>
   );

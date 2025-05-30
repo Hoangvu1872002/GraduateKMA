@@ -7,6 +7,7 @@ import ModalMapConfirnRoute from '../screens/maps/screenShowMaps/ScreenlMapConfi
 import ScreenMapFindDriver from '../screens/maps/screenShowMaps/ScreenMapFindDriver';
 import ScreenMapFollowDriver from '../screens/maps/screenShowMaps/ScreenMapFollowDriver';
 import RoomMessageScreen from '../screens/message/RoomMessageScreen';
+import Dashboard from '../screens/home/Dashboard';
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
 
@@ -33,6 +34,7 @@ const MainNavigator = () => {
         component={ScreenMapFollowDriver}
       />
       <Stack.Screen name="RoomMessageScreen" component={RoomMessageScreen} />
+      <Stack.Screen name="Dashboard" component={Dashboard} />
     </Stack.Navigator>
   );
 };

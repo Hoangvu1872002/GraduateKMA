@@ -58,7 +58,9 @@ const getBillById = asyncHandle(async (req, res) => {
     console.log(billId);
 
     // Tìm đơn hàng theo ID và populate thông tin tài xế
-    const bill = await Bill.findById(billId).populate("driverId", "-password");
+    const bill = await Bill.findById(billId)
+      .populate("driverId", "-password") // Lấy đầy đủ thông tin tài xế
+      .populate("userId", "-password"); // Lấy đầy đủ thông tin user
 
     if (!bill) {
       return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
@@ -80,7 +82,23 @@ const getAllBills = asyncHandle(async (req, res) => {
     // Lọc danh sách đơn hàng của user chưa hoàn thành và chưa bị hủy, đồng thời lấy thông tin tài xế
     const bills = await Bill.find({
       userId: _id,
-    });
+    }).sort({ createdAt: -1 });
+
+    return res.status(200).json({ data: bills });
+  } catch (error) {
+    console.error("❌ Lỗi khi lấy danh sách đơn hàng:", error);
+    res.status(500).json({ message: "Lỗi server nội bộ" });
+  }
+});
+
+const getAllBillsDriver = asyncHandle(async (req, res) => {
+  try {
+    const { _id } = req.user; // Lấy userId từ request (giả sử đã xác thực)
+
+    // Lọc danh sách đơn hàng của user chưa hoàn thành và chưa bị hủy, đồng thời lấy thông tin tài xế
+    const bills = await Bill.find({
+      driverId: _id,
+    }).sort({ createdAt: -1 });
 
     return res.status(200).json({ data: bills });
   } catch (error) {
@@ -94,4 +112,5 @@ module.exports = {
   updateBillStatus,
   getBillById,
   getAllBills,
+  getAllBillsDriver,
 };

@@ -89,7 +89,7 @@ const itemSelectVehicle: ItemSelectVehicle[] = [
     type: 'Bike',
     numberSeat: 2,
     description: 'Fast, convenient',
-    costCoefficient: 20,
+    costCoefficient: 0.4,
     averageTime: 2.2,
   },
 
@@ -100,7 +100,7 @@ const itemSelectVehicle: ItemSelectVehicle[] = [
     type: 'Car',
     numberSeat: 4,
     description: 'Safe, clean',
-    costCoefficient: 50,
+    costCoefficient: 0.7,
     averageTime: 1.6,
   },
   {
@@ -110,7 +110,7 @@ const itemSelectVehicle: ItemSelectVehicle[] = [
     type: 'BikePlus',
     numberSeat: 2,
     description: 'Luxury experience',
-    costCoefficient: 25,
+    costCoefficient: 0.5,
     averageTime: 2,
   },
   {
@@ -120,7 +120,7 @@ const itemSelectVehicle: ItemSelectVehicle[] = [
     type: 'CarFamily',
     numberSeat: 7,
     description: 'Spacious space',
-    costCoefficient: 80,
+    costCoefficient: 0.9,
     averageTime: 1.6,
   },
 ];
@@ -135,13 +135,13 @@ const itemBookingHomeData: {
     id: '1',
     image: require('../assets/images/bike-white.png'),
     title: 'Bike',
-    type: 'bike',
+    type: 'Bike',
   },
   {
     id: '2',
     image: require('../assets/images/car-white.png'),
     title: 'Taxi',
-    type: 'taxi',
+    type: 'Car',
   },
   {
     id: '3',

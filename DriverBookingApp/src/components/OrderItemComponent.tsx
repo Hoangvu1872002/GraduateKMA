@@ -1,6 +1,5 @@
 import {View, Text, Image, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {IBillTemporary} from '../../models/SelectModel';
 import SectionComponent from './SectionComponent';
 import RowComponent from './RowComponent';
 import TextComponent from './TextComponent';
@@ -10,6 +9,7 @@ import {globalStyles} from '../styles/globalStyles';
 import SpaceComponent from './SpaceComponent';
 import {ArrowDown, Moneys} from 'iconsax-react-native';
 import {useNavigation} from '@react-navigation/native';
+import {IBillTemporary} from '../models/SelectModel';
 
 interface Props {
   item: IBillTemporary;
@@ -64,7 +64,7 @@ const OrderItemComponent = (props: Props) => {
       </RowComponent>
       <RowComponent styles={{marginVertical: 8}}>
         <TextComponent
-          text={`${(item.distanceInKilometers * 0.001).toString()} km`}
+          text={`${item.distanceInKilometers.toString()} km`}
           font={fontFamilies.medium}
           color={appColors.gray4}
           size={11}></TextComponent>
@@ -116,7 +116,7 @@ const OrderItemComponent = (props: Props) => {
         <TextComponent
           font={fontFamilies.medium}
           size={13}
-          text={`${item.cost.toString()}.000  vnd`}></TextComponent>
+          text={`${item.cost.toFixed(2).toString()} $`}></TextComponent>
       </RowComponent>
     </TouchableOpacity>
   );

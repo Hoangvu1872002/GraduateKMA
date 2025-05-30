@@ -99,11 +99,11 @@ const ListRoomMessageScreen = ({navigation}: any) => {
             showsVerticalScrollIndicator={false}
             data={listRoom}
             keyExtractor={item => item._id}
-            ListEmptyComponent={
-              <SectionComponent>
-                <TextComponent text="Data not found!!!" />
-              </SectionComponent>
-            }
+            // ListEmptyComponent={
+            //   <SectionComponent>
+            //     <TextComponent text="Data not found!!!" />
+            //   </SectionComponent>
+            // }
             renderItem={({item, index}) => (
               <TouchableOpacity
                 key={index}

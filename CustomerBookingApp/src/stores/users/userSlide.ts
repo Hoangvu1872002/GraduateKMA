@@ -9,7 +9,7 @@ export const userSlide = createSlice({
     current: null,
     token: null,
     isLoading: false,
-
+    stateSelectVehicle: null,
     listOrderPending: [] as IBill[],
   },
   reducers: {
@@ -25,8 +25,13 @@ export const userSlide = createSlice({
       state.token = null;
       state.isLoading = false;
       //   state.mes = "";
-      //   state.currentCart = null
+      state.stateSelectVehicle = null;
     },
+
+    setStateSelectVehicle: (state, action) => {
+      state.stateSelectVehicle = action.payload;
+    },
+
     clearMessage: state => {
       //   state.mes = "";
     },
@@ -76,6 +81,7 @@ export const {
   login,
   logout,
   clearMessage,
+  setStateSelectVehicle,
   // addToListOrderpending,
   // removeFromListOrderPending,
 } = userSlide.actions;

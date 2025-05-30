@@ -1,8 +1,8 @@
 import {createSlice} from '@reduxjs/toolkit';
 import * as actions from './asyncAction';
-import {IBillTemporary} from '../../../models/SelectModel';
-import {IBill} from '../../../models/BillModel';
 import socket from '../../apis/socket';
+import {IBillTemporary} from '../../models/SelectModel';
+import {IBill} from '../../models/BillModel';
 
 interface Coordinates {
   latitude: number;

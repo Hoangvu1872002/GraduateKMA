@@ -40,7 +40,7 @@ import dataFake from '../../constants/data';
 import {ScrollView} from 'react-native-gesture-handler';
 import Geolocation from '@react-native-community/geolocation';
 import ModalMapLocation from '../modalMap/ModalMapLocation';
-import ModalMapConfirnRoute from '../modalMap/ModalMapConfirnRoute';
+import ModalMapConfirnRoute from '../../screens/maps/screenShowMaps/ScreenlMapConfirmRoute';
 
 // GeoCoder.init(process.env.MAP_API_KEY as string);
 
@@ -299,7 +299,7 @@ const ModalLocationBooking = (props: Props) => {
                   placeholder="Enter the pickup point"
                   // value={searchKeyPickup}
                   value={
-                    searchKeyPickup.length > 26
+                    searchKeyPickup?.length > 26
                       ? searchKeyPickup.substring(0, 26) + '...'
                       : searchKeyPickup
                   } // Giữ phần đầu
@@ -331,7 +331,7 @@ const ModalLocationBooking = (props: Props) => {
                   autoFocus={inputFocusing === 3 ? true : false}
                   // value={searchKeyDestination}
                   value={
-                    searchKeyDestination.length > 36
+                    searchKeyDestination?.length > 36
                       ? searchKeyDestination.substring(0, 26) + '...'
                       : searchKeyDestination
                   } // Giữ phần đầu
@@ -405,8 +405,8 @@ const ModalLocationBooking = (props: Props) => {
                 }}>
                 <ActivityIndicator />
               </View>
-            ) : locationsPickup.length > 0 ||
-              locationsDestination.length > 0 ? (
+            ) : locationsPickup?.length > 0 ||
+              locationsDestination?.length > 0 ? (
               <View style={{paddingTop: 15}}>
                 <TextComponent
                   text="Most popular destination"

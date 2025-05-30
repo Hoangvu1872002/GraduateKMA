@@ -1,4 +1,5 @@
 const driverModel = require("../../models/driverModel");
+const userModel = require("../../models/userModel");
 const BillTemporary = require("../../models/billTemporaryModel");
 const Bill = require("../../models/billModel");
 const RoomChat = require("../../models/roomChatModal");
@@ -21,7 +22,7 @@ module.exports = function (io) {
               },
               distanceField: "distance",
               spherical: true,
-              maxDistance: 2000, // Giới hạn 5km (tuỳ chỉnh theo nhu cầu)
+              maxDistance: 10000, // Giới hạn 5km (tuỳ chỉnh theo nhu cầu)
             },
           },
           {
@@ -32,8 +33,6 @@ module.exports = function (io) {
         ]);
 
         const socketIds = drivers.map((driver) => driver.socketId);
-
-        console.log(socketIds);
 
         const newBillTemporary = new BillTemporary({
           pickupAddress: {
@@ -53,9 +52,8 @@ module.exports = function (io) {
             data.totalDistance * 0.001 * data.averageTimeVehicleSelected
           ),
           // paymentMethod: data.paymentMethod,
-          cost: Math.ceil(
-            data.totalDistance * 0.001 * data.costVehicleSelected
-          ),
+          cost: data?.totalDistance * data?.costVehicleSelected * 0.001,
+          orderId: data?.orderId,
           travelMode: data.typeVehicleSelected,
           userId: data.infCustomer._id, // Bắt buộc phải có, không đặt mặc định
           socketIdDriversReceived: socketIds,
@@ -70,6 +68,9 @@ module.exports = function (io) {
         // console.log(newBillTemporary);
 
         // Emit thông báo đến từng tài xế trong danh sách
+
+        console.log(socketIds);
+
         socketIds.forEach((socketId) => {
           console.log(socketId);
 
@@ -95,7 +96,7 @@ module.exports = function (io) {
     socket.on("notice-receipt-order", async (data) => {
       const bill = await BillTemporary.findById(data.idBillTemporary);
 
-      bill.socketIdDriversReceived.forEach((socketId) => {
+      bill?.socketIdDriversReceived.forEach((socketId) => {
         io.of("/booking").to(socketId).emit("delete-received-order", bill._id);
       });
 
@@ -116,6 +117,7 @@ module.exports = function (io) {
         durationInMinutes: bill.durationInMinutes,
         paymentMethod: bill.paymentMethod,
         cost: bill.cost,
+        orderId: bill.orderId, // Nếu không có orderId thì mặc định là null
         travelMode: bill.travelMode,
         userId: bill.userId,
         driverId: data.infDriver._id, // Nếu không có driverId thì mặc định là null
@@ -148,6 +150,16 @@ module.exports = function (io) {
         // infDriver: data.infDriver,
         billWithUser,
       });
+
+      if (bill.orderId) {
+        const admin = await userModel
+          .findOne({ role: "admin" })
+          .select("socketId");
+        socket.to(admin.socketId).emit("update-status-order", {
+          _id: bill.orderId,
+          status: "DriverPickup",
+        });
+      }
 
       await BillTemporary.findByIdAndDelete(data.idBillTemporary);
 
@@ -211,14 +223,32 @@ module.exports = function (io) {
       console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
     });
 
+    socket.on("notice-remove-order-from-admin", async (data) => {
+      console.log("notice-remove-order-from-admin", data);
+
+      const deletedBill = await BillTemporary.findOneAndDelete({
+        orderId: new mongoose.Types.ObjectId(data),
+      }).select("socketIdDriversReceived");
+
+      console.log(deletedBill);
+
+      deletedBill.socketIdDriversReceived.forEach((socketId) => {
+        socket
+          .to(socketId)
+          .emit("notice-remove-order-from-user", deletedBill._id);
+      });
+
+      console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
+    });
+
     socket.on("notice-cancle-order-from-driver", async (data) => {
       const updatedBill = await Bill.findByIdAndUpdate(
         data,
-        { status: "COMPLETED" }, // Cập nhật trạng thái đơn hàng
+        { status: "CANCELED" }, // Cập nhật trạng thái đơn hàng
         { new: true } // Trả về document đã cập nhật
       )
         .populate("userId", "socketId") // Lấy thông tin user
-        .select("userId"); // Chỉ lấy userId và socketId
+        .select("userId orderId"); // Chỉ lấy userId và socketId
 
       if (updatedBill) {
         socket
@@ -226,25 +256,52 @@ module.exports = function (io) {
           .emit("notice-complete-order-from-driver", updatedBill._id);
 
         console.log(
-          "✅ Đã cập nhật trạng thái đơn hàng thành COMPLETE và thông báo đến user!"
+          "✅ Đã cập nhật trạng thái đơn hàng thành cancle và thông báo đến user!"
         );
       } else {
         console.log("❌ Không tìm thấy đơn hàng hoặc cập nhật thất bại.");
       }
+      console.log(updatedBill);
+
+      if (updatedBill.orderId) {
+        const admin = await userModel
+          .findOne({ role: "admin" })
+          .select("socketId");
+
+        console.log("admin", admin);
+
+        socket.to(admin.socketId).emit("update-status-order", {
+          _id: updatedBill.orderId,
+          status: "Proccessing",
+        });
+      }
     });
 
     socket.on("notice-arrival-at-pick-up-point", async (data) => {
+      console.log(data);
+
       const bill = await Bill.findById(data.idOrder).populate({
         path: "userId",
         select: "socketId", // Chỉ lấy trường socketId từ user
       });
 
-      if (bill.socketId) {
+      if (bill.userId.socketId) {
         socket
           .to(bill.userId.socketId)
           .emit("notice-arrival-at-pick-up-point", bill._id);
       } else {
         console.log("❌ Không tìm thấy đơn hàng.");
+      }
+
+      if (bill.orderId) {
+        const admin = await userModel
+          .findOne({ role: "admin" })
+          .select("socketId");
+
+        socket.to(admin.socketId).emit("update-status-order", {
+          _id: bill.orderId,
+          status: "Shipping",
+        });
       }
     });
 
@@ -254,12 +311,23 @@ module.exports = function (io) {
         select: "socketId", // Chỉ lấy trường socketId từ user
       });
 
-      if (bill.socketId) {
+      if (bill.userId.socketId) {
         socket
           .to(bill.userId.socketId)
           .emit("notification-arrival-destination", bill._id);
       } else {
         console.log("❌ Không tìm thấy đơn hàng.");
+      }
+
+      if (bill.orderId) {
+        const admin = await userModel
+          .findOne({ role: "admin" })
+          .select("socketId");
+
+        socket.to(admin.socketId).emit("update-status-order", {
+          _id: bill.orderId,
+          status: "Successed",
+        });
       }
     });
 
@@ -317,6 +385,9 @@ module.exports = function (io) {
         console.error("❌ Lỗi khi gửi tin nhắn:", error);
         socket.emit("error", { message: "Lỗi server nội bộ" });
       }
+    });
+    socket.on("serverB-connection", async () => {
+      console.log("abc");
     });
   });
 };

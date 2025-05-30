@@ -12,3 +12,16 @@ export const apiGetEventLastest = () =>
     url: '/event/get-event-lastest',
     method: 'get',
   });
+
+export const apiGetAllEvent = () =>
+  axiosClient({
+    url: '/event/get-all-event',
+    method: 'get',
+  });
+
+export const apiDeleteEvent = (data: {eventId: string}) =>
+  axiosClient({
+    url: '/event/delete-event',
+    method: 'delete',
+    data,
+  });

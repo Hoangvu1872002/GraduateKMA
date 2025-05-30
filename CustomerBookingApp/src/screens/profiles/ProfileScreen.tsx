@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -15,42 +15,71 @@ interface Session {
   token: string;
 }
 
+// API URL
+const API_BASE_URL = 'http://localhost:3000/api/auth';
+
 const ProfileScreen = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const userId = '123'; // Giả sử bạn có userId của người dùng hiện tại
 
   // Lấy danh sách các thiết bị đang đăng nhập
-  const fetchSessions = async () => {
+  const fetchSessions = useCallback(async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:3000/api/auth/sessions`,
-        {params: {userId}},
-      );
+      const response = await axios.get(`${API_BASE_URL}/sessions`, {
+        params: {userId},
+      });
       setSessions(response.data.sessions);
     } catch (error) {
       console.error('Failed to fetch sessions:', error);
+      Alert.alert('Error', 'Could not fetch sessions. Please try again later.');
     }
-  };
+  }, [userId]);
 
   // Xử lý đăng xuất thiết bị cụ thể
-  const logoutDevice = async (sessionId: string) => {
-    try {
-      await axios.post(`http://localhost:3000/api/auth/logoutDevice`, {
-        userId,
-        sessionId,
-      });
+  const logoutDevice = useCallback(
+    async (sessionId: string) => {
+      try {
+        await axios.post(`${API_BASE_URL}/logoutDevice`, {
+          userId,
+          sessionId,
+        });
 
-      Alert.alert('Success', 'Device has been logged out.');
-      fetchSessions(); // Refresh danh sách sau khi đăng xuất
-    } catch (error) {
-      console.error('Failed to logout device:', error);
-      Alert.alert('Error', 'Could not log out device.');
-    }
-  };
+        Alert.alert('Success', 'Device has been logged out.');
+        fetchSessions(); // Refresh danh sách sau khi đăng xuất
+      } catch (error) {
+        console.error('Failed to logout device:', error);
+        Alert.alert('Error', 'Could not log out device. Please try again.');
+      }
+    },
+    [userId, fetchSessions],
+  );
 
   useEffect(() => {
     fetchSessions();
-  }, []);
+  }, [fetchSessions]);
+
+  const renderSessionItem = ({item}: {item: Session}) => (
+    <View style={styles.sessionItem}>
+      <Text style={styles.deviceText}>Device ID: {item.sessionId}</Text>
+      <TouchableOpacity
+        style={styles.logoutButton}
+        onPress={() =>
+          Alert.alert(
+            'Confirm Logout',
+            `Are you sure you want to logout this device?`,
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {
+                text: 'Logout',
+                onPress: () => logoutDevice(item.sessionId),
+              },
+            ],
+          )
+        }>
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -58,28 +87,10 @@ const ProfileScreen = () => {
       <FlatList
         data={sessions}
         keyExtractor={item => item.sessionId}
-        renderItem={({item}) => (
-          <View style={styles.sessionItem}>
-            <Text style={styles.deviceText}>Device ID: {item.sessionId}</Text>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={() =>
-                Alert.alert(
-                  'Confirm Logout',
-                  `Are you sure you want to logout this device?`,
-                  [
-                    {text: 'Cancel', style: 'cancel'},
-                    {
-                      text: 'Logout',
-                      onPress: () => logoutDevice(item.sessionId),
-                    },
-                  ],
-                )
-              }>
-              <Text style={styles.logoutText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        renderItem={renderSessionItem}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No devices logged in.</Text>
+        }
       />
     </View>
   );
@@ -122,6 +133,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#888',
+    marginTop: 20,
   },
 });
 

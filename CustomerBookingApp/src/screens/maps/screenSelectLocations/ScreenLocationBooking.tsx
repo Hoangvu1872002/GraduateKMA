@@ -253,17 +253,33 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
     }
   }, [debouncedInputDestination, inputFocusing]);
 
+  // console.log(route.params);
+
   useEffect(() => {
     if (route.params?.item) {
-      setSearchKeyDestination(route.params.item.main_name_place);
+      if (route.params.item.destinationAddress) {
+        setSearchKeyDestination(
+          route.params.item.destinationAddress.main_name_place,
+        );
 
-      setAddressSelectedDestination({
-        place_id: route.params.item.place_id,
-        description: route.params.item.locationAddress,
-        main_name_place: route.params.item.main_name_place,
-        latitude: route.params.item.latitude,
-        longitude: route.params.item.longitude,
-      });
+        setAddressSelectedDestination({
+          place_id: route.params.item.destinationAddress.place_id,
+          description: route.params.item.destinationAddress.locationAddress,
+          main_name_place: route.params.item.destinationAddress.main_name_place,
+          latitude: route.params.item.destinationAddress.latitude,
+          longitude: route.params.item.destinationAddress.longitude,
+        });
+      } else {
+        setSearchKeyDestination(route.params.item.main_name_place);
+
+        setAddressSelectedDestination({
+          place_id: route.params.item.place_id,
+          description: route.params.item.locationAddress,
+          main_name_place: route.params.item.main_name_place,
+          latitude: route.params.item.latitude,
+          longitude: route.params.item.longitude,
+        });
+      }
     }
   }, []);
 
@@ -299,7 +315,7 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
                 placeholder="Enter the pickup point"
                 // value={searchKeyPickup}
                 value={
-                  searchKeyPickup.length > 26
+                  searchKeyPickup?.length > 26
                     ? searchKeyPickup.substring(0, 26) + '...'
                     : searchKeyPickup
                 } // Giữ phần đầu
@@ -331,7 +347,7 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
                 autoFocus={inputFocusing === 3 ? true : false}
                 // value={searchKeyDestination}
                 value={
-                  searchKeyDestination.length > 36
+                  searchKeyDestination?.length > 36
                     ? searchKeyDestination.substring(0, 26) + '...'
                     : searchKeyDestination
                 } // Giữ phần đầu
@@ -401,7 +417,8 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
               }}>
               <ActivityIndicator />
             </View>
-          ) : locationsPickup.length > 0 || locationsDestination.length > 0 ? (
+          ) : locationsPickup?.length > 0 ||
+            locationsDestination?.length > 0 ? (
             <View style={{paddingTop: 15}}>
               <TextComponent
                 text="Most popular destination"

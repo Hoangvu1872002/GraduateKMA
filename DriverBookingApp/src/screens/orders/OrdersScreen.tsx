@@ -8,9 +8,7 @@ import {
   TextComponent,
 } from '../../components';
 import {fontFamilies} from '../../constants/fontFamilies';
-import socket from '../../apis/socket';
-import {LocationModelSuggest} from '../../../models/LocationModel';
-import {IBillTemporary} from '../../../models/SelectModel';
+
 import {useSelector} from 'react-redux';
 import {RootState} from '../../stores/redux';
 
