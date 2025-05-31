@@ -690,7 +690,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                         socket.emit('notification-arrival-destination', {
                           idOrder: orderPending._id,
                         });
-                        navigation.navigate('ConfirmInfBill', {data});
+                        navigation.replace('ConfirmInfBill', {data});
                       }}
                       styles={{paddingVertical: 10}}
                       color={appColors.DarkSlateGrayBlue4}

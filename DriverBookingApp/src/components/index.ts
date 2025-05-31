@@ -15,7 +15,7 @@ import RowComponent from './RowComponent';
 import SectionComponent from './SectionComponent';
 import SpaceComponent from './SpaceComponent';
 // import TabBarComponent from './TabBarComponent';
-// import TagComponent from './TagComponent';
+import TagComponent from './TagComponent';
 import TextComponent from './TextComponent';
 // import AvatarComponent from './AvatarComponent';
 // import AvatarGroup from './AvatarGroup';
@@ -35,7 +35,7 @@ export {
   ContainerComponent,
   RowComponent,
   CircleComponent,
-  // TagComponent,
+  TagComponent,
   // CategoriesList,
   // TabBarComponent,
   // EventItem,

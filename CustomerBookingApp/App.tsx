@@ -12,6 +12,7 @@ import {Host} from 'react-native-portalize';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import {useEffect} from 'react';
 import socket from './src/apis/socket';
+import {StripeProvider} from '@stripe/stripe-react-native';
 
 const App = () => {
   // const dispatch = useDispatch<AppDispatch>();
@@ -26,7 +27,9 @@ const App = () => {
         />
         <Host>
           <NavigationContainer>
-            <AppRouters></AppRouters>
+            <StripeProvider publishableKey="pk_test_51RUMpNFZGiPLPpYFmxWGpPxiqWRL6mk23UJg1bdxj6dtkGqVwglUeVHYTbDTNM2HHeLc6KfYdG8l4DAimuPi7BRU004sREQ4sn">
+              <AppRouters></AppRouters>
+            </StripeProvider>
           </NavigationContainer>
         </Host>
         <ToastComponent></ToastComponent>

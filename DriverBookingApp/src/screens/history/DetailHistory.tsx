@@ -38,9 +38,7 @@ const DetailHistory = ({navigation, route}: any) => {
   const [data, setData] = useState<IBill | null>(null);
 
   const fetchData = async () => {
-    console.log('_id', _id);
     const dataBill = await apiGetBill({billId: _id});
-    console.log(dataBill);
 
     if (dataBill.data) {
       setData(dataBill.data);
@@ -160,7 +158,7 @@ const DetailHistory = ({navigation, route}: any) => {
           <TextComponent
             font={fontFamilies.medium}
             size={13}
-            text={`${data?.cost} $`}></TextComponent>
+            text={`${data?.cost.toFixed(2)} $`}></TextComponent>
         </RowComponent>
       </SectionComponent>
       <View

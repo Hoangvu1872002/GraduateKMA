@@ -2,6 +2,7 @@ require("dotenv").config();
 const asyncHandle = require("express-async-handler");
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const driverModel = require("../../models/driverModel");
 
 const payHandle = asyncHandle(async (req, res) => {
   try {
@@ -15,6 +16,42 @@ const payHandle = asyncHandle(async (req, res) => {
     });
     const clientSecret = paymentIntent.client_secret;
     res.json({ message: "Payment initiated", clientSecret });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+const rechargeHandle = asyncHandle(async (req, res) => {
+  try {
+    const { cost } = req.body;
+    const { _id } = req.user;
+
+    if (!cost || !_id)
+      return res
+        .status(400)
+        .json({ message: "Please enter a cost and driverId" });
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: 100 * cost, // Amount in cents for USD
+      currency: "USD",
+      payment_method_types: ["card"],
+    });
+    const clientSecret = paymentIntent.client_secret;
+
+    // Cộng thêm vào balence cho driver
+    const driver = await driverModel.findById(_id);
+    if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+    driver.balence += Number(cost);
+    await driver.save();
+
+    res.json({
+      data: {
+        message: "Payment initiated and balance updated",
+        clientSecret,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
@@ -49,5 +86,6 @@ const payHandle = asyncHandle(async (req, res) => {
 
 module.exports = {
   payHandle,
+  rechargeHandle,
   // stripeHandle,
 };

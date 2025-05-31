@@ -5,6 +5,7 @@ import DetailOrderScreen from '../screens/orders/DetailOrderScreen';
 import DirectionsMapScreen from '../screens/maps/DirectionsMapScreen';
 import RoomMessageScreen from '../screens/message/RoomMessageScreen';
 import ConfirmInfBill from '../screens/bill/ConfirmInfBill';
+import Recharge from '../screens/bill/Recharge';
 
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -22,6 +23,7 @@ const MainNavigator = () => {
       />
       <Stack.Screen name="RoomMessageScreen" component={RoomMessageScreen} />
       <Stack.Screen name="ConfirmInfBill" component={ConfirmInfBill} />
+      <Stack.Screen name="Recharge" component={Recharge} />
     </Stack.Navigator>
   );
 };

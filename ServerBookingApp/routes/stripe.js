@@ -4,10 +4,10 @@ var router = express.Router();
 const { verifyAccessToken, isAdmin } = require("../middlewares/verifyToken");
 const {
   payHandle,
-  stripeHandle,
+  rechargeHandle,
 } = require("../controllers/restful/payosController");
 
 router.post("/pay", payHandle);
-// router.post("/stripe", stripeHandle);
+router.post("/recharge", verifyAccessToken, rechargeHandle);
 
 module.exports = router;

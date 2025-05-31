@@ -80,8 +80,6 @@ const RoomMessageScreen = ({navigation, route}: any) => {
     useCallback(() => {
       getInfRoomChat();
       const handleReceiveMessage = (data: any) => {
-        console.log('abc');
-
         getInfRoomChat();
       };
 

@@ -40,6 +40,10 @@ const driverSchema = new mongoose.Schema(
       type: String,
       default: "driver",
     },
+    balence: {
+      type: Number,
+      default: 0,
+    },
     travelMode: {
       type: String,
       enum: ["Bike", "Car", "BikePlus", "CarFamily"],

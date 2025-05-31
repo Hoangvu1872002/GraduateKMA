@@ -23,7 +23,7 @@ import Toast from 'react-native-toast-message';
 interface Props {
   // item: EventModel;
   item: EventModel;
-  fetchDataEvent: () => void;
+  fetchDataEvent?: () => void;
   type: 'card' | 'list';
 }
 
@@ -35,7 +35,7 @@ const EventItem = (props: Props) => {
   const handleDeleteEvent = async () => {
     const response = await apiDeleteEvent({eventId: item._id});
     if (response.data.success) {
-      fetchDataEvent();
+      fetchDataEvent && fetchDataEvent();
       Toast.show({
         type: 'success',
         text1: 'Success!',

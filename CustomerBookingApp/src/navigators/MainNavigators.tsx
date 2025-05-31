@@ -8,6 +8,7 @@ import ScreenMapFindDriver from '../screens/maps/screenShowMaps/ScreenMapFindDri
 import ScreenMapFollowDriver from '../screens/maps/screenShowMaps/ScreenMapFollowDriver';
 import RoomMessageScreen from '../screens/message/RoomMessageScreen';
 import Dashboard from '../screens/home/Dashboard';
+import ConfirmInfBill from '../screens/bill/ConfirmInfBill';
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ const MainNavigator = () => {
       />
       <Stack.Screen name="RoomMessageScreen" component={RoomMessageScreen} />
       <Stack.Screen name="Dashboard" component={Dashboard} />
+      <Stack.Screen name="ConfirmInfBill" component={ConfirmInfBill} />
     </Stack.Navigator>
   );
 };

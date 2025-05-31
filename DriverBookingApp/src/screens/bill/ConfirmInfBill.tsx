@@ -23,11 +23,9 @@ import {Image} from 'react-native';
 import {apiGetUserById} from '../../apis';
 import {useFocusEffect} from '@react-navigation/native';
 import {IBillTemporary} from '../../models/SelectModel';
-import {useStripe} from '@stripe/stripe-react-native';
 
 const ConfirmInfBill = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
-  const stripe = useStripe();
 
   const [dataUser, setData] = useState<{
     lastname?: string;
@@ -40,35 +38,6 @@ const ConfirmInfBill = ({navigation, route}: any) => {
 
     if (user.data) {
       setData(user.data.rs);
-    }
-  };
-
-  const subscribe = async () => {
-    try {
-      // sending request
-      const response = await fetch('http://192.168.1.39:5002/stripe/pay', {
-        method: 'POST',
-        body: JSON.stringify({cost: data.cost}),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const datars = await response.json();
-      if (!response.ok) return Alert.alert(datars.message);
-      const clientSecret = datars.clientSecret;
-      const initSheet = await stripe.initPaymentSheet({
-        paymentIntentClientSecret: clientSecret,
-        merchantDisplayName: 'Driver Booking App',
-      });
-      if (initSheet.error) return Alert.alert(initSheet.error.message);
-
-      const presentSheet = await stripe.presentPaymentSheet();
-      if (presentSheet.error) return Alert.alert(presentSheet.error.message);
-
-      Alert.alert('Payment complete, thank you!');
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Something went wrong, try again later!');
     }
   };
 
@@ -172,7 +141,7 @@ const ConfirmInfBill = ({navigation, route}: any) => {
           <TextComponent
             font={fontFamilies.medium}
             size={13}
-            text={`${data?.cost} $`}></TextComponent>
+            text={`${data?.cost.toFixed(2)} $`}></TextComponent>
         </RowComponent>
       </SectionComponent>
       <View
@@ -318,12 +287,12 @@ const ConfirmInfBill = ({navigation, route}: any) => {
           }}>
           <ButtonComponent
             width={118}
-            onPress={subscribe}
+            onPress={() => navigation.goBack()}
             styles={{paddingVertical: 10}}
             color={appColors.primary}
             type="primary"
             textStyles={{flex: 0}}
-            text="Show QR"></ButtonComponent>
+            text="Confirm"></ButtonComponent>
         </RowComponent>
       </SectionComponent>
     </View>

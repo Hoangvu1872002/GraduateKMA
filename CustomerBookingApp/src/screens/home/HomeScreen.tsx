@@ -192,7 +192,9 @@ const HomeScreen = ({navigation}: any) => {
             borderBottomLeftRadius: 40,
             borderBottomRightRadius: 40,
             paddingTop:
-              Platform.OS === 'android' ? StatusBar.currentHeight : 52,
+              Platform.OS === 'android'
+                ? (StatusBar.currentHeight ?? 0) + 5
+                : 52,
           }}>
           <View style={{paddingHorizontal: 16}}>
             <RowComponent>

@@ -86,7 +86,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
 
   const [statusBill, setStatusBill] = useState(data.status);
 
-  console.log(driverId);
+  // console.log(driverId);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -331,8 +331,9 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
         }
       };
 
-      const handleCompleteBill = (data: string) => {
-        if (data === _id) {
+      const handleCompleteBill = (datask: string) => {
+        if (datask === _id) {
+          navigation.replace('ConfirmInfBill', {data: data});
         }
       };
 

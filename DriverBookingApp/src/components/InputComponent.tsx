@@ -32,6 +32,7 @@ interface Props {
   width?: number;
   turnOffAutoFocus?: () => void;
   autoFocus?: boolean;
+  textSizes?: number;
   styles?: StyleProp<ViewStyle>;
 }
 
@@ -48,6 +49,7 @@ const InputComponent = (props: Props) => {
     type,
     onEnd,
     multiline,
+    textSizes,
     numberOfLine,
     styles,
     autoFocus,
@@ -77,6 +79,7 @@ const InputComponent = (props: Props) => {
         style={[
           globalStyles.input,
           globalStyles.text,
+          {fontSize: textSizes ? textSizes : 15},
 
           {
             paddingHorizontal: affix || suffix ? 12 : 0,
