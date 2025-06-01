@@ -9,3 +9,14 @@ export const apiGetAllDriverNearby = (data: {
     method: 'post',
     data,
   });
+
+export const apiRatingDriver = (data: {
+  driverId: string;
+  star: number;
+  comment: string;
+}) =>
+  axiosClient({
+    url: '/driver/rating',
+    method: 'post',
+    data,
+  });

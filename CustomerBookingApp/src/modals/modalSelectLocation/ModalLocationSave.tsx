@@ -73,7 +73,7 @@ const ModalLocationSave = (props: Props) => {
         'https://rsapi.goong.io/Place/AutoComplete',
         {
           params: {
-            api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
             input: query,
           },
         },
@@ -99,7 +99,7 @@ const ModalLocationSave = (props: Props) => {
   };
 
   const fetchCoordinatesFromPlaceId = async (placeId: string) => {
-    const API_KEY = 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg'; // Thay bằng API Key của bạn
+    const API_KEY = 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR'; // Thay bằng API Key của bạn
     const BASE_URL = 'https://rsapi.goong.io/Place/Detail';
 
     try {

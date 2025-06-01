@@ -41,7 +41,7 @@ MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
 MapLibreGL.setConnected(true);
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
 
 const ModalMapLocation = (props: Props) => {
   const {visible, onCloseAll, onCloseMap, onSelect, dataLocationSelected} =
@@ -119,7 +119,7 @@ const ModalMapLocation = (props: Props) => {
     lat: number;
     long: number;
   }) => {
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
 
     try {
       const res = await axios.get(api);

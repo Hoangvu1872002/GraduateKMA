@@ -77,9 +77,11 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
   }, []);
 
   useEffect(() => {
-    if (bottomSheetRef.current) {
-      bottomSheetRef.current.expand(); // Mở BottomSheet khi modal được mở
-    }
+    setTimeout(() => {
+      if (bottomSheetRef.current) {
+        bottomSheetRef.current.expand(); // Mở BottomSheet khi modal được mở
+      }
+    }, 200);
     if (!addressSelectedPickup) {
     } else if (
       addressSelectedPickup &&

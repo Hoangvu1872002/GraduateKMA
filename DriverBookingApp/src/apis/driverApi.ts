@@ -22,3 +22,10 @@ export const apiGetCurrent = () =>
     url: '/driver/current',
     method: 'get',
   });
+
+export const apiUpdateBalenceDriver = (data: {cost: number}) =>
+  axiosClient({
+    url: '/driver/update-balence-driver',
+    method: 'put',
+    data,
+  });

@@ -1,7 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import {HomeScreen, ListRoomMessageScreen} from '../screens';
-import SearchEvents from '../screens/events/SearchEvents';
+
 import EventDetail from '../screens/events/EventDetail';
 import ScreenLocationSave from '../screens/events/ScreenLocationSave';
 import ScreenLocationBooking from '../screens/maps/screenSelectLocations/ScreenLocationBooking';

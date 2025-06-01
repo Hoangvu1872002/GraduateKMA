@@ -20,12 +20,16 @@ import {
 import {ArrowDown2, ArrowLeft, Location} from 'iconsax-react-native';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {Image} from 'react-native';
-import {apiGetUserById} from '../../apis';
+import {apiGetUserById, apiUpdateBalenceDriver} from '../../apis';
 import {useFocusEffect} from '@react-navigation/native';
 import {IBillTemporary} from '../../models/SelectModel';
+import {useDispatch} from 'react-redux';
+import {AppDispatch} from '../../stores/redux';
+import {getCurrent} from '../../stores/users/asyncAction';
 
 const ConfirmInfBill = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
+  const dispatch = useDispatch<AppDispatch>();
 
   const [dataUser, setData] = useState<{
     lastname?: string;
@@ -38,6 +42,19 @@ const ConfirmInfBill = ({navigation, route}: any) => {
 
     if (user.data) {
       setData(user.data.rs);
+    }
+  };
+
+  const handleUpdateBalance = async () => {
+    try {
+      const rs = await apiUpdateBalenceDriver({
+        cost: parseFloat((data.cost * 0.3).toFixed(2)),
+      });
+      if (rs.data.success) {
+        dispatch(getCurrent());
+      }
+    } catch (error) {
+      Alert.alert('Error', 'An error occurred while updating balance!');
     }
   };
 
@@ -287,7 +304,10 @@ const ConfirmInfBill = ({navigation, route}: any) => {
           }}>
           <ButtonComponent
             width={118}
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              navigation.goBack();
+              handleUpdateBalance();
+            }}
             styles={{paddingVertical: 10}}
             color={appColors.primary}
             type="primary"

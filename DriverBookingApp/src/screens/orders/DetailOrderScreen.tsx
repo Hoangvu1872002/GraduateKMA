@@ -1,4 +1,4 @@
-import {View, Text, StatusBar, Image} from 'react-native';
+import {View, Text, StatusBar, Image, Alert, Modal} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {IBillTemporary} from '../../models/SelectModel';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
@@ -46,7 +46,7 @@ const destinationIcon = require('../../assets/images/icons_pickupmarker.png');
 const currentLocationFlag = require('../../assets/images/flag_current.png');
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
 
 const DetailOrderScreen = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
@@ -66,6 +66,7 @@ const DetailOrderScreen = ({navigation, route}: any) => {
     useState<FeatureCollection<LineString> | null>(null);
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
   const [zoomLevel, setZoomLevel] = useState<number>(16);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -144,7 +145,7 @@ const DetailOrderScreen = ({navigation, route}: any) => {
             origin: `${pickupAddress.latitude},${pickupAddress.longitude}`,
             destination: `${destinationAddress.latitude},${destinationAddress.longitude}`,
             vehicle: 'bike',
-            api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
           },
         },
       );
@@ -192,7 +193,7 @@ const DetailOrderScreen = ({navigation, route}: any) => {
         origin: `${currentLocation.latitude},${currentLocation.longitude}`,
         destination: `${pickupAddress.latitude},${pickupAddress.longitude}`,
         vehicle: 'bike',
-        api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+        api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
       },
     });
     const routeDriver = responseDriver.data.routes[0].overview_polyline.points;
@@ -551,6 +552,10 @@ const DetailOrderScreen = ({navigation, route}: any) => {
                 <ButtonComponent
                   width={130}
                   onPress={() => {
+                    if (current.balence < 0.3 * data.cost) {
+                      setShowBalanceModal(true);
+                      return;
+                    }
                     navigation.replace('DirectionsMapScreen', {data: data});
                     socket.emit('notice-receipt-order', {
                       infDriver: current,
@@ -562,12 +567,70 @@ const DetailOrderScreen = ({navigation, route}: any) => {
                   color={appColors.DarkSlateGrayBlue4}
                   type="primary"
                   textStyles={{flex: 0}}
-                  text="Receive Trip"></ButtonComponent>
+                  text="Receive Trip"
+                />
               </RowComponent>
             </SectionComponent>
           </BottomSheetView>
         </BottomSheet>
       </BottomSheetModalProvider>
+      <View>
+        <Modal
+          visible={showBalanceModal}
+          transparent
+          animationType="fade"
+          statusBarTranslucent={true}
+          onRequestClose={() => setShowBalanceModal(false)}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <View
+              style={{
+                backgroundColor: '#fff',
+                borderRadius: 16,
+                padding: 28,
+                paddingBottom: 10,
+                alignItems: 'center',
+                width: '80%',
+                shadowColor: '#000',
+                shadowOffset: {width: 0, height: 4},
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+              <TextComponent
+                font={fontFamilies.semiBold}
+                size={18}
+                color={appColors.danger}
+                text="Insufficient Balance"
+                styles={{textAlign: 'center', marginBottom: 12}}
+              />
+              <TextComponent
+                size={15}
+                color={appColors.text}
+                text="Your balance is less than 30% of the order value. Please recharge your wallet before receiving the trip."
+                styles={{textAlign: 'center', marginBottom: 24}}
+              />
+              <ButtonComponent
+                text="Close"
+                width={100}
+                onPress={() => {
+                  setShowBalanceModal(false);
+                  navigation.replace('Recharge');
+                }}
+                color={appColors.primary}
+                type="primary"
+                styles={{paddingVertical: 12}}
+                textStyles={{fontSize: 16}}
+              />
+            </View>
+          </View>
+        </Modal>
+      </View>
     </View>
   );
 };

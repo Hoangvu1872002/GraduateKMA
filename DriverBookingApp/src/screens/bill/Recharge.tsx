@@ -166,7 +166,9 @@ const Recharge = ({navigation}: any) => {
             color={appColors.gray4}
             size={13}
             font={fontFamilies.semiBold}
-            text={`Current wallet balance: ${current.balence.toString()} $`}
+            text={`Current wallet balance: ${current.balence
+              .toFixed(2)
+              .toString()} $`}
             styles={{fontWeight: 'normal'}}
           />
         </View>
@@ -351,7 +353,7 @@ const Recharge = ({navigation}: any) => {
                 setAmount('');
                 setSelectedAmount(null);
               }}
-              width={done ? 150 : 80}
+              width={80}
               styles={{paddingVertical: 10, marginBottom: 0}}
               color={appColors.primary}
               type="primary"

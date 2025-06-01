@@ -62,7 +62,7 @@ const ConfirmInfBill = ({navigation, route}: any) => {
       if (presentSheet.error)
         return showCustomAlert(presentSheet.error.message);
 
-      showCustomAlert('Payment complete, thank you!');
+      showCustomAlert('Payment complete, thank you!', true);
     } catch (err) {
       console.error(err);
       Alert.alert('Something went wrong, try again later!');
@@ -355,14 +355,16 @@ const ConfirmInfBill = ({navigation, route}: any) => {
             <ButtonComponent
               onPress={() => {
                 setAlertVisible(false);
-                done && navigation.navigate('HomeScreen');
+                if (done) {
+                  navigation.replace('Review', {data: data});
+                }
               }}
               width={done ? 150 : 80}
               styles={{paddingVertical: 10, marginBottom: 0}}
               color={appColors.primary}
               type="primary"
               textStyles={{flex: 0, fontSize: 16}}
-              text={!done ? 'Close' : 'Go Home'}
+              text={!done ? 'Close' : 'Review driver'}
             />
           </View>
         </View>

@@ -9,6 +9,7 @@ import ScreenMapFollowDriver from '../screens/maps/screenShowMaps/ScreenMapFollo
 import RoomMessageScreen from '../screens/message/RoomMessageScreen';
 import Dashboard from '../screens/home/Dashboard';
 import ConfirmInfBill from '../screens/bill/ConfirmInfBill';
+import Review from '../screens/review/Review';
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
 
@@ -37,6 +38,7 @@ const MainNavigator = () => {
       <Stack.Screen name="RoomMessageScreen" component={RoomMessageScreen} />
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="ConfirmInfBill" component={ConfirmInfBill} />
+      <Stack.Screen name="Review" component={Review} />
     </Stack.Navigator>
   );
 };

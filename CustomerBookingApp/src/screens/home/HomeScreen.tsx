@@ -7,6 +7,7 @@ import {
   Chart,
   HambergerMenu,
   Location,
+  Logout,
   Notification,
   SearchNormal1,
   Sort,
@@ -66,7 +67,7 @@ import socket from '../../apis/socket';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
 
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
@@ -146,7 +147,7 @@ const HomeScreen = ({navigation}: any) => {
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
 
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
 
     try {
       const res = await axios.get(api);
@@ -233,11 +234,16 @@ const HomeScreen = ({navigation}: any) => {
                 color="#524CE0"
                 size={36}>
                 <View>
-                  <Notification size={18} color={appColors.white} />
+                  <Logout
+                    size={18}
+                    color={appColors.WhiteSmoke}
+                    variant="Bold"
+                  />
+
                   {unReadNotifications.length > 0 && (
                     <View
                       style={{
-                        backgroundColor: '#02E9FE',
+                        backgroundColor: appColors.DarkSlateGrayBlue4,
                         width: 10,
                         height: 10,
                         borderRadius: 4,
@@ -461,7 +467,7 @@ const HomeScreen = ({navigation}: any) => {
           size={16}
         />
 
-        <View
+        {/* <View
           style={{
             height: 190,
             padding: 5,
@@ -485,7 +491,7 @@ const HomeScreen = ({navigation}: any) => {
             />
             <MapLibreGL.UserLocation />
           </MapLibreGL.MapView>
-        </View>
+        </View> */}
 
         <View
           style={{

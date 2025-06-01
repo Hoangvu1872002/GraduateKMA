@@ -18,7 +18,13 @@ import {
   TagComponent,
   TextComponent,
 } from '../../components';
-import {HambergerMenu, Notification, Sort} from 'iconsax-react-native';
+import {
+  HambergerMenu,
+  Logout,
+  Moneys,
+  Notification,
+  Sort,
+} from 'iconsax-react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {StatusBar} from 'react-native';
@@ -35,7 +41,7 @@ const HomeScreen = ({navigation}: any) => {
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
 
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
 
     try {
       const res = await axios.get(api);
@@ -141,7 +147,12 @@ const HomeScreen = ({navigation}: any) => {
               color={appColors.WhiteSmoke}
               size={36}>
               <View>
-                <Notification size={18} color={appColors.DarkSlateGrayBlue4} />
+                <Logout
+                  size={18}
+                  color={appColors.DarkSlateGrayBlue4}
+                  variant="Bold"
+                />
+
                 {unReadNotifications.length > 0 && (
                   <View
                     style={{
@@ -175,12 +186,12 @@ const HomeScreen = ({navigation}: any) => {
               font={fontFamilies.medium}
               color={appColors.white2}></TextComponent>
             <TagComponent
-              bgColor={'#5D56F3'}
+              bgColor={'#ECAB53'}
               onPress={() => navigation.navigate('Recharge')}
-              label={current?.balence.toString() + ' $'}
+              label={current?.balence.toFixed(2).toString() + ' $'}
               icon={
-                <CircleComponent size={20} color="#B1AEFA">
-                  <Sort size={16} color="#5D56F3" />
+                <CircleComponent size={20} color="#ECAB53">
+                  <Moneys size="22" color="green" variant="Bold" />
                 </CircleComponent>
               }
             />

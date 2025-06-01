@@ -253,7 +253,7 @@ module.exports = function (io) {
       if (updatedBill) {
         socket
           .to(updatedBill.userId.socketId)
-          .emit("notice-complete-order-from-driver", updatedBill._id);
+          .emit("notice-cancle-order-from-driver", updatedBill._id);
 
         console.log(
           "✅ Đã cập nhật trạng thái đơn hàng thành cancle và thông báo đến user!"

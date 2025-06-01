@@ -50,7 +50,7 @@ const carIcon = require('../../assets/images/car.png');
 const currentLocationFlag = require('../../assets/images/flag_current.png');
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
 
 const DirectionsMapScreen = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
@@ -177,7 +177,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
             origin: `${pickupAddress.latitude},${pickupAddress.longitude}`,
             destination: `${destinationAddress.latitude},${destinationAddress.longitude}`,
             vehicle: 'bike',
-            api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
           },
         },
       );
@@ -230,7 +230,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
         origin: `${currentLocation.latitude},${currentLocation.longitude}`,
         destination: `${pickupAddress.latitude},${pickupAddress.longitude}`,
         vehicle: 'bike',
-        api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+        api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
       },
     });
     const routeDriver = responseDriver.data.routes[0].overview_polyline.points;

@@ -56,7 +56,7 @@ const bikeIcon = require('../../../assets/images/img_vespa_top.png');
 const carIcon = require('../../../assets/images/car.png');
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
 
 const ScreenMapFollowDriver = ({navigation, route}: any) => {
   const {data}: {data: any} = route?.params || {};
@@ -168,7 +168,6 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
   });
 
   const fetchRouteCustomer = async () => {
-    console.log('abcddd');
     try {
       const responseCustomer = await axios.get(
         'https://rsapi.goong.io/Direction',
@@ -180,7 +179,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 : `${currentDriverLocation.latitude},${currentDriverLocation.longitude}`,
             destination: `${destinationAddress.latitude},${destinationAddress.longitude}`,
             vehicle: 'bike',
-            api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
           },
         },
       );
@@ -216,7 +215,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
         origin: `${currentDriverLocation.latitude},${currentDriverLocation.longitude}`,
         destination: `${pickupAddress.latitude},${pickupAddress.longitude}`,
         vehicle: 'bike',
-        api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+        api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
       },
     });
     const routeDriver = responseDriver.data.routes[0].overview_polyline.points;

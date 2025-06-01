@@ -54,6 +54,7 @@ const findDriversNearby = asyncHandle(async (req, res) => {
 
     const drivers = await driverModel.find(
       {
+        status: "online",
         location: {
           $near: {
             $geometry: { type: "Point", coordinates: [longitude, latitude] },
@@ -106,9 +107,84 @@ const updateDriverSocketId = asyncHandle(async (req, res) => {
   }
 });
 
+const updateDriverBalance = asyncHandle(async (req, res) => {
+  try {
+    const { _id } = req.user; // Lấy ID tài xế từ request (giả sử đã xác thực)
+    const { cost } = req.body; // Số tiền cần trừ
+    console.log(cost);
+
+    if (typeof cost !== "number" || cost <= 0) {
+      return res.status(400).json({ message: "Invalid cost value!" });
+    }
+
+    // Tìm tài xế
+    const driver = await driverModel.findById(_id);
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found!" });
+    }
+
+    // Trừ tiền
+    if (driver.balence < cost) {
+      return res.status(400).json({ message: "Insufficient balance!" });
+    }
+    driver.balence -= cost;
+    await driver.save();
+    console.log("Driver balance updated:", driver.balence);
+
+    return res
+      .status(200)
+      .json({ data: { success: true, balence: driver.balence } });
+  } catch (error) {
+    console.error("❌ Error updating balance:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+const addDriverRating = asyncHandle(async (req, res) => {
+  try {
+    const { _id } = req.user; // ID người đánh giá (user)
+    const { driverId, star, comment } = req.body;
+
+    if (!driverId || typeof star !== "number" || star < 1 || star > 5) {
+      return res.status(400).json({ message: "Invalid rating data!" });
+    }
+
+    const driver = await driverModel.findById(driverId);
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found!" });
+    }
+
+    // Thêm đánh giá mới vào mảng ratings
+    driver.ratings.push({
+      star,
+      postedBy: _id,
+      comment,
+    });
+
+    // Cập nhật tổng rating trung bình
+    const totalStars = driver.ratings.reduce((sum, r) => sum + r.star, 0);
+    driver.totalRating = totalStars / driver.ratings.length;
+
+    await driver.save();
+
+    return res.status(200).json({
+      data: {
+        success: true,
+        ratings: driver.ratings,
+        totalRating: driver.totalRating,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error adding rating:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = {
   getCurrent,
   updateDriverLocation,
   findDriversNearby,
   updateDriverSocketId,
+  updateDriverBalance,
+  addDriverRating, // Thêm hàm này vào exports
 };

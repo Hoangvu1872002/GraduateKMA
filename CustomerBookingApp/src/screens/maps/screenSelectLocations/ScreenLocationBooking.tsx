@@ -90,7 +90,7 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
         'https://rsapi.goong.io/Place/AutoComplete',
         {
           params: {
-            api_key: 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg',
+            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
             input: query,
           },
         },
@@ -125,7 +125,7 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
   };
 
   const fetchCoordinatesFromPlaceId = async (placeId: string) => {
-    const API_KEY = 'sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg'; // Thay bằng API Key của bạn
+    const API_KEY = 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR'; // Thay bằng API Key của bạn
     const BASE_URL = 'https://rsapi.goong.io/Place/Detail';
 
     try {
@@ -182,7 +182,7 @@ const ScreenLocationBooking = ({navigation, route}: any) => {
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
 
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=sJrvIqiCKE2h7akqUhzs1gyVqt5PiCURtoVihCjg`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
 
     try {
       const res = await axios.get(api);
