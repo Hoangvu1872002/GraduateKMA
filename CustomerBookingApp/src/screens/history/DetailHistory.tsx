@@ -179,7 +179,7 @@ const DetailHistory = ({navigation, route}: any) => {
           <TextComponent
             font={fontFamilies.medium}
             size={13}
-            text={`${data?.cost} $`}></TextComponent>
+            text={`${data?.cost.toFixed(2)} $`}></TextComponent>
         </RowComponent>
       </SectionComponent>
       <View

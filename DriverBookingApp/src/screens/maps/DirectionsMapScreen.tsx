@@ -23,9 +23,10 @@ import {styles} from './ModalMapLocation.styles';
 import Geolocation from '@react-native-community/geolocation';
 import {shallowEqual, useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../stores/redux';
-import {apiUpdateStatusBill} from '../../apis';
+import {apiUpdateBalenceDriver, apiUpdateStatusBill} from '../../apis';
 import socket from '../../apis/socket';
 import {setOrderPending} from '../../stores/users/userSlide';
+import {getCurrent} from '../../stores/users/asyncAction';
 
 interface Coordinates {
   latitude: number;
@@ -55,6 +56,8 @@ const loadMap =
 const DirectionsMapScreen = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
   const {pickupAddress, destinationAddress, _id} = data;
+  // console.log(data);
+
   const {currentLocation, orderPending} = useSelector(
     (state: RootState) => state.user,
   );
@@ -79,6 +82,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
   const [distanceToDestination, setDistanceToDestination] =
     useState<string>('');
   const [isWarningModalVisible, setIsWarningModalVisible] = useState(false);
+  const [isSkipTripModalVisible, setIsSkipTripModalVisible] = useState(false);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -301,6 +305,14 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
     }, 500);
   }, [currentLocation]);
 
+  const handleSkipTrip = async () => {
+    await apiUpdateBalenceDriver({cost: data.cost * 0.3}); // Giả sử bạn muốn trừ 30% tiền từ tài khoản của người lái xe
+    dispatch(getCurrent());
+    socket.emit('notice-cancle-order-from-driver', orderPending._id);
+    dispatch(setOrderPending({}));
+    navigation.goBack();
+  };
+
   return (
     <View style={{flex: 1, position: 'relative'}}>
       <StatusBar
@@ -364,8 +376,78 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
           </View>
         </Modal>
       </View>
+      <View>
+        {/* Modal xác nhận skip trip */}
+        <Modal
+          visible={isSkipTripModalVisible}
+          transparent={true}
+          animationType="fade"
+          statusBarTranslucent={true}
+          onRequestClose={() => setIsSkipTripModalVisible(false)}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}>
+            <View
+              style={{
+                width: '80%',
+                backgroundColor: '#FFF',
+                borderRadius: 16,
+                padding: 25,
+                paddingBottom: 10,
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: {width: 0, height: 4},
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+              <TextComponent
+                font={fontFamilies.bold}
+                size={16}
+                color={appColors.red}
+                text="Warning!"
+                styles={{marginBottom: 10}}
+              />
+              <TextComponent
+                font={fontFamilies.medium}
+                size={15}
+                color={appColors.text}
+                text="If you skip this trip, 30% of the trip fare will be deducted from your account. Are you sure you want to skip?"
+                styles={{textAlign: 'center', marginBottom: 20}}
+              />
+              <RowComponent justify="space-around" styles={{width: '80%'}}>
+                <ButtonComponent
+                  onPress={() => setIsSkipTripModalVisible(false)}
+                  width={100}
+                  styles={{paddingVertical: 12}}
+                  color={appColors.gray2}
+                  textStyles={{color: appColors.text}}
+                  type="primary"
+                  text="Cancel"
+                />
+                <SpaceComponent width={20} />
+                <ButtonComponent
+                  onPress={() => {
+                    setIsSkipTripModalVisible(false);
+                    handleSkipTrip();
+                  }}
+                  styles={{paddingVertical: 12}}
+                  width={100}
+                  color={appColors.red}
+                  type="primary"
+                  text="OK"
+                />
+              </RowComponent>
+            </View>
+          </View>
+        </Modal>
+      </View>
       <View style={{flex: 1}}>
-        <RowComponent
+        {/* <RowComponent
           styles={{
             position: 'absolute',
             top: 0,
@@ -389,7 +471,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
               <ArrowCircleLeft2 size="30" color={appColors.gray} />
             </CardComponent>
           </SectionComponent>
-        </RowComponent>
+        </RowComponent> */}
 
         <View style={{flex: 1}}>
           <MapLibreGL.MapView
@@ -603,6 +685,15 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                       height: 80,
                     }}>
                     <ButtonComponent
+                      onPress={() => setIsSkipTripModalVisible(true)}
+                      width={118}
+                      styles={{paddingVertical: 10}}
+                      color={appColors.red}
+                      type="primary"
+                      textStyles={{flex: 0}}
+                      text="Skip Trip"
+                    />
+                    {/* <ButtonComponent
                       onPress={() => {
                         socket.emit(
                           'notice-cancle-order-from-driver',
@@ -616,7 +707,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                       color={appColors.red}
                       type="primary"
                       textStyles={{flex: 0}}
-                      text="Skip Trip"></ButtonComponent>
+                      text="Skip Trip"></ButtonComponent> */}
                     <ButtonComponent
                       width={180}
                       onPress={async () => {

@@ -10,6 +10,27 @@ module.exports = function (io) {
   io.of("/booking").on("connection", (socket) => {
     socket.on("find-driver", async (data) => {
       try {
+        // const drivers = await driverModel.aggregate([
+        //   {
+        //     $geoNear: {
+        //       near: {
+        //         type: "Point",
+        //         coordinates: [
+        //           data.addressSelectedPickup.longitude,
+        //           data.addressSelectedPickup.latitude,
+        //         ],
+        //       },
+        //       distanceField: "distance",
+        //       spherical: true,
+        //       maxDistance: 10000, // Giới hạn 5km (tuỳ chỉnh theo nhu cầu)
+        //     },
+        //   },
+        //   {
+        //     $match: { status: "online", travelMode: data.typeVehicleSelected },
+        //   }, // Chỉ lấy tài xế online, kiểu xe
+        //   { $limit: 10 }, // Giới hạn 10 tài xế gần nhất
+        //   { $project: { _id: 0, socketId: 1 } }, // Chỉ lấy socketId
+        // ]);
         const drivers = await driverModel.aggregate([
           {
             $geoNear: {
@@ -22,13 +43,14 @@ module.exports = function (io) {
               },
               distanceField: "distance",
               spherical: true,
-              maxDistance: 10000, // Giới hạn 5km (tuỳ chỉnh theo nhu cầu)
+              maxDistance: 10000, // 10km
             },
           },
           {
             $match: { status: "online", travelMode: data.typeVehicleSelected },
-          }, // Chỉ lấy tài xế online, kiểu xe
-          { $limit: 10 }, // Giới hạn 10 tài xế gần nhất
+          },
+          { $sort: { totalRating: -1 } }, // Ưu tiên tài xế có totalRating cao
+          { $limit: 10 }, // Lấy 10 tài xế gần nhất, rating cao nhất
           { $project: { _id: 0, socketId: 1 } }, // Chỉ lấy socketId
         ]);
 

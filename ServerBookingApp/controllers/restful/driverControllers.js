@@ -186,5 +186,5 @@ module.exports = {
   findDriversNearby,
   updateDriverSocketId,
   updateDriverBalance,
-  addDriverRating, // Thêm hàm này vào exports
+  addDriverRating,
 };
