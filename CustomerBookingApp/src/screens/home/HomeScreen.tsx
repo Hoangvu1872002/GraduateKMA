@@ -62,7 +62,7 @@ import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 import data from '../../constants/data';
 import ModalLocationBooking from '../../modals/modalSelectLocation/ModalLocationBooking';
-import {apiGetBillsPending, apiGetEventLastest} from '../../apis';
+import {apiGetBill, apiGetBillsPending, apiGetEventLastest} from '../../apis';
 import socket from '../../apis/socket';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 
@@ -161,6 +161,14 @@ const HomeScreen = ({navigation}: any) => {
     }
   };
 
+  const handleFetchBillFinal = async (billId: string) => {
+    const rs = await apiGetBill({billId});
+    if (rs.data) {
+      fetchBillsPending();
+      navigation.replace('ConfirmInfBill', {data: rs.data});
+    }
+  };
+
   useEffect(() => {
     const setTimeoutId = setTimeout(() => {
       if (isLoggedIn) dispatch(getCurrent());
@@ -174,6 +182,9 @@ const HomeScreen = ({navigation}: any) => {
   useEffect(() => {
     socket.on('notice-cancle-order-from-driver', data => {
       fetchBillsPending();
+    });
+    socket.on('notification-arrival-destination', data => {
+      handleFetchBillFinal(data);
     });
     socket.on('notice-arrival-at-pick-up-point', data => {
       fetchBillsPending();

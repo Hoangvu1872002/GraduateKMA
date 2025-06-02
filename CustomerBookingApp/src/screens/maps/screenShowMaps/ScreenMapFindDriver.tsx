@@ -204,14 +204,14 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
             '30%',
             '35%',
             '40%',
-            '45%',
-            '50%',
-            '55%',
-            '60%',
-            '65%',
-            '70%',
-            '75%',
-            '80%',
+            // '43%',
+            // '50%',
+            // '55%',
+            // '60%',
+            // '65%',
+            // '70%',
+            // '75%',
+            // '80%',
           ]} // SnapPoints tối thiểu 30%
           enablePanDownToClose={false} // Ngăn người dùng vuốt xuống để đóng
           style={{flex: 1}}>

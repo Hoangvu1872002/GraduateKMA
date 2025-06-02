@@ -339,13 +339,13 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
       socket.on(`location-driver-shipping-${_id}`, handleLocationUpdate);
       socket.on('notice-cancle-order-from-driver', handleCancelOrder);
       socket.on('notice-arrival-at-pick-up-point', handleUpdateStatusBill);
-      socket.on('notification-arrival-destination', handleCompleteBill);
+      // socket.on('notification-arrival-destination', handleCompleteBill);
 
       return () => {
         socket.off(`location-driver-shipping-${_id}`, handleLocationUpdate);
         socket.off('notice-cancle-order-from-driver', handleCancelOrder);
         socket.off('notice-arrival-at-pick-up-point', handleUpdateStatusBill);
-        socket.off('notification-arrival-destination', handleCompleteBill);
+        // socket.off('notification-arrival-destination', handleCompleteBill);
       };
     }, [_id]),
   );
@@ -396,7 +396,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
           onPress={() => console.log('Map Pressed')}>
           <MapLibreGL.Camera
             ref={cameraRef}
-            animationDuration={10}
+            animationDuration={0}
             centerCoordinate={[105.772607, 20.980216]}
             zoomLevel={zoomLevel}
           />

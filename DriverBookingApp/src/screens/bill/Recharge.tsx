@@ -163,7 +163,7 @@ const Recharge = ({navigation}: any) => {
             />
           </RowComponent>
           <TextComponent
-            color={appColors.gray4}
+            color={'green'}
             size={13}
             font={fontFamilies.semiBold}
             text={`Current wallet balance: ${current.balence

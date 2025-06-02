@@ -483,7 +483,7 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
             onPress={() => console.log('Map Pressed')}>
             <MapLibreGL.Camera
               ref={cameraRef}
-              animationDuration={10}
+              animationDuration={0}
               centerCoordinate={[105.772607, 20.980216]}
               zoomLevel={zoomLevel}
             />

@@ -70,7 +70,7 @@ const EventItem = (props: Props) => {
             style={{
               flex: 1,
               marginBottom: 1,
-              height: 110,
+              height: 120,
               padding: 10,
               // backgroundColor: 'coral',
               backgroundColor: '#EEE5DE',
@@ -138,7 +138,7 @@ const EventItem = (props: Props) => {
               // title
               size={11}
             />
-            {/* <SpaceComponent height={2}></SpaceComponent> */}
+            <SpaceComponent height={7}></SpaceComponent>
             <RowComponent justify="flex-end">
               <TimerStart size="14" color="#FF8A65" />
               <SpaceComponent width={5}></SpaceComponent>
