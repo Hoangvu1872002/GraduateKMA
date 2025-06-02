@@ -180,15 +180,29 @@ const HomeScreen = ({navigation}: any) => {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    socket.on('notice-cancle-order-from-driver', data => {
+    const handleCancelOrder = (data: any) => {
       fetchBillsPending();
-    });
-    socket.on('notification-arrival-destination', data => {
+    };
+
+    const handleArrivalDestination = (data: any) => {
       handleFetchBillFinal(data);
-    });
-    socket.on('notice-arrival-at-pick-up-point', data => {
+    };
+
+    const handleArrivalPickupPoint = (data: any) => {
       fetchBillsPending();
-    });
+    };
+
+    // Lắng nghe các sự kiện socket
+    socket.on('notice-cancle-order-from-driver', handleCancelOrder);
+    socket.on('notification-arrival-destination', handleArrivalDestination);
+    socket.on('notice-arrival-at-pick-up-point', handleArrivalPickupPoint);
+
+    // Cleanup khi component unmount
+    return () => {
+      socket.off('notice-cancle-order-from-driver', handleCancelOrder);
+      socket.off('notification-arrival-destination', handleArrivalDestination);
+      // socket.off('notice-arrival-at-pick-up-point', handleArrivalPickupPoint);
+    };
   }, []);
 
   return (

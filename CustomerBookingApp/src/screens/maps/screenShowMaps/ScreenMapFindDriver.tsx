@@ -69,11 +69,110 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
 
   const [zoomLevel, setZoomLevel] = useState<number>(15);
   const [idNewOrder, setIdNewOrder] = useState('');
+  const [arrDriversRevceivOrder, setArrDriversRevceivOrder] = useState<
+    string[]
+  >([]);
+  const [radius, setRadius] = useState(4000);
+  const [numberDriverFind, setNumberDriverFind] = useState(15);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null); // Quản lý setInterval
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Quản lý setTimeout
+
+  const idNewOrderRef = useRef(idNewOrder);
+  const radiusRef = useRef(radius);
+  const numberDriverFindRef = useRef(numberDriverFind);
+  const arrDriversRevceivOrderRef = useRef(arrDriversRevceivOrder);
 
   useEffect(() => {
-    socket.on('notice-driver-receipted-order', data => {
-      navigation.replace('ScreenMapFollowDriver', {data: data.billWithDriver});
+    idNewOrderRef.current = idNewOrder;
+  }, [idNewOrder]);
+  useEffect(() => {
+    radiusRef.current = radius;
+  }, [radius]);
+  useEffect(() => {
+    numberDriverFindRef.current = numberDriverFind;
+  }, [numberDriverFind]);
+  useEffect(() => {
+    arrDriversRevceivOrderRef.current = arrDriversRevceivOrder;
+  }, [arrDriversRevceivOrder]);
+
+  const handleNoDriverReceipted = useCallback(() => {
+    console.log('Không có tài xế nhận đơn sau 10s');
+    console.log({
+      idNewOrder: idNewOrderRef.current,
+      radius: radiusRef.current,
+      numberDriverFind: numberDriverFindRef.current,
+      arrDriversRevceivOrder: arrDriversRevceivOrderRef.current,
     });
+
+    // Emit sự kiện ngay lập tức với giá trị mới nhất
+    socket.emit('find-driver-again', {
+      idNewOrder: idNewOrderRef.current,
+      radius: radiusRef.current,
+      numberDriverFind: numberDriverFindRef.current,
+      arrDriversRevceivOrder: arrDriversRevceivOrderRef.current,
+    });
+
+    // Tạo interval gửi sự kiện mỗi 20 giây với giá trị mới nhất, đồng thời cập nhật state
+    intervalRef.current = setInterval(() => {
+      console.log('Gửi sự kiện lên server để tìm tài xế...');
+      socket.emit('find-driver-again', {
+        idNewOrder: idNewOrderRef.current,
+        radius: radiusRef.current + 2000,
+        numberDriverFind: numberDriverFindRef.current + 5,
+        arrDriversRevceivOrder: arrDriversRevceivOrderRef.current,
+      });
+      setRadius(prev => prev + 2000);
+      setNumberDriverFind(prev => prev + 5);
+    }, 10000);
+
+    // Dừng interval sau 41 giây
+    timeoutRef.current = setTimeout(() => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      socket.emit('notice-remove-order-from-user', idNewOrderRef.current);
+      setModalVisible(true);
+      console.log('Dừng gửi sự kiện sau 41 giây');
+    }, 21000);
+  }, []);
+
+  useEffect(() => {
+    // Tạo timeout để gọi handleNoDriverReceipted sau 10 giây
+    const timeout = setTimeout(() => {
+      handleNoDriverReceipted();
+    }, 20000);
+
+    // Lắng nghe sự kiện từ server
+    const handler = (data: any) => {
+      // Dừng tất cả các hoạt động khi nhận được sự kiện
+      if (timeout) clearTimeout(timeout);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+
+      // Điều hướng đến màn hình tiếp theo
+      navigation.replace('ScreenMapFollowDriver', {
+        data: data.billWithDriver,
+      });
+    };
+
+    socket.on('notice-driver-receipted-order', handler);
+
+    // Cleanup khi component unmount
+    return () => {
+      clearTimeout(timeout);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      socket.off('notice-driver-receipted-order', handler);
+    };
   }, []);
 
   useEffect(() => {
@@ -98,10 +197,20 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
   }, []);
 
   useEffect(() => {
-    socket.on('id-new-order', data => {
+    const handleNewOrder = (data: any) => {
       setIdNewOrder(data);
-    });
+    };
 
+    const handleDriverReceivedOrder = (data: any) => {
+      console.log(data);
+      setArrDriversRevceivOrder(data);
+    };
+
+    // Lắng nghe các sự kiện socket
+    socket.on('id-new-order', handleNewOrder);
+    socket.on('arr-driver-received-order', handleDriverReceivedOrder);
+
+    // Gửi sự kiện lên server
     socket.emit('find-driver', {
       addressSelectedPickup,
       addressSelectedDestination,
@@ -111,6 +220,12 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
       averageTimeVehicleSelected: itemSelectVehicleSelected.averageTime,
       infCustomer: current,
     });
+
+    // Cleanup khi component unmount
+    return () => {
+      socket.off('id-new-order', handleNewOrder);
+      socket.off('arr-driver-received-order', handleDriverReceivedOrder);
+    };
   }, []);
 
   return (
@@ -203,7 +318,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
           snapPoints={[
             '30%',
             '35%',
-            '40%',
+            // '40%',
             // '43%',
             // '50%',
             // '55%',
@@ -428,6 +543,69 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
           </BottomSheetView>
         </BottomSheet>
       </BottomSheetModalProvider>
+      <View>
+        <Modal
+          visible={modalVisible}
+          transparent={true}
+          animationType="fade"
+          statusBarTranslucent={true}
+          onRequestClose={() => {
+            setModalVisible(false);
+            navigation.goBack();
+          }}>
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}>
+            <View
+              style={{
+                width: '80%',
+                backgroundColor: '#FFF',
+                borderRadius: 16,
+                padding: 25,
+                paddingBottom: 10,
+                alignItems: 'center',
+                shadowColor: '#000',
+                shadowOffset: {width: 0, height: 4},
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+              <TextComponent
+                font={fontFamilies.bold}
+                size={16}
+                color={appColors.red}
+                text="Warning!"
+                styles={{marginBottom: 10}}
+              />
+              <TextComponent
+                font={fontFamilies.medium}
+                size={15}
+                color={appColors.text}
+                text="No driver found at the moment, please try again later."
+                styles={{textAlign: 'center', marginBottom: 20}}
+              />
+              <RowComponent justify="space-around" styles={{width: '80%'}}>
+                <ButtonComponent
+                  onPress={() => {
+                    setModalVisible(false);
+                    navigation.goBack();
+                  }}
+                  width={100}
+                  styles={{paddingVertical: 12}}
+                  color={appColors.gray2}
+                  textStyles={{color: appColors.text}}
+                  type="primary"
+                  text="OK"
+                />
+              </RowComponent>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </View>
   );
 };
@@ -449,6 +627,19 @@ const styless = StyleSheet.create({
     width: 150,
     height: 150,
     position: 'absolute',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: appColors.white,
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
   },
 });
 

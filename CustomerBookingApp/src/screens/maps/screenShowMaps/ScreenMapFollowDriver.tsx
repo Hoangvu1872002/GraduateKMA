@@ -663,7 +663,9 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                         <SpaceComponent width={5}></SpaceComponent>
                         <TextComponent
                           font={fontFamilies.medium}
-                          text={driverId.totalRating}></TextComponent>
+                          text={driverId.totalRating.toFixed(
+                            0,
+                          )}></TextComponent>
                       </RowComponent>
                     </View>
                   </RowComponent>

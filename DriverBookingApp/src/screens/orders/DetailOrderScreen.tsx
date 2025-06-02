@@ -251,12 +251,18 @@ const DetailOrderScreen = ({navigation, route}: any) => {
   }, [pickupAddress, destinationAddress]);
 
   useEffect(() => {
-    socket.on('notice-remove-order-from-user', data => {
+    const handleRemoveOrderFromUser = (data: any) => {
       if (data === _id) {
         navigation.goBack();
       }
-    });
-  }, []);
+    };
+
+    socket.on('notice-remove-order-from-user', handleRemoveOrderFromUser);
+
+    return () => {
+      socket.off('notice-remove-order-from-user', handleRemoveOrderFromUser);
+    };
+  }, [_id]);
 
   return (
     <View style={{flex: 1, position: 'relative'}}>

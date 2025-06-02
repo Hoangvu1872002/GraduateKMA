@@ -26,21 +26,47 @@ const AppRouters = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
+  // useEffect(() => {
+  //   socket.on('new-order', data => {
+  //     dispatch(addToListOrderReceived(data));
+  //   });
+  //   socket.on('delete-received-order', data => {
+  //     dispatch(removeFromListOrderReceived(data));
+  //   });
+  //   socket.on('notice-driver-receipted-order', data => {
+  //     dispatch(setOrderPending(data.billWithUser));
+  //     // console.log(data);
+  //   });
+  //   socket.on('notice-remove-order-from-user', data => {
+  //     dispatch(removeFromListOrderReceived(data));
+  //     // console.log(data);
+  //   });
+  // }, []);
   useEffect(() => {
-    socket.on('new-order', data => {
+    const handleNewOrder = (data: any) => {
       dispatch(addToListOrderReceived(data));
-    });
-    socket.on('delete-received-order', data => {
+    };
+    const handleDeleteReceivedOrder = (data: any) => {
       dispatch(removeFromListOrderReceived(data));
-    });
-    socket.on('notice-driver-receipted-order', data => {
+    };
+    const handleDriverReceiptedOrder = (data: any) => {
       dispatch(setOrderPending(data.billWithUser));
-      // console.log(data);
-    });
-    socket.on('notice-remove-order-from-user', data => {
+    };
+    const handleRemoveOrderFromUser = (data: any) => {
       dispatch(removeFromListOrderReceived(data));
-      // console.log(data);
-    });
+    };
+
+    socket.on('new-order', handleNewOrder);
+    socket.on('delete-received-order', handleDeleteReceivedOrder);
+    socket.on('notice-driver-receipted-order', handleDriverReceiptedOrder);
+    socket.on('notice-remove-order-from-user', handleRemoveOrderFromUser);
+
+    return () => {
+      socket.off('new-order', handleNewOrder);
+      socket.off('delete-received-order', handleDeleteReceivedOrder);
+      socket.off('notice-driver-receipted-order', handleDriverReceiptedOrder);
+      socket.off('notice-remove-order-from-user', handleRemoveOrderFromUser);
+    };
   }, []);
 
   useEffect(() => {

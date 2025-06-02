@@ -43,7 +43,7 @@ module.exports = function (io) {
               },
               distanceField: "distance",
               spherical: true,
-              maxDistance: 10000, // 10km
+              maxDistance: 2000, // 2km
             },
           },
           {
@@ -55,6 +55,10 @@ module.exports = function (io) {
         ]);
 
         const socketIds = drivers.map((driver) => driver.socketId);
+
+        io.of("/booking")
+          .to(socket.id)
+          .emit("arr-driver-received-order", socketIds);
 
         const newBillTemporary = new BillTemporary({
           pickupAddress: {
@@ -109,6 +113,76 @@ module.exports = function (io) {
           });
         });
 
+        console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
+      } catch (error) {
+        console.error("❌ Lỗi khi tìm tài xế:", error);
+      }
+    });
+
+    socket.on("find-driver-again", async (data) => {
+      console.log(data);
+      const bill = await BillTemporary.findById(data.idNewOrder).populate(
+        "userId",
+        "firstname lastname email mobile socketId _id"
+      );
+
+      try {
+        const drivers = await driverModel.aggregate([
+          {
+            $geoNear: {
+              near: {
+                type: "Point",
+                coordinates: [
+                  bill.pickupAddress.longitude,
+                  bill.pickupAddress.latitude,
+                ],
+              },
+              distanceField: "distance",
+              spherical: true,
+              maxDistance: data.radius, // 2km
+            },
+          },
+          {
+            $match: { status: "online", travelMode: bill.travelMode },
+          },
+          { $sort: { totalRating: -1 } }, // Ưu tiên tài xế có totalRating cao
+          { $limit: data.numberDriverFind }, // Lấy 10 tài xế gần nhất, rating cao nhất
+          { $project: { _id: 0, socketId: 1 } }, // Chỉ lấy socketId
+        ]);
+
+        const socketIds = drivers.map((driver) => driver.socketId);
+
+        io.of("/booking")
+          .to(socket.id)
+          .emit("arr-driver-received-order", socketIds);
+
+        const updatedBill = await BillTemporary.findByIdAndUpdate(
+          data.idNewOrder,
+          { $set: { socketIdDriversReceived: socketIds } },
+          { new: true }
+        );
+
+        // console.log(updatedBill);
+
+        data?.arrDriversRevceivOrder.forEach((socketId) => {
+          io.of("/booking")
+            .to(socketId)
+            .emit("delete-received-order", bill._id);
+        });
+
+        socketIds.forEach((socketId) => {
+          socket.to(socketId).emit("new-order", {
+            ...updatedBill.toObject(), // Chuyển document Mongoose thành object JS
+            infCustomer: {
+              _id: bill.userId._id,
+              firstname: bill.userId.firstname,
+              lastname: bill.userId.lastname,
+              mobile: bill.userId.mobile,
+              email: bill.userId.email,
+              socketId: bill.userId.socketId,
+            },
+          });
+        });
         console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
       } catch (error) {
         console.error("❌ Lỗi khi tìm tài xế:", error);
