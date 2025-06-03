@@ -15,7 +15,12 @@ import {
 import {globalStyles} from '../../styles/globalStyles';
 // import {styles} from './ModalMapLocation.styles';
 import {appColors} from '../../constants/appColors';
-import {ArrowCircleLeft2, Location, Moneys} from 'iconsax-react-native';
+import {
+  ArrowCircleLeft2,
+  Location,
+  MessageText1,
+  Moneys,
+} from 'iconsax-react-native';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {BottomSheetModalProvider, BottomSheetView} from '@gorhom/bottom-sheet';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -56,7 +61,7 @@ const loadMap =
 const DirectionsMapScreen = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
   const {pickupAddress, destinationAddress, _id} = data;
-  // console.log(data);
+  console.log(data);
 
   const {currentLocation, orderPending} = useSelector(
     (state: RootState) => state.user,
@@ -647,33 +652,55 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                   borderBottomWidth: 0.5,
                   borderBottomColor: appColors.gray2,
                 }}>
-                <RowComponent justify="flex-start">
-                  <Location size="16" color="#FF8A65" variant="Bold" />
-                  <SpaceComponent width={20}></SpaceComponent>
-                  <View>
-                    <SpaceComponent height={10}></SpaceComponent>
-                    {/* Hiển thị điểm đón hoặc điểm đến dựa trên trạng thái */}
-                    <TextComponent
-                      numOfLine={1}
-                      font={fontFamilies.medium}
-                      text={
-                        !statusArrived
-                          ? pickupAddress.main_name_place // Điểm đón
-                          : destinationAddress.main_name_place // Điểm đến
-                      }></TextComponent>
-                    <SpaceComponent height={4}></SpaceComponent>
-                    <TextComponent
-                      size={11}
-                      numOfLine={1}
-                      font={fontFamilies.regular}
-                      text={
-                        !statusArrived
-                          ? pickupAddress.description ||
-                            'No description available' // Mô tả điểm đón
-                          : destinationAddress.description ||
-                            'No description available' // Mô tả điểm đến
-                      }></TextComponent>
-                  </View>
+                <RowComponent justify="space-between">
+                  <RowComponent justify="flex-start" styles={{width: '60%'}}>
+                    <Location size="16" color="#FF8A65" variant="Bold" />
+                    <SpaceComponent width={20}></SpaceComponent>
+                    <View>
+                      <SpaceComponent height={10}></SpaceComponent>
+                      {/* Hiển thị điểm đón hoặc điểm đến dựa trên trạng thái */}
+                      <TextComponent
+                        numOfLine={1}
+                        font={fontFamilies.medium}
+                        text={
+                          !statusArrived
+                            ? pickupAddress.main_name_place // Điểm đón
+                            : destinationAddress.main_name_place // Điểm đến
+                        }></TextComponent>
+                      <SpaceComponent height={4}></SpaceComponent>
+                      <TextComponent
+                        size={11}
+                        numOfLine={1}
+                        font={fontFamilies.regular}
+                        text={
+                          !statusArrived
+                            ? pickupAddress.description ||
+                              'No description available' // Mô tả điểm đón
+                            : destinationAddress.description ||
+                              'No description available' // Mô tả điểm đến
+                        }></TextComponent>
+                    </View>
+                  </RowComponent>
+                  <RowComponent>
+                    <CardComponent
+                      onPress={() =>
+                        navigation.navigate('RoomMessageScreen', {
+                          roomId: data.roomChatId,
+                        })
+                      }
+                      styles={[
+                        globalStyles.noSpaceCard,
+                        // globalStyles.shadow,
+                        {width: 38, height: 38, borderRadius: 12},
+                      ]}
+                      color={appColors.gray6}>
+                      <MessageText1
+                        size="23"
+                        variant="Bold"
+                        color={appColors.gray}
+                      />
+                    </CardComponent>
+                  </RowComponent>
                 </RowComponent>
               </SectionComponent>
               <SectionComponent>

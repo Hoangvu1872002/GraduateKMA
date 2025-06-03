@@ -13,6 +13,7 @@ export interface IBill {
   durationInMinutes: number;
   paymentMethod?: string;
   cost: number;
+  roomChatId?: string;
   travelMode: string;
   userId: any; // Mongoose ObjectId dưới dạng string
   driverId: any;

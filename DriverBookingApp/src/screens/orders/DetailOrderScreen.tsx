@@ -257,10 +257,16 @@ const DetailOrderScreen = ({navigation, route}: any) => {
       }
     };
 
+    const handler = (data: any) => {
+      navigation.replace('DirectionsMapScreen', {data: data.billWithUser});
+    };
+
     socket.on('notice-remove-order-from-user', handleRemoveOrderFromUser);
+    socket.on('notice-driver-receipted-order', handler);
 
     return () => {
       socket.off('notice-remove-order-from-user', handleRemoveOrderFromUser);
+      socket.off('notice-driver-receipted-order', handler);
     };
   }, [_id]);
 
@@ -562,7 +568,7 @@ const DetailOrderScreen = ({navigation, route}: any) => {
                       setShowBalanceModal(true);
                       return;
                     }
-                    navigation.replace('DirectionsMapScreen', {data: data});
+                    // navigation.replace('DirectionsMapScreen', {data: data});
                     socket.emit('notice-receipt-order', {
                       infDriver: current,
                       idBillTemporary: data._id,

@@ -11,7 +11,9 @@ const getPendingBills = asyncHandle(async (req, res) => {
     const bills = await Bill.find({
       userId: _id,
       status: { $nin: ["COMPLETED", "CANCELED"] },
-    }).populate("driverId"); // Lấy thông tin của tài xế
+    })
+      .populate("driverId")
+      .sort({ createdAt: -1 }); // Lấy thông tin của tài xế
 
     return res.status(200).json({ data: { bills } });
   } catch (error) {

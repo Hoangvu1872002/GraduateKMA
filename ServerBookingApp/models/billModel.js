@@ -74,6 +74,10 @@ var billSchema = new mongoose.Schema(
       ref: "drivers",
       default: null,
     },
+    roomChatId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "roomChats",
+    },
     status: {
       type: String,
       required: true,

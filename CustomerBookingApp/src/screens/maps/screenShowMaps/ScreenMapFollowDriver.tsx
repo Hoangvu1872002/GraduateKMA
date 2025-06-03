@@ -60,7 +60,6 @@ const loadMap =
 
 const ScreenMapFollowDriver = ({navigation, route}: any) => {
   const {data}: {data: any} = route?.params || {};
-  // console.log(data);
 
   const {pickupAddress, destinationAddress, driverId, _id} = data;
 
@@ -590,11 +589,11 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 </View>
                 <RowComponent>
                   <CardComponent
-                    onPress={() => {
-                      // onCloseMap();
-                      // clearData();
-                      // navigation.goBack();
-                    }}
+                    onPress={() =>
+                      navigation.navigate('RoomMessageScreen', {
+                        roomId: data.roomChatId,
+                      })
+                    }
                     styles={[
                       globalStyles.noSpaceCard,
                       // globalStyles.shadow,

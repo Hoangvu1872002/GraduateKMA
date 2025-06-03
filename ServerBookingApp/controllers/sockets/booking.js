@@ -196,6 +196,37 @@ module.exports = function (io) {
         io.of("/booking").to(socketId).emit("delete-received-order", bill._id);
       });
 
+      let roomChat = await RoomChat.findOne({
+        user: bill.userId,
+        driver: data.infDriver._id,
+      });
+
+      // Tạo tin nhắn mặc định
+      const defaultMessage = {
+        id: new mongoose.Types.ObjectId().toString(),
+        sender: data.infDriver._id,
+        message: "Tôi đang đến điểm đón",
+        isRead: false,
+        createdAt: new Date(),
+      };
+
+      if (!roomChat) {
+        // Nếu chưa có phòng, tạo phòng mới
+        roomChat = new RoomChat({
+          user: bill.userId,
+          driver: data.infDriver._id,
+          listMessages: [defaultMessage],
+          lastestMesage: defaultMessage,
+        });
+
+        await roomChat.save();
+      } else {
+        // Nếu đã có phòng, chỉ cập nhật tin nhắn
+        roomChat.listMessages.push(defaultMessage);
+        roomChat.lastestMesage = defaultMessage;
+        await roomChat.save();
+      }
+
       const newBill = new Bill({
         pickupAddress: {
           main_name_place: bill.pickupAddress.main_name_place,
@@ -217,6 +248,7 @@ module.exports = function (io) {
         travelMode: bill.travelMode,
         userId: bill.userId,
         driverId: data.infDriver._id, // Nếu không có driverId thì mặc định là null
+        roomChatId: roomChat._id,
       });
 
       await newBill.save();
@@ -260,36 +292,6 @@ module.exports = function (io) {
       await BillTemporary.findByIdAndDelete(data.idBillTemporary);
 
       // Kiểm tra xem phòng chat đã tồn tại chưa
-      let roomChat = await RoomChat.findOne({
-        user: bill.userId,
-        driver: data.infDriver._id,
-      });
-
-      // Tạo tin nhắn mặc định
-      const defaultMessage = {
-        id: new mongoose.Types.ObjectId().toString(),
-        sender: data.infDriver._id,
-        message: "Tôi đang đến điểm đón",
-        isRead: false,
-        createdAt: new Date(),
-      };
-
-      if (!roomChat) {
-        // Nếu chưa có phòng, tạo phòng mới
-        roomChat = new RoomChat({
-          user: bill.userId,
-          driver: data.infDriver._id,
-          listMessages: [defaultMessage],
-          lastestMesage: defaultMessage,
-        });
-
-        await roomChat.save();
-      } else {
-        // Nếu đã có phòng, chỉ cập nhật tin nhắn
-        roomChat.listMessages.push(defaultMessage);
-        roomChat.lastestMesage = defaultMessage;
-        await roomChat.save();
-      }
     });
 
     socket.on("send-location-to-customer", async (data) => {

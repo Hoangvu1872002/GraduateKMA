@@ -52,6 +52,7 @@ export interface IBillTemporary {
   travelMode: string;
   cost: number;
   userId: string;
+  roomChatId?: string;
   socketIdDriversReceived: string[];
   createdAt: string;
   updatedAt: string;
