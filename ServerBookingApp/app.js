@@ -68,6 +68,8 @@ const io = socketIO(server, {
   },
 });
 
+app.set("io", io);
+
 booking(io);
 
 module.exports = app;

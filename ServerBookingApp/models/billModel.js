@@ -84,6 +84,14 @@ var billSchema = new mongoose.Schema(
       default: "RECEIVED",
       enum: ["RECEIVED", "PENDING", "COMPLETED", "CANCELED"],
     },
+    infReceiver: {
+      name: {
+        type: String,
+      },
+      mobile: {
+        type: String,
+      },
+    },
   },
   {
     timestamps: true,

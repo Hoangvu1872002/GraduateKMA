@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
+  Linking,
 } from 'react-native';
 import React, {useCallback, useState} from 'react';
 import {IBill} from '../../models/BillModel';
@@ -13,16 +14,24 @@ import {appColors} from '../../constants/appColors';
 import {globalStyles} from '../../styles/globalStyles';
 import {
   ButtonComponent,
+  CardComponent,
   RowComponent,
   SectionComponent,
   SpaceComponent,
   TextComponent,
 } from '../../components';
-import {ArrowDown2, ArrowLeft, Location} from 'iconsax-react-native';
+import {
+  ArrowDown2,
+  ArrowLeft,
+  Call,
+  Location,
+  MessageText1,
+} from 'iconsax-react-native';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {Image} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useStripe} from '@stripe/stripe-react-native';
+import {rechargeBalanceAndNotify} from '../../apis';
 
 const ConfirmInfBill = ({navigation, route}: any) => {
   const {data}: {data: any} = route?.params || {};
@@ -43,7 +52,10 @@ const ConfirmInfBill = ({navigation, route}: any) => {
       // sending request
       const response = await fetch('http://192.168.1.39:5002/stripe/pay', {
         method: 'POST',
-        body: JSON.stringify({cost: data.cost.toFixed(2)}),
+        body: JSON.stringify({
+          cost: data.cost.toFixed(2),
+          driverId: data.driverId._id,
+        }),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -61,6 +73,11 @@ const ConfirmInfBill = ({navigation, route}: any) => {
       const presentSheet = await stripe.presentPaymentSheet();
       if (presentSheet.error)
         return showCustomAlert(presentSheet.error.message);
+
+      await rechargeBalanceAndNotify({
+        cost: data.cost,
+        driverId: data.driverId._id,
+      });
 
       showCustomAlert('Payment complete, thank you!', true);
     } catch (err) {
@@ -127,18 +144,104 @@ const ConfirmInfBill = ({navigation, route}: any) => {
             <SpaceComponent height={5}></SpaceComponent>
             <TextComponent text={data?.driverId?.mobile || ''}></TextComponent>
           </View>
-          <View>
-            <Image
-              source={{
-                uri: 'https://static.vecteezy.com/system/resources/previews/024/183/502/original/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg',
+          <RowComponent>
+            <CardComponent
+              onPress={() =>
+                navigation.navigate('RoomMessageScreen', {
+                  roomId: data.roomChatId,
+                })
+              }
+              styles={[
+                globalStyles.noSpaceCard,
+                // globalStyles.shadow,
+                {width: 38, height: 38, borderRadius: 12},
+              ]}
+              color={appColors.gray6}>
+              <MessageText1 size="23" variant="Bold" color={appColors.gray} />
+            </CardComponent>
+            <SpaceComponent width={10}></SpaceComponent>
+
+            <CardComponent
+              onPress={() => {
+                const phoneNumber = data?.driverId?.mobile; // Thay thế bằng số điện thoại của tài xế
+                if (phoneNumber) {
+                  Linking.openURL(`tel:${phoneNumber}`); // Mở ứng dụng gọi điện với số điện thoại
+                } else {
+                  console.error('Phone number is not available');
+                }
               }}
-              style={{
-                width: 70,
-                height: 70,
-                resizeMode: 'cover',
-              }}
-            />
+              styles={[
+                globalStyles.noSpaceCard,
+                // globalStyles.shadow,
+                {width: 38, height: 38, borderRadius: 12},
+              ]}
+              color={appColors.gray6}>
+              <Call size="23" variant="Bold" color={appColors.gray} />
+            </CardComponent>
+            <SpaceComponent width={10}></SpaceComponent>
+            <View>
+              <Image
+                source={{
+                  uri: 'https://static.vecteezy.com/system/resources/previews/024/183/502/original/male-avatar-portrait-of-a-young-man-with-a-beard-illustration-of-male-character-in-modern-color-style-vector.jpg',
+                }}
+                style={{
+                  width: 70,
+                  height: 70,
+                  resizeMode: 'cover',
+                }}
+              />
+            </View>
+          </RowComponent>
+        </RowComponent>
+      </SectionComponent>
+      <View
+        style={{
+          height: 7,
+          width: '100%',
+          backgroundColor: appColors.WhiteSmoke,
+          borderRadius: 100,
+        }}></View>
+      <SectionComponent styles={{paddingVertical: 10}}>
+        <TextComponent
+          text="Recipient information:"
+          size={18}
+          font={fontFamilies.semiBold}></TextComponent>
+        <SpaceComponent height={10}></SpaceComponent>
+        <RowComponent justify="space-between">
+          <View style={{flex: 1, display: 'flex', alignItems: 'flex-start'}}>
+            <TextComponent
+              text={`Name: ${
+                data?.infReceiver
+                  ? capitalizeWords(`${data?.infReceiver.name}`.trim())
+                  : 'No name'
+              }`}
+              size={14}
+              font={fontFamilies.regular}></TextComponent>
+            <SpaceComponent height={5}></SpaceComponent>
+            <TextComponent
+              text={`Mobile: ${
+                data?.infReceiver?.mobile || ''
+              }`}></TextComponent>
           </View>
+          <RowComponent>
+            <CardComponent
+              onPress={() => {
+                const phoneNumber = data?.infReceiver?.mobile; // Thay thế bằng số điện thoại của tài xế
+                if (phoneNumber) {
+                  Linking.openURL(`tel:${phoneNumber}`); // Mở ứng dụng gọi điện với số điện thoại
+                } else {
+                  console.error('Phone number is not available');
+                }
+              }}
+              styles={[
+                globalStyles.noSpaceCard,
+                // globalStyles.shadow,
+                {width: 38, height: 38, borderRadius: 12},
+              ]}
+              color={appColors.gray6}>
+              <Call size="23" variant="Bold" color={appColors.gray} />
+            </CardComponent>
+          </RowComponent>
         </RowComponent>
       </SectionComponent>
       <SpaceComponent height={5}></SpaceComponent>

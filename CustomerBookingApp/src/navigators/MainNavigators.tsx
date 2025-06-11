@@ -10,6 +10,7 @@ import RoomMessageScreen from '../screens/message/RoomMessageScreen';
 import Dashboard from '../screens/home/Dashboard';
 import ConfirmInfBill from '../screens/bill/ConfirmInfBill';
 import Review from '../screens/review/Review';
+import RecipientInfScreen from '../screens/orther/RecipientInfScreen';
 const MainNavigator = () => {
   const Stack = createNativeStackNavigator();
 
@@ -39,6 +40,7 @@ const MainNavigator = () => {
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen name="ConfirmInfBill" component={ConfirmInfBill} />
       <Stack.Screen name="Review" component={Review} />
+      <Stack.Screen name="RecipientInfScreen" component={RecipientInfScreen} />
     </Stack.Navigator>
   );
 };

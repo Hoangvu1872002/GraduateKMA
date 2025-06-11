@@ -1,4 +1,4 @@
-import {View, Text, StatusBar, Image, Modal} from 'react-native';
+import {View, Text, StatusBar, Image, Modal, Linking} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {IBillTemporary} from '../../models/SelectModel';
 import {FeatureCollection, Feature, LineString, Point} from 'geojson';
@@ -17,6 +17,7 @@ import {globalStyles} from '../../styles/globalStyles';
 import {appColors} from '../../constants/appColors';
 import {
   ArrowCircleLeft2,
+  Call,
   Location,
   MessageText1,
   Moneys,
@@ -32,6 +33,7 @@ import {apiUpdateBalenceDriver, apiUpdateStatusBill} from '../../apis';
 import socket from '../../apis/socket';
 import {setOrderPending} from '../../stores/users/userSlide';
 import {getCurrent} from '../../stores/users/asyncAction';
+import Toast from 'react-native-toast-message';
 
 interface Coordinates {
   latitude: number;
@@ -56,12 +58,14 @@ const carIcon = require('../../assets/images/car.png');
 const currentLocationFlag = require('../../assets/images/flag_current.png');
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=WKhuQZ3GCrTsAv9fvPSn0BHu0kc0NfgD1UAwZrcQ';
 
 const DirectionsMapScreen = ({navigation, route}: any) => {
   const {data}: {data: IBillTemporary} = route?.params || {};
   const {pickupAddress, destinationAddress, _id} = data;
   console.log(data);
+
+  // console.log(data);
 
   const {currentLocation, orderPending} = useSelector(
     (state: RootState) => state.user,
@@ -82,12 +86,13 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
   const [geoJSONCurrentPoints, setGeoJSONCurrentPoints] =
     useState<PointFeature | null>(null);
-  const [zoomLevel, setZoomLevel] = useState<number>(16);
+  const [zoomLevel, setZoomLevel] = useState<number>(15);
   const [statusArrived, setStatusArrived] = useState(false);
   const [distanceToDestination, setDistanceToDestination] =
     useState<string>('');
   const [isWarningModalVisible, setIsWarningModalVisible] = useState(false);
   const [isSkipTripModalVisible, setIsSkipTripModalVisible] = useState(false);
+  const [statusOrder, setStatusOrder] = useState(2);
 
   const decodePolyline = (encoded: string) => {
     let points = [];
@@ -213,9 +218,6 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
       setGeoJSONDataCustomer(dataCustomer);
 
       // Lấy quãng đường và thời gian từ API
-      const distance = responseCustomer.data.routes[0].legs[0].distance.text;
-
-      setDistanceToDestination(distance); // Lưu quãng đường
 
       setTimeout(async () => {
         await cameraRef.current?.fitBounds(
@@ -233,19 +235,18 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
     }
   };
 
-  const fetchRouteDriver = async () => {
+  const fetchDisDriver = async () => {
     const responseDriver = await axios.get('https://rsapi.goong.io/Direction', {
       params: {
         origin: `${currentLocation.latitude},${currentLocation.longitude}`,
         destination: `${pickupAddress.latitude},${pickupAddress.longitude}`,
         vehicle: 'bike',
-        api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
+        api_key: '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES',
       },
     });
+
     const routeDriver = responseDriver.data.routes[0].overview_polyline.points;
-
     const decodedRouteDriver = decodePolyline(routeDriver);
-
     const dataDriver: FeatureCollection<LineString> = {
       type: 'FeatureCollection',
       features: [
@@ -259,12 +260,62 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
         },
       ],
     };
-
     setGeoJSONData(dataDriver);
+
+    const distance = responseDriver.data.routes[0].legs[0].distance.text;
+
+    setDistanceToDestination(distance); // Lưu quãng đường
+  };
+
+  const fetchDisCustomer = async () => {
+    const responseCustomer = await axios.get(
+      'https://rsapi.goong.io/Direction',
+      {
+        params: {
+          origin: `${currentLocation.latitude},${currentLocation.longitude}`,
+          destination: `${destinationAddress.latitude},${destinationAddress.longitude}`,
+          vehicle: 'bike',
+          api_key: '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES',
+        },
+      },
+    );
+
+    const routeCustomer =
+      responseCustomer.data.routes[0].overview_polyline.points;
+
+    const decodedRouteCustomer = decodePolyline(routeCustomer); // Giải mã polyline
+
+    const dataCustomer: FeatureCollection<LineString> = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: decodedRouteCustomer,
+          },
+          properties: {},
+        },
+      ],
+    };
+
+    setGeoJSONData(dataCustomer);
+
+    // Lấy quãng đường và thời gian từ API
+    const distance = responseCustomer.data.routes[0].legs[0].distance.text;
+
+    setDistanceToDestination(distance); // Lưu quãng đường
   };
 
   useEffect(() => {
-    fetchRouteDriver();
+    if (statusOrder === 2) {
+      fetchDisDriver();
+    } else if (statusOrder === 3) {
+      fetchDisCustomer();
+    }
+  }, [currentLocation]);
+
+  useEffect(() => {
     fetchRouteCustomer();
   }, []);
 
@@ -317,6 +368,54 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
     dispatch(setOrderPending({}));
     navigation.goBack();
   };
+
+  const [hasShownPickupToast, setHasShownPickupToast] = useState(false);
+  const [hasShownDestinationToast, setHasShownDestinationToast] =
+    useState(false);
+
+  useEffect(() => {
+    let distanceInMeters = 0;
+    if (distanceToDestination.includes('km')) {
+      distanceInMeters =
+        parseFloat(distanceToDestination.replace(' km', '')) * 1000;
+    } else if (distanceToDestination.includes('m')) {
+      distanceInMeters = parseFloat(distanceToDestination.replace(' m', ''));
+    }
+
+    // Near pickup point (statusOrder === 2)
+    if (
+      statusOrder === 2 &&
+      distanceInMeters > 0 &&
+      distanceInMeters <= 200 &&
+      !hasShownPickupToast
+    ) {
+      Toast.show({
+        type: 'error',
+        text1: 'You are close to the pickup point',
+        text2: 'Please update the order status when you arrive!',
+        position: 'top',
+        visibilityTime: 4000,
+      });
+      setHasShownPickupToast(true);
+    }
+
+    // Near destination (statusOrder === 3)
+    if (
+      statusOrder === 3 &&
+      distanceInMeters > 0 &&
+      distanceInMeters <= 200 &&
+      !hasShownDestinationToast
+    ) {
+      Toast.show({
+        type: 'error',
+        text1: 'You are close to the destination',
+        text2: 'Please update the order status when you arrive!',
+        position: 'top',
+        visibilityTime: 4000,
+      });
+      setHasShownDestinationToast(true);
+    }
+  }, [distanceToDestination]);
 
   return (
     <View style={{flex: 1, position: 'relative'}}>
@@ -497,23 +596,20 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
               <MapLibreGL.ShapeSource id="routeSource" shape={geoJSONData}>
                 <MapLibreGL.LineLayer
                   id="routeBorder"
-                  // layerIndex={1}
                   style={{
                     lineColor: '#2F4F4F', // Màu viền (xám đậm hoặc đen)
-                    lineWidth: 10, // Lớn hơn đường chính
+                    lineWidth: 6, // Lớn hơn đường chính
                     lineOpacity: 0.8,
                     lineJoin: 'round',
                     lineCap: 'round',
                   }}
                 />
-
                 {/* Lớp đường chính - màu sáng hơn, mỏng hơn */}
                 <MapLibreGL.LineLayer
                   id="routeLine"
-                  // layerIndex={10}
                   style={{
                     lineColor: '#99FFFF', // Màu chính (xanh dương nhạt)
-                    lineWidth: 6, // Nhỏ hơn lớp viền
+                    lineWidth: 3, // Nhỏ hơn lớp viền
                     lineOpacity: 0.9,
                     lineJoin: 'round',
                     lineCap: 'round',
@@ -682,24 +778,57 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                     </View>
                   </RowComponent>
                   <RowComponent>
-                    <CardComponent
-                      onPress={() =>
-                        navigation.navigate('RoomMessageScreen', {
-                          roomId: data.roomChatId,
-                        })
-                      }
-                      styles={[
-                        globalStyles.noSpaceCard,
-                        // globalStyles.shadow,
-                        {width: 38, height: 38, borderRadius: 12},
-                      ]}
-                      color={appColors.gray6}>
-                      <MessageText1
-                        size="23"
-                        variant="Bold"
-                        color={appColors.gray}
-                      />
-                    </CardComponent>
+                    <RowComponent>
+                      <CardComponent
+                        onPress={() =>
+                          navigation.navigate('RoomMessageScreen', {
+                            roomId: data.roomChatId,
+                          })
+                        }
+                        styles={[
+                          globalStyles.noSpaceCard,
+                          // globalStyles.shadow,
+                          {width: 38, height: 38, borderRadius: 12},
+                        ]}
+                        color={appColors.gray6}>
+                        <MessageText1
+                          size="23"
+                          variant="Bold"
+                          color={appColors.gray}
+                        />
+                      </CardComponent>
+                      <SpaceComponent width={10}></SpaceComponent>
+
+                      <CardComponent
+                        onPress={() => {
+                          let phoneNumber = '123';
+                          if (
+                            data?.userId &&
+                            typeof data.userId === 'object' &&
+                            'mobile' in data.userId
+                          ) {
+                            phoneNumber =
+                              (data.userId as {mobile?: string}).mobile ||
+                              '123';
+                          }
+                          if (typeof data?.userId === 'string') {
+                            phoneNumber = data.userId;
+                          }
+                          if (phoneNumber) {
+                            Linking.openURL(`tel:${phoneNumber}`); // Mở ứng dụng gọi điện với số điện thoại
+                          } else {
+                            console.error('Phone number is not available');
+                          }
+                        }}
+                        styles={[
+                          globalStyles.noSpaceCard,
+                          // globalStyles.shadow,
+                          {width: 38, height: 38, borderRadius: 12},
+                        ]}
+                        color={appColors.gray6}>
+                        <Call size="23" variant="Bold" color={appColors.gray} />
+                      </CardComponent>
+                    </RowComponent>
                   </RowComponent>
                 </RowComponent>
               </SectionComponent>
@@ -739,16 +868,29 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                       width={180}
                       onPress={async () => {
                         // Kiểm tra khoảng cách trước khi xác nhận
-                        const distanceInMeters =
-                          parseFloat(distanceToDestination.replace(' km', '')) *
-                          1000; // Chuyển đổi km sang mét
-                        // if (distanceInMeters > 50) {
-                        //   setIsWarningModalVisible(true); // Hiển thị modal cảnh báo
-                        //   return;
-                        // }
+                        let distanceInMeters = 0;
+                        if (distanceToDestination.includes('km')) {
+                          distanceInMeters =
+                            parseFloat(
+                              distanceToDestination.replace(' km', ''),
+                            ) * 1000;
+                        } else if (distanceToDestination.includes('m')) {
+                          distanceInMeters = parseFloat(
+                            distanceToDestination.replace(' m', ''),
+                          );
+                        }
+
+                        console.log(distanceInMeters);
+
+                        if (Number(distanceInMeters) > 200) {
+                          setIsWarningModalVisible(true); // Hiển thị modal cảnh báo
+                          return;
+                        }
+                        setStatusOrder(3);
+                        setGeoJSONData(geoJSONDataCustomer);
 
                         // Nếu thỏa mãn điều kiện, thực hiện logic xác nhận
-                        setGeoJSONData(geoJSONDataCustomer);
+
                         setStatusArrived(true);
                         setTimeout(async () => {
                           await cameraRef.current?.fitBounds(
@@ -792,14 +934,26 @@ const DirectionsMapScreen = ({navigation, route}: any) => {
                       width={220}
                       onPress={async () => {
                         // Kiểm tra khoảng cách trước khi xác nhận
-                        const distanceInMeters =
-                          parseFloat(distanceToDestination.replace(' km', '')) *
-                          1000; // Chuyển đổi km sang mét
-                        // if (distanceInMeters > 50) {
-                        //   setIsWarningModalVisible(true); // Hiển thị modal cảnh báo
-                        //   return;
-                        // }
+                        let distanceInMeters = 0;
+                        if (distanceToDestination.includes('km')) {
+                          distanceInMeters =
+                            parseFloat(
+                              distanceToDestination.replace(' km', ''),
+                            ) * 1000;
+                        } else if (distanceToDestination.includes('m')) {
+                          distanceInMeters = parseFloat(
+                            distanceToDestination.replace(' m', ''),
+                          );
+                        }
 
+                        console.log(distanceInMeters);
+
+                        // console.log(distanceToDestination);
+
+                        if (Number(distanceInMeters) > 200) {
+                          setIsWarningModalVisible(true); // Hiển thị modal cảnh báo
+                          return;
+                        }
                         // Nếu thỏa mãn điều kiện, thực hiện logic xác nhận
                         await apiUpdateStatusBill({
                           billId: orderPending._id,

@@ -100,15 +100,17 @@ MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
 MapLibreGL.setConnected(true);
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=WKhuQZ3GCrTsAv9fvPSn0BHu0kc0NfgD1UAwZrcQ';
 
 const ModalMapConfirnRoute = ({navigation, route}: any) => {
   const {
     addressSelectedPickup,
     addressSelectedDestination,
+    infReceiver,
   }: {
     addressSelectedPickup: LocationModelSuggest;
     addressSelectedDestination: LocationModelSuggest;
+    infReceiver?: {name: string; mobile: string};
   } = route?.params;
 
   const {current, stateSelectVehicle} = useSelector(
@@ -179,7 +181,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
           origin: `${addressSelectedPickup.latitude},${addressSelectedPickup.longitude}`,
           destination: `${addressSelectedDestination.latitude},${addressSelectedDestination.longitude}`,
           vehicle: 'bike',
-          api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
+          api_key: '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES',
         },
       });
 
@@ -243,7 +245,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
   };
 
   useEffect(() => {
-    console.log(itemSelectVehicleSelected?.type);
+    // console.log(itemSelectVehicleSelected?.type);
 
     setFilteredDriversNearby(
       driversDataNearby.filter(
@@ -645,6 +647,7 @@ const ModalMapConfirnRoute = ({navigation, route}: any) => {
                       totalDistance,
                       itemSelectVehicleSelected,
                       current,
+                      infReceiver,
                     });
                   }}
                   styles={{paddingVertical: 10, marginBottom: 0}}

@@ -56,7 +56,7 @@ const bikeIcon = require('../../../assets/images/img_vespa_top.png');
 const carIcon = require('../../../assets/images/car.png');
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=WKhuQZ3GCrTsAv9fvPSn0BHu0kc0NfgD1UAwZrcQ';
 
 const ScreenMapFollowDriver = ({navigation, route}: any) => {
   const {data}: {data: any} = route?.params || {};
@@ -74,7 +74,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
   const [geoJSONDataDriver, setGeoJSONDataDriver] =
     useState<FeatureCollection<LineString> | null>(null);
   const [geoJSONPoints, setGeoJSONPoints] = useState<PointFeature | null>(null);
-  const [zoomLevel, setZoomLevel] = useState<number>(16);
+  const [zoomLevel, setZoomLevel] = useState<number>(15);
   const [currentDriverLocation, setCurrentDriverLocation] =
     useState<Coordinates>({
       latitude: driverId.location.coordinates[1],
@@ -178,7 +178,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 : `${currentDriverLocation.latitude},${currentDriverLocation.longitude}`,
             destination: `${destinationAddress.latitude},${destinationAddress.longitude}`,
             vehicle: 'bike',
-            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
+            api_key: '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES',
           },
         },
       );
@@ -214,7 +214,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
         origin: `${currentDriverLocation.latitude},${currentDriverLocation.longitude}`,
         destination: `${pickupAddress.latitude},${pickupAddress.longitude}`,
         vehicle: 'bike',
-        api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
+        api_key: '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES',
       },
     });
     const routeDriver = responseDriver.data.routes[0].overview_polyline.points;
@@ -272,7 +272,14 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
             currentDriverLocation.longitude ?? 0,
             currentDriverLocation.latitude ?? 0,
           ],
-          [pickupAddress.longitude ?? 0, pickupAddress.latitude ?? 0],
+          [
+            statusBill === 'RECEIVED'
+              ? pickupAddress.longitude ?? 0
+              : destinationAddress.longitude ?? 0,
+            statusBill === 'RECEIVED'
+              ? pickupAddress.latitude ?? 0
+              : destinationAddress.latitude ?? 0,
+          ],
           [170, 50, 380, 50],
           0,
         ));
@@ -410,7 +417,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 // layerIndex={1}
                 style={{
                   lineColor: '#2F4F4F', // Màu viền (xám đậm hoặc đen)
-                  lineWidth: 10, // Lớn hơn đường chính
+                  lineWidth: 6, // Lớn hơn đường chính
                   lineOpacity: 0.8,
                   lineJoin: 'round',
                   lineCap: 'round',
@@ -423,7 +430,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 // layerIndex={10}
                 style={{
                   lineColor: '#EEE685', // Màu chính (xanh dương nhạt)
-                  lineWidth: 6, // Nhỏ hơn lớp viền
+                  lineWidth: 4, // Nhỏ hơn lớp viền
                   lineOpacity: 0.9,
                   lineJoin: 'round',
                   lineCap: 'round',
@@ -440,7 +447,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 // layerIndex={1}
                 style={{
                   lineColor: '#2F4F4F', // Màu viền (xám đậm hoặc đen)
-                  lineWidth: 9, // Lớn hơn đường chính
+                  lineWidth: 6, // Lớn hơn đường chính
                   lineOpacity: 0.8,
                   lineJoin: 'round',
                   lineCap: 'round',
@@ -453,7 +460,7 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                 // layerIndex={10}
                 style={{
                   lineColor: '#99FFFF', // Màu chính (xanh dương nhạt)
-                  lineWidth: 5, // Nhỏ hơn lớp viền
+                  lineWidth: 4, // Nhỏ hơn lớp viền
                   lineOpacity: 0.9,
                   lineJoin: 'round',
                   lineCap: 'round',

@@ -1,4 +1,11 @@
-import {View, Text, StatusBar, Platform, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  Platform,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {globalStyles} from '../../styles/globalStyles';
 import {appColors} from '../../constants/appColors';
@@ -9,8 +16,17 @@ import {
 } from '../../components';
 import {fontFamilies} from '../../constants/fontFamilies';
 
-import {useSelector} from 'react-redux';
-import {RootState} from '../../stores/redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {AppDispatch, RootState} from '../../stores/redux';
+import {apiUpdateStatusDriver} from '../../apis';
+import {getCurrent} from '../../stores/users/asyncAction';
+import {clearListOrderReceived} from '../../stores/users/userSlide';
+
+const DRIVER_STATUS = [
+  {label: 'Offline', value: 'offline'},
+  {label: 'Online', value: 'online'},
+  // {label: 'Busy', value: 'busy'},
+];
 
 const OrdersScreen = () => {
   // const [dataOrders, setDataOrders] = useState<IBillTemporary[]>([]);
@@ -21,7 +37,23 @@ const OrdersScreen = () => {
   //   });
   // }, []);
 
-  const {listOrderReceived} = useSelector((state: RootState) => state.user);
+  const {listOrderReceived, current} = useSelector(
+    (state: RootState) => state.user,
+  );
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Trạng thái tài xế
+
+  const handleUpdateDriverStatus = async (status: string) => {
+    const rs = await apiUpdateStatusDriver({status});
+    if (rs.data.status === 'offline') {
+      dispatch(clearListOrderReceived([]));
+    }
+    if (rs.data.success) {
+      dispatch(getCurrent());
+    }
+  };
 
   return (
     <View style={[globalStyles.container, {flex: 1}]}>
@@ -32,14 +64,11 @@ const OrdersScreen = () => {
             globalStyles.shadow,
             {
               backgroundColor: appColors.primary,
-              // height: Platform.OS === 'android' ? 168 : 182,
-              // height: 182,
               height: 85,
               width: '100%',
               borderBottomLeftRadius: 20,
               borderBottomRightRadius: 20,
               justifyContent: 'center',
-              // borderWidth: 1,
               alignItems: 'center',
               paddingTop:
                 Platform.OS === 'android' ? StatusBar.currentHeight : 52,
@@ -53,6 +82,58 @@ const OrdersScreen = () => {
         </View>
       </View>
 
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 16,
+          marginTop: 16,
+          marginBottom: 8,
+        }}>
+        {/* Số lượng đơn */}
+        <TextComponent
+          text={`Total: ${listOrderReceived?.length || 0} orders`}
+          font={fontFamilies.semiBold}
+          size={16}
+          color={appColors.text}
+        />
+        {/* Nút chọn trạng thái tài xế */}
+        <View
+          style={{
+            flexDirection: 'row',
+            backgroundColor: '#eee',
+            borderRadius: 20,
+          }}>
+          {DRIVER_STATUS.map(status => (
+            <TouchableOpacity
+              key={status.value}
+              onPress={() => handleUpdateDriverStatus(status.value)}
+              style={{
+                paddingVertical: 6,
+                paddingHorizontal: 16,
+                borderRadius: 20,
+                backgroundColor:
+                  current.status === status.value
+                    ? appColors.primary
+                    : 'transparent',
+                marginHorizontal: 2,
+              }}>
+              <Text
+                style={{
+                  color:
+                    current.status === status.value ? '#fff' : appColors.text,
+                  fontWeight:
+                    current.status === status.value ? 'bold' : 'normal',
+                  fontSize: 14,
+                }}>
+                {status.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
       <SectionComponent styles={{flex: 1}}>
         <FlatList
           style={{
@@ -60,7 +141,7 @@ const OrdersScreen = () => {
           }}
           contentContainerStyle={{
             flex: 1,
-          }} // Định nghĩa layout cho nội dung bên trong
+          }}
           showsHorizontalScrollIndicator={false}
           data={listOrderReceived}
           renderItem={({item, index}) => (

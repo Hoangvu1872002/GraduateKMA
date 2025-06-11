@@ -7,17 +7,17 @@ const roomChatSchema = new mongoose.Schema(
     driver: { type: Schema.Types.ObjectId, ref: "drivers", required: true },
     listMessages: [
       {
-        id: { type: String, required: true },
-        sender: { type: mongoose.Schema.Types.ObjectId, required: true },
-        message: { type: String, required: true },
+        id: { type: String },
+        sender: { type: mongoose.Schema.Types.ObjectId },
+        message: { type: String },
         isRead: { type: Boolean, default: false },
         createdAt: { type: Date, default: Date.now },
       },
     ],
     lastestMesage: {
-      id: { type: String, required: true },
-      sender: { type: mongoose.Schema.Types.ObjectId, required: true },
-      message: { type: String, required: true },
+      id: { type: String },
+      sender: { type: mongoose.Schema.Types.ObjectId },
+      message: { type: String },
       isRead: { type: Boolean, default: false },
       createdAt: { type: Date, default: Date.now },
     },

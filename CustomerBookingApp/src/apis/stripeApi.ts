@@ -1,8 +1,11 @@
 import axiosClient from './axiosClient';
 
-export const apiPay = (data: {cost: number}) =>
+export const rechargeBalanceAndNotify = (data: {
+  cost: number;
+  driverId: string;
+}) =>
   axiosClient({
-    url: '/stripe/pay',
+    url: '/stripe/recharge-user',
     method: 'post',
     data,
   });

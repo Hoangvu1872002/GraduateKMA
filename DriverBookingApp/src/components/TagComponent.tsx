@@ -7,7 +7,7 @@ import {fontFamilies} from '../constants/fontFamilies';
 
 interface Props {
   onPress?: () => void;
-  label: string;
+  label?: string;
   icon?: ReactNode;
   textColor?: string;
   bgColor?: string;
@@ -32,14 +32,16 @@ const TagComponent = (props: Props) => {
         styles,
       ]}>
       {icon && icon}
-      <TextComponent
-        font={fontFamilies.medium}
-        text={label}
-        styles={[{marginLeft: icon ? 8 : 0}, textStyles]}
-        color={
-          textColor ? textColor : bgColor ? appColors.white : appColors.gray
-        }
-      />
+      {label && (
+        <TextComponent
+          font={fontFamilies.medium}
+          text={label}
+          styles={[{marginLeft: icon ? 8 : 0}, textStyles]}
+          color={
+            textColor ? textColor : bgColor ? appColors.white : appColors.gray
+          }
+        />
+      )}
     </TouchableOpacity>
   );
 };

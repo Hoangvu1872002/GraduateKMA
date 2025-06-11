@@ -10,27 +10,6 @@ module.exports = function (io) {
   io.of("/booking").on("connection", (socket) => {
     socket.on("find-driver", async (data) => {
       try {
-        // const drivers = await driverModel.aggregate([
-        //   {
-        //     $geoNear: {
-        //       near: {
-        //         type: "Point",
-        //         coordinates: [
-        //           data.addressSelectedPickup.longitude,
-        //           data.addressSelectedPickup.latitude,
-        //         ],
-        //       },
-        //       distanceField: "distance",
-        //       spherical: true,
-        //       maxDistance: 10000, // Giới hạn 5km (tuỳ chỉnh theo nhu cầu)
-        //     },
-        //   },
-        //   {
-        //     $match: { status: "online", travelMode: data.typeVehicleSelected },
-        //   }, // Chỉ lấy tài xế online, kiểu xe
-        //   { $limit: 10 }, // Giới hạn 10 tài xế gần nhất
-        //   { $project: { _id: 0, socketId: 1 } }, // Chỉ lấy socketId
-        // ]);
         const drivers = await driverModel.aggregate([
           {
             $geoNear: {
@@ -83,6 +62,7 @@ module.exports = function (io) {
           travelMode: data.typeVehicleSelected,
           userId: data.infCustomer._id, // Bắt buộc phải có, không đặt mặc định
           socketIdDriversReceived: socketIds,
+          infReceiver: data?.infReceiver,
         });
 
         await newBillTemporary.save();
@@ -90,10 +70,6 @@ module.exports = function (io) {
         io.of("/booking")
           .to(socket.id)
           .emit("id-new-order", newBillTemporary._id);
-
-        // console.log(newBillTemporary);
-
-        // Emit thông báo đến từng tài xế trong danh sách
 
         console.log(socketIds);
 
@@ -125,7 +101,6 @@ module.exports = function (io) {
         "userId",
         "firstname lastname email mobile socketId _id"
       );
-
       try {
         const drivers = await driverModel.aggregate([
           {
@@ -149,27 +124,20 @@ module.exports = function (io) {
           { $limit: data.numberDriverFind }, // Lấy 10 tài xế gần nhất, rating cao nhất
           { $project: { _id: 0, socketId: 1 } }, // Chỉ lấy socketId
         ]);
-
         const socketIds = drivers.map((driver) => driver.socketId);
-
         io.of("/booking")
           .to(socket.id)
           .emit("arr-driver-received-order", socketIds);
-
         const updatedBill = await BillTemporary.findByIdAndUpdate(
           data.idNewOrder,
           { $set: { socketIdDriversReceived: socketIds } },
           { new: true }
         );
-
-        // console.log(updatedBill);
-
         data?.arrDriversRevceivOrder.forEach((socketId) => {
           io.of("/booking")
             .to(socketId)
             .emit("delete-received-order", bill._id);
         });
-
         socketIds.forEach((socketId) => {
           socket.to(socketId).emit("new-order", {
             ...updatedBill.toObject(), // Chuyển document Mongoose thành object JS
@@ -202,30 +170,31 @@ module.exports = function (io) {
       });
 
       // Tạo tin nhắn mặc định
-      const defaultMessage = {
-        id: new mongoose.Types.ObjectId().toString(),
-        sender: data.infDriver._id,
-        message: "Tôi đang đến điểm đón",
-        isRead: false,
-        createdAt: new Date(),
-      };
+      // const defaultMessage = {
+      //   id: new mongoose.Types.ObjectId().toString(),
+      //   sender: data.infDriver._id,
+      //   message: "Hello",
+      //   isRead: false,
+      //   createdAt: new Date(),
+      // };
 
       if (!roomChat) {
         // Nếu chưa có phòng, tạo phòng mới
         roomChat = new RoomChat({
           user: bill.userId,
           driver: data.infDriver._id,
-          listMessages: [defaultMessage],
-          lastestMesage: defaultMessage,
+          // listMessages: [defaultMessage],
+          // lastestMesage: defaultMessage,
         });
 
         await roomChat.save();
-      } else {
-        // Nếu đã có phòng, chỉ cập nhật tin nhắn
-        roomChat.listMessages.push(defaultMessage);
-        roomChat.lastestMesage = defaultMessage;
-        await roomChat.save();
       }
+      // else {
+      //   // Nếu đã có phòng, chỉ cập nhật tin nhắn
+      //   roomChat.listMessages.push(defaultMessage);
+      //   roomChat.lastestMesage = defaultMessage;
+      //   await roomChat.save();
+      // }
 
       const newBill = new Bill({
         pickupAddress: {
@@ -249,6 +218,7 @@ module.exports = function (io) {
         userId: bill.userId,
         driverId: data.infDriver._id, // Nếu không có driverId thì mặc định là null
         roomChatId: roomChat._id,
+        infReceiver: bill?.infReceiver,
       });
 
       await newBill.save();

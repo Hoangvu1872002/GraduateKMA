@@ -1,6 +1,7 @@
 const mongoose = require("mongoose"); // Erase if already required
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { type } = require("os");
 
 const userSchema = new mongoose.Schema(
   {
@@ -44,13 +45,19 @@ const userSchema = new mongoose.Schema(
       },
     ],
     address: {
-      type: String,
-      required: true,
+      main_name_place: { type: String }, // Địa chỉ cụ thể
+      description: { type: String }, // Địa chỉ mô tả
+      latitude: { type: Number }, // Vĩ độ
+      longitude: { type: Number }, // Kinh độ
     },
     wishlist: [{ type: mongoose.Types.ObjectId, ref: "Product" }],
     isBocked: {
       type: String,
       default: "Active",
+    },
+    balence: {
+      type: Number,
+      default: 0,
     },
     refreshToken: {
       type: String,

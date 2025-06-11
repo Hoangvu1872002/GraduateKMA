@@ -20,4 +20,8 @@ export interface IBill {
   status: 'RECEIVED' | 'PENDING' | 'COMPLETED' | 'CANCELED'; // Chỉ nhận giá trị này
   createdAt: string; // Timestamp từ MongoDB (có thể không có khi tạo mới)
   updatedAt: string;
+  infReceiver?: {
+    name: string;
+    mobile: string;
+  };
 }

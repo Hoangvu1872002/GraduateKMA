@@ -17,7 +17,7 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import {useSelector} from 'react-redux';
 import {RootState} from '../../stores/redux';
 import {BarChart, PieChart} from 'react-native-gifted-charts';
-import {apiAllBill} from '../../apis';
+import {apiAllBillDriver} from '../../apis';
 import {IBill} from '../../models/BillModel';
 import {useFocusEffect} from '@react-navigation/native';
 
@@ -108,10 +108,11 @@ const Dashboard = ({navigation}: any) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await apiAllBill();
+      const response = await apiAllBillDriver();
       const completedBills = response.data.filter(
         (bill: IBill) => bill.status === 'COMPLETED',
       );
+
       setDataRevenue(completedBills);
       setDataHistory(response.data);
       setCompletedCount(completedBills.length);
@@ -270,9 +271,7 @@ const Dashboard = ({navigation}: any) => {
   const coloredChartData = chartData.map(item => ({
     ...item,
     frontColor:
-      item.label === currentLabel
-        ? appColors.DarkSlateGrayBlue4
-        : appColors.primary,
+      item.label === currentLabel ? appColors.link : appColors.primary,
   }));
 
   useFocusEffect(
@@ -284,9 +283,6 @@ const Dashboard = ({navigation}: any) => {
   useEffect(() => {
     calculateMonthlyRevenue();
   }, [dataRevenue]);
-
-  // console.log(chartData);
-  // console.log(selectedWeek);
 
   return (
     <View

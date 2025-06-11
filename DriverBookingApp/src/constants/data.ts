@@ -120,7 +120,7 @@ const itemSelectVehicle: {
   {
     id: '3',
     image: require('../assets/images/car.png'),
-    name: 'Vivu Car Family',
+    name: 'Vivu Car Plus',
     type: 'CarFamily',
     numberSeat: 7,
     description: 'Spacious space',

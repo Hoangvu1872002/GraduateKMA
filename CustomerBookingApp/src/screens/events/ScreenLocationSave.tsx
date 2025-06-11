@@ -48,7 +48,7 @@ const ScreenLocationSave = ({navigation, route}: any) => {
   //   onSelect: (val: LocationModelSuggest) => void;
   // } = route?.params;
 
-  console.log(navigation.getParent()?.getState());
+  // console.log(navigation.getParent()?.getState());
 
   const onSelect = navigation
     .getParent()
@@ -94,7 +94,7 @@ const ScreenLocationSave = ({navigation, route}: any) => {
         'https://rsapi.goong.io/Place/AutoComplete',
         {
           params: {
-            api_key: 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR',
+            api_key: '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES',
             input: query,
           },
         },
@@ -120,7 +120,7 @@ const ScreenLocationSave = ({navigation, route}: any) => {
   };
 
   const fetchCoordinatesFromPlaceId = async (placeId: string) => {
-    const API_KEY = 'crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR'; // Thay bằng API Key của bạn
+    const API_KEY = '2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES'; // Thay bằng API Key của bạn
     const BASE_URL = 'https://rsapi.goong.io/Place/Detail';
 
     try {

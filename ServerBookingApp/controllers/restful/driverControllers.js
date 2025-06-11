@@ -1,5 +1,6 @@
 const asyncHandle = require("express-async-handler");
 const driverModel = require("../../models/driverModel");
+const userModel = require("../../models/userModel");
 require("dotenv").config();
 
 const getCurrent = asyncHandle(async (req, res) => {
@@ -131,6 +132,14 @@ const updateDriverBalance = asyncHandle(async (req, res) => {
     await driver.save();
     console.log("Driver balance updated:", driver.balence);
 
+    // Tìm user có role là admin và cộng tiền
+    const adminUser = await userModel.findOne({ role: "admin" });
+    if (adminUser) {
+      adminUser.balence = adminUser.balence + cost;
+      await adminUser.save();
+      console.log("Admin balance updated:", adminUser.balence);
+    }
+
     return res
       .status(200)
       .json({ data: { success: true, balence: driver.balence } });
@@ -180,6 +189,37 @@ const addDriverRating = asyncHandle(async (req, res) => {
   }
 });
 
+const updateDriverStatus = asyncHandle(async (req, res) => {
+  try {
+    const { _id } = req.user; // Lấy ID tài xế từ request (giả sử đã xác thực)
+    const { status } = req.body; // Trạng thái mới: "offline", "online", "busy"
+
+    // Kiểm tra giá trị hợp lệ
+    const validStatuses = ["offline", "online", "busy"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value!" });
+    }
+
+    // Cập nhật trạng thái
+    const driver = await driverModel.findByIdAndUpdate(
+      _id,
+      { status },
+      { new: true }
+    );
+
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found!" });
+    }
+
+    return res
+      .status(200)
+      .json({ data: { success: true, status: driver.status } });
+  } catch (error) {
+    console.error("❌ Error updating driver status:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 module.exports = {
   getCurrent,
   updateDriverLocation,
@@ -187,4 +227,5 @@ module.exports = {
   updateDriverSocketId,
   updateDriverBalance,
   addDriverRating,
+  updateDriverStatus,
 };

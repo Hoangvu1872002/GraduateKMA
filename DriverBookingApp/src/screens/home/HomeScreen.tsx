@@ -6,13 +6,13 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {shallowEqual, useDispatch, useSelector} from 'react-redux';
 import {AppDispatch, RootState} from '../../stores/redux';
 import {logout, setCurrentLocation} from '../../stores/users/userSlide';
 import Geolocation from '@react-native-community/geolocation';
 import axios from 'axios';
-import {apiUpdateLocationDriver} from '../../apis';
+import {apiAllBillDriver, apiUpdateLocationDriver} from '../../apis';
 import {getCurrent} from '../../stores/users/asyncAction';
 import socket from '../../apis/socket';
 import {globalStyles} from '../../styles/globalStyles';
@@ -31,12 +31,16 @@ import {
   Moneys,
   Notification,
   Sort,
+  Star1,
 } from 'iconsax-react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {StatusBar} from 'react-native';
 import {StyleSheet} from 'react-native';
 import {Bank, ArrowSwapHorizontal, Gift, Receipt2} from 'iconsax-react-native';
+import HomeFeatureCard from '../../components/HomeFeatureCard';
+import {useFocusEffect} from '@react-navigation/native';
+import {IBill} from '../../models/BillModel';
 
 const HomeScreen = ({navigation}: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,11 +50,10 @@ const HomeScreen = ({navigation}: any) => {
 
   const [unReadNotifications, setUnReadNotifications] = useState([]);
   const [currentLocationName, setCurrentLocationName] = useState();
+  const [completedCount, setCompletedCount] = useState(0);
 
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
-    // console.log(lat, long);
-
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES`;
 
     try {
       const res = await axios.get(api);
@@ -64,6 +67,25 @@ const HomeScreen = ({navigation}: any) => {
     }
   };
 
+  const fetchData = async () => {
+    try {
+      const response = await apiAllBillDriver();
+      const completedBills = response.data.filter(
+        (bill: IBill) => bill.status === 'COMPLETED',
+      );
+
+      setCompletedCount(completedBills.length);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, []),
+  );
+
   useEffect(() => {
     const setTimeoutId = setTimeout(() => {
       if (isLoggedIn) dispatch(getCurrent());
@@ -75,11 +97,23 @@ const HomeScreen = ({navigation}: any) => {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    reverseGeoCode({
-      lat: currentLocation?.latitude || 0,
-      long: currentLocation?.longitude || 0,
-    });
-  }, [currentLocation]);
+    Geolocation.getCurrentPosition(
+      (position: any) => {
+        if (position.coords) {
+          // console.log(position.coords);
+          reverseGeoCode({
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+          });
+        }
+      },
+      (error: any) => {
+        console.log(error);
+      },
+      // {maximumAge: 0, timeout: 30000, enableHighAccuracy: true},
+      {},
+    );
+  }, []);
 
   useEffect(() => {
     const watchId = Geolocation.watchPosition(
@@ -96,16 +130,15 @@ const HomeScreen = ({navigation}: any) => {
         });
       },
       error => console.error('Lỗi lấy tọa độ:', error),
-      {enableHighAccuracy: true, distanceFilter: 100, interval: 5000},
+      {enableHighAccuracy: true, distanceFilter: 50, interval: 5000},
     );
-
     return () => Geolocation.clearWatch(watchId);
   }, []);
 
   return (
     <View style={[globalStyles.container]}>
       <StatusBar barStyle={'dark-content'} />
-      {/* <LinearGradient colors={['#4A708B', 'rgba(42, 31, 197, 0)']}> */}
+
       <View
         style={{
           backgroundColor: appColors.DarkSlateGrayBlue4,
@@ -182,7 +215,7 @@ const HomeScreen = ({navigation}: any) => {
           </RowComponent>
           <SpaceComponent height={20} />
 
-          <RowComponent justify="space-between">
+          <RowComponent justify="space-between" styles={{marginTop: 10}}>
             <TextComponent
               text={`Hello, ${
                 current?.firstname.charAt(0).toUpperCase() +
@@ -192,15 +225,17 @@ const HomeScreen = ({navigation}: any) => {
                 current?.lastname.slice(1)
               } `}
               size={20}
+              styles={{marginLeft: 10}}
               font={fontFamilies.medium}
               color={appColors.white2}></TextComponent>
             <TagComponent
               bgColor={'#ECAB53'}
-              onPress={() => navigation.navigate('Recharge')}
-              label={current?.balence.toFixed(2).toString() + ' $'}
+              // onPress={() => navigation.navigate('Recharge')}
+              label={current?.totalRating.toFixed(2).toString()}
               icon={
                 <CircleComponent size={20} color="#ECAB53">
-                  <Moneys size="22" color="green" variant="Bold" />
+                  {/* <Moneys size="22" color="green" variant="Bold" /> */}
+                  <Star1 size="22" color="yellow" variant="Bold" />
                 </CircleComponent>
               }
             />
@@ -210,124 +245,126 @@ const HomeScreen = ({navigation}: any) => {
       </View>
       {/* </LinearGradient> */}
       {/* Phần giao diện bên dưới */}
-      <View style={{padding: 16, paddingBottom: 10}}>
+      <View
+        style={{
+          padding: 16,
+          paddingTop: 5,
+          paddingBottom: 10,
+        }}>
         <View style={styles.accountRow}>
           <View style={styles.accountBox}>
-            <TextComponent
-              text="$12,939.25"
-              font={fontFamilies.semiBold}
-              size={22}
-              color="#222"
-              styles={{marginBottom: 2}}
-            />
-            <TextComponent
-              text="Checking Account"
-              size={13}
-              color="#888"
-              styles={{marginBottom: 0}}
-            />
-            <TextComponent text="Balance" size={12} color="#bbb" />
-          </View>
-          <View style={styles.accountBox}>
-            <TextComponent
-              text="$100,203.32"
-              font={fontFamilies.semiBold}
-              size={22}
-              color="#222"
-              styles={{marginBottom: 2}}
-            />
-            <TextComponent
-              text="Savings Account"
-              size={13}
-              color="#888"
-              styles={{marginBottom: 0}}
-            />
-            <TextComponent text="Balance" size={12} color="#bbb" />
+            <View
+              style={{
+                backgroundColor: appColors.link,
+                height: 80,
+                borderRadius: 100,
+                aspectRatio: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <TextComponent
+                text={completedCount.toString()}
+                size={35}
+                font={fontFamilies.bold}
+                styles={{textAlign: 'center'}} // Thêm dòng này
+                color={appColors.WhiteSmoke}></TextComponent>
+              <TextComponent
+                text="Trip"
+                size={13}
+                color={appColors.WhiteSmoke}
+                font={fontFamilies.bold}></TextComponent>
+            </View>
+            <View
+              style={{
+                marginRight: 0,
+                paddingRight: 10,
+                flex: 1,
+                height: 80,
+                borderRadius: 14,
+                borderTopLeftRadius: 50,
+                borderBottomLeftRadius: 50,
+                borderBottomRightRadius: 60,
+                backgroundColor: appColors.link,
+                display: 'flex',
+                paddingLeft: 50,
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+              }}>
+              <RowComponent justify="flex-end">
+                <View>
+                  <RowComponent styles={{marginBottom: 0}}>
+                    <CircleComponent color={appColors.WhiteSmoke} size={36}>
+                      <View>
+                        <Moneys
+                          size="30"
+                          color={appColors.DarkSlateGrayBlue4}
+                          variant="Bold"
+                        />
+                      </View>
+                    </CircleComponent>
+                    <SpaceComponent width={20} />
+                    <TextComponent
+                      text={`${current?.balence.toFixed(3)}`}
+                      font={fontFamilies.semiBold}
+                      size={35}
+                      color={appColors.WhiteSmoke}
+                      styles={{marginBottom: 2}}
+                    />
+
+                    {/* <Moneys size="30" color="#ECAB53" variant="Bold" /> */}
+                  </RowComponent>
+                  <TextComponent
+                    text="Your wallet balance"
+                    size={13}
+                    color={appColors.WhiteSmoke}
+                    font={fontFamilies.medium}></TextComponent>
+                </View>
+              </RowComponent>
+            </View>
           </View>
         </View>
         <View style={styles.row}>
-          <TouchableOpacity
-            style={[styles.card, {backgroundColor: '#FDE8E4'}]}
-            onPress={() => {
-              /* Xử lý khi nhấn Bill Pay */
-            }}>
-            <View style={styles.iconCircle}>
-              <Receipt2 size={28} color="#F76B6A" variant="Bold" />
-            </View>
-            <TextComponent
-              text="Dashboard"
-              font={fontFamilies.semiBold}
-              size={18}
-            />
-            <TextComponent
-              text="Expense management"
-              size={14}
-              color="#F76B6A"
-              font={fontFamilies.medium}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.card, {backgroundColor: '#F3F0FA'}]}
-            onPress={() => {
-              navigation.navigate('Recharge');
-            }}>
-            <View style={styles.iconCircle}>
-              <Gift size={28} color="#8B5CF6" variant="Bold" />
-            </View>
-            <TextComponent
-              text="Recharge"
-              font={fontFamilies.semiBold}
-              size={18}
-            />
-            <TextComponent
-              text="Top up your wallet"
-              size={14}
-              color="#8B5CF6"
-              font={fontFamilies.medium}
-            />
-          </TouchableOpacity>
+          <HomeFeatureCard
+            icon={<Receipt2 size={28} color="#F76B6A" variant="Bold" />}
+            title="Dashboard"
+            subtitle="Expense management"
+            color="#FDE8E4"
+            subtitleColor="#F76B6A"
+            iconCircleColor="#F9CFC7"
+            onPress={() => navigation.navigate('Dashboard')}
+          />
+          <HomeFeatureCard
+            icon={<Gift size={28} color="#8B5CF6" variant="Bold" />}
+            title="Recharge"
+            subtitle="Top up your wallet"
+            color="#F3F0FA"
+            subtitleColor="#8B5CF6"
+            iconCircleColor="#E2D6FA"
+            onPress={() => navigation.navigate('Recharge')}
+          />
         </View>
         <View style={styles.row}>
-          <TouchableOpacity
-            style={[styles.card, {backgroundColor: '#E7F6EF'}]}
-            onPress={() => {
-              /* Xử lý khi nhấn Statement */
-            }}>
-            <View style={styles.iconCircle}>
-              <Bank size={28} color="#34A853" variant="Bold" />
-            </View>
-            <TextComponent
-              text="Map view"
-              font={fontFamilies.semiBold}
-              size={18}
-            />
-            <TextComponent
-              text="See map"
-              size={14}
-              color="#34A853"
-              font={fontFamilies.medium}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.card, {backgroundColor: '#EAF1FB'}]}
-            onPress={() => {
-              navigation.navigate('Message');
-            }}>
-            <View style={styles.iconCircle}>
+          <HomeFeatureCard
+            icon={<Bank size={28} color="#34A853" variant="Bold" />}
+            title="Map view"
+            subtitle="See map"
+            color="#E7F6EF"
+            subtitleColor="#34A853"
+            iconCircleColor="#BFE7D0"
+            onPress={() => navigation.navigate('MapView')}
+          />
+          <HomeFeatureCard
+            icon={
               <ArrowSwapHorizontal size={28} color="#4285F4" variant="Bold" />
-            </View>
-            <TextComponent
-              text="Messages"
-              font={fontFamilies.semiBold}
-              size={18}
-            />
-            <TextComponent
-              text="Exchange messages"
-              size={14}
-              color="#4285F4"
-              font={fontFamilies.medium}
-            />
-          </TouchableOpacity>
+            }
+            title="History"
+            subtitle="View shipping history"
+            color="#EAF1FB"
+            subtitleColor="#4285F4"
+            iconCircleColor="#C7DBF9"
+            onPress={() => navigation.navigate('HistoryScreen')}
+          />
         </View>
       </View>
       <View
@@ -380,17 +417,25 @@ const styles = StyleSheet.create({
   accountRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+
     marginTop: 18,
-    marginBottom: 18,
-    paddingHorizontal: 8,
+    marginBottom: 30,
+    // paddingHorizontal: 8,
   },
   accountBox: {
     flex: 1,
-    backgroundColor: '#F6F6F6',
+    backgroundColor: '#B2D9EA',
     borderRadius: 14,
-    padding: 16,
-    marginHorizontal: 6,
-    alignItems: 'flex-start',
+    borderTopLeftRadius: 50,
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 60,
+    padding: 8,
+    display: 'flex',
+    gap: 20,
+    flexDirection: 'row',
+
+    // marginHorizontal: 6,
+    alignItems: 'center',
     elevation: 1,
   },
 });

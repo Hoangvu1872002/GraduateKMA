@@ -60,6 +60,10 @@ export const userSlide = createSlice({
         item => item._id !== action.payload,
       );
     },
+    clearListOrderReceived: (state, action) => {
+      state.listOrderReceived = [];
+      console.log('Cleared listOrderReceived:');
+    },
     setOrderPending: (state, action) => {
       state.orderPending = action.payload;
     },
@@ -103,6 +107,7 @@ export const {
   addToListOrderReceived,
   removeFromListOrderReceived,
   setOrderPending,
+  clearListOrderReceived,
 } = userSlide.actions;
 
 export default userSlide.reducer;

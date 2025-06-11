@@ -57,4 +57,8 @@ export interface IBillTemporary {
   createdAt: string;
   updatedAt: string;
   infCustomer: ICustomer;
+  infReceiver?: {
+    name: string;
+    mobile: string;
+  };
 }

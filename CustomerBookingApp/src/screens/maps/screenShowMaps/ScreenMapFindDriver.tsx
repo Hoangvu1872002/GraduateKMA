@@ -31,12 +31,13 @@ import {styles} from './ModalMapLocation.styles';
 // import {Portal} from 'react-native-portalize';
 import BottomSheet from '@gorhom/bottom-sheet';
 import socket from '../../../apis/socket';
+import Toast from 'react-native-toast-message';
 
 MapLibreGL.setAccessToken(null); // Goong sử dụng API Key riêng
 MapLibreGL.setConnected(true);
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=K4Wf0bYa0I5v8wxWCjRmeohWKjmHaHr9j2jwfImc';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=WKhuQZ3GCrTsAv9fvPSn0BHu0kc0NfgD1UAwZrcQ';
 
 const ScreenMapFindDriver = ({navigation, route}: any) => {
   const {
@@ -45,12 +46,14 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
     totalDistance,
     itemSelectVehicleSelected,
     current,
+    infReceiver,
   }: {
     addressSelectedPickup: LocationModelSuggest;
     addressSelectedDestination: LocationModelSuggest;
     totalDistance: number;
     itemSelectVehicleSelected: any;
     current: any;
+    infReceiver?: {name: string; mobile: string};
   } = route?.params;
 
   // console.log(totalDistance, itemSelectVehicleSelected);
@@ -72,7 +75,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
   const [arrDriversRevceivOrder, setArrDriversRevceivOrder] = useState<
     string[]
   >([]);
-  const [radius, setRadius] = useState(4000);
+  const [radius, setRadius] = useState(2500);
   const [numberDriverFind, setNumberDriverFind] = useState(15);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -98,14 +101,6 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
   }, [arrDriversRevceivOrder]);
 
   const handleNoDriverReceipted = useCallback(() => {
-    console.log('Không có tài xế nhận đơn sau 10s');
-    console.log({
-      idNewOrder: idNewOrderRef.current,
-      radius: radiusRef.current,
-      numberDriverFind: numberDriverFindRef.current,
-      arrDriversRevceivOrder: arrDriversRevceivOrderRef.current,
-    });
-
     // Emit sự kiện ngay lập tức với giá trị mới nhất
     socket.emit('find-driver-again', {
       idNewOrder: idNewOrderRef.current,
@@ -119,11 +114,11 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
       console.log('Gửi sự kiện lên server để tìm tài xế...');
       socket.emit('find-driver-again', {
         idNewOrder: idNewOrderRef.current,
-        radius: radiusRef.current + 2000,
+        radius: radiusRef.current === 4000 ? 4000 : radiusRef.current + 500,
         numberDriverFind: numberDriverFindRef.current + 5,
         arrDriversRevceivOrder: arrDriversRevceivOrderRef.current,
       });
-      setRadius(prev => prev + 2000);
+      if (radiusRef.current !== 4000) setRadius(prev => prev + 500);
       setNumberDriverFind(prev => prev + 5);
     }, 10000);
 
@@ -136,14 +131,14 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
       socket.emit('notice-remove-order-from-user', idNewOrderRef.current);
       setModalVisible(true);
       console.log('Dừng gửi sự kiện sau 41 giây');
-    }, 21000);
+    }, 51000);
   }, []);
 
   useEffect(() => {
     // Tạo timeout để gọi handleNoDriverReceipted sau 10 giây
     const timeout = setTimeout(() => {
       handleNoDriverReceipted();
-    }, 20000);
+    }, 10000);
 
     // Lắng nghe sự kiện từ server
     const handler = (data: any) => {
@@ -157,6 +152,14 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
         clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
+
+      Toast.show({
+        type: 'success',
+        text1: 'A driver has accepted your trip!',
+        text2: 'Please check the driver information.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
 
       // Điều hướng đến màn hình tiếp theo
       navigation.replace('ScreenMapFollowDriver', {
@@ -202,7 +205,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
     };
 
     const handleDriverReceivedOrder = (data: any) => {
-      console.log(data);
+      // console.log(data);
       setArrDriversRevceivOrder(data);
     };
 
@@ -219,6 +222,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
       costVehicleSelected: itemSelectVehicleSelected.costCoefficient,
       averageTimeVehicleSelected: itemSelectVehicleSelected.averageTime,
       infCustomer: current,
+      infReceiver: infReceiver ? infReceiver : '',
     });
 
     // Cleanup khi component unmount
@@ -315,19 +319,7 @@ const ScreenMapFindDriver = ({navigation, route}: any) => {
       <BottomSheetModalProvider>
         <BottomSheet
           ref={bottomSheetRef}
-          snapPoints={[
-            '30%',
-            '35%',
-            // '40%',
-            // '43%',
-            // '50%',
-            // '55%',
-            // '60%',
-            // '65%',
-            // '70%',
-            // '75%',
-            // '80%',
-          ]} // SnapPoints tối thiểu 30%
+          snapPoints={['29%', '35%']} // SnapPoints tối đa 50%
           enablePanDownToClose={false} // Ngăn người dùng vuốt xuống để đóng
           style={{flex: 1}}>
           <BottomSheetView

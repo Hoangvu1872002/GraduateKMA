@@ -29,3 +29,10 @@ export const apiUpdateBalenceDriver = (data: {cost: number}) =>
     method: 'put',
     data,
   });
+
+export const apiUpdateStatusDriver = (data: {status: string}) =>
+  axiosClient({
+    url: '/driver/update-status-driver',
+    method: 'put',
+    data,
+  });

@@ -3,6 +3,7 @@ import AsyncStorage, {
 } from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
+import Toast from 'react-native-toast-message';
 
 import {AppDispatch, RootState} from '../stores/redux';
 import MainNavigator from './MainNavigators';
@@ -54,18 +55,38 @@ const AppRouters = () => {
     };
     const handleRemoveOrderFromUser = (data: any) => {
       dispatch(removeFromListOrderReceived(data));
+      Toast.show({
+        type: 'success',
+        text1: 'Customer has canceled the order',
+        text2: 'The order you just received has been canceled by the customer.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
+    };
+
+    const handlePaymentSuccess = (data: any) => {
+      dispatch(getCurrent());
+      Toast.show({
+        type: 'success',
+        text1: 'Customer payment successful',
+        text2: 'You have received money in your wallet.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     };
 
     socket.on('new-order', handleNewOrder);
     socket.on('delete-received-order', handleDeleteReceivedOrder);
     socket.on('notice-driver-receipted-order', handleDriverReceiptedOrder);
     socket.on('notice-remove-order-from-user', handleRemoveOrderFromUser);
+    socket.on('payment-success', handlePaymentSuccess);
 
     return () => {
       socket.off('new-order', handleNewOrder);
       socket.off('delete-received-order', handleDeleteReceivedOrder);
       socket.off('notice-driver-receipted-order', handleDriverReceiptedOrder);
       socket.off('notice-remove-order-from-user', handleRemoveOrderFromUser);
+      socket.on('payment-success', handlePaymentSuccess);
     };
   }, []);
 

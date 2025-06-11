@@ -73,6 +73,14 @@ var billTemporarySchema = new mongoose.Schema(
       default: [],
       required: true,
     },
+    infReceiver: {
+      name: {
+        type: String,
+      },
+      mobile: {
+        type: String,
+      },
+    },
   },
   {
     timestamps: true,

@@ -89,7 +89,7 @@ const TabNavigator = () => {
       <Tab.Screen name="Add" component={AddNewEventNavigator} />
        */}
       <Tab.Screen name="Orders" component={OrdersNavigators} />
-      <Tab.Screen name="History" component={HistoryNavigator} />
+      {/* <Tab.Screen name="History" component={HistoryNavigator} /> */}
       <Tab.Screen name="Message" component={MessageNavigator} />
       <Tab.Screen name="Profile" component={ProfileNavigator} />
     </Tab.Navigator>

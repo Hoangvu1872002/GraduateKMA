@@ -58,6 +58,38 @@ const rechargeHandle = asyncHandle(async (req, res) => {
   }
 });
 
+const rechargeBalanceAndNotify = asyncHandle(async (req, res) => {
+  try {
+    const { cost, driverId } = req.body;
+    if (!driverId || !cost) {
+      return res.status(400).json({ message: "Missing driverId or amount" });
+    }
+
+    const driver = await driverModel.findById(driverId);
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+
+    driver.balence += Number(cost);
+    await driver.save();
+
+    // Emit sự kiện đến tài xế
+    const io = req.app.get("io");
+    if (io && driver.socketId) {
+      io.of("/booking").to(driver.socketId).emit("payment-success");
+    }
+
+    res.json({
+      data: {
+        success: true,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // const stripeHandle = asyncHandle(async (req, res) => {
 //   const sig = req.headers["stripe-signature"];
 //   let event;
@@ -87,5 +119,6 @@ const rechargeHandle = asyncHandle(async (req, res) => {
 module.exports = {
   payHandle,
   rechargeHandle,
+  rechargeBalanceAndNotify,
   // stripeHandle,
 };

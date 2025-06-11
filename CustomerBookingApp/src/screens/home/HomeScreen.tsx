@@ -67,7 +67,7 @@ import socket from '../../apis/socket';
 import MapLibreGL from '@maplibre/maplibre-react-native';
 
 const loadMap =
-  'https://tiles.goong.io/assets/goong_map_web.json?api_key=V0HS8KfYmnE7ZT2vA1ONH00H7NqKOTm7vu46U4cq';
+  'https://tiles.goong.io/assets/goong_map_web.json?api_key=WKhuQZ3GCrTsAv9fvPSn0BHu0kc0NfgD1UAwZrcQ';
 
 const HomeScreen = ({navigation}: any) => {
   const [currentLocation, setCurrentLocation] = useState<AddressModel>();
@@ -147,7 +147,7 @@ const HomeScreen = ({navigation}: any) => {
   const reverseGeoCode = async ({lat, long}: {lat: number; long: number}) => {
     // console.log(lat, long);
 
-    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=crMmofRW2lgZNiDMZtCUdYqHZfGZv1cVZ864e0CR`;
+    const api = `https://rsapi.goong.io/Geocode?latlng=${lat},${long}&api_key=2DLy46ZYuWyvfB4l7sgWTFLiahpq7h0TH5vnC6ES`;
 
     try {
       const res = await axios.get(api);
@@ -182,14 +182,35 @@ const HomeScreen = ({navigation}: any) => {
   useEffect(() => {
     const handleCancelOrder = (data: any) => {
       fetchBillsPending();
+      Toast.show({
+        type: 'error',
+        text1: 'Driver has canceled the order',
+        text2: 'Your order has been canceled by the driver.',
+        position: 'top',
+        visibilityTime: 3000,
+      });
     };
 
     const handleArrivalDestination = (data: any) => {
       handleFetchBillFinal(data);
+      Toast.show({
+        type: 'success',
+        text1: 'Driver has arrived at the destination',
+        text2: 'Please check your trip information.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     };
 
     const handleArrivalPickupPoint = (data: any) => {
       fetchBillsPending();
+      Toast.show({
+        type: 'info',
+        text1: 'Driver has arrived at the pickup point',
+        text2: 'The driver is waiting for you at the pickup location.',
+        position: 'top',
+        visibilityTime: 4000,
+      });
     };
 
     // Lắng nghe các sự kiện socket
@@ -201,7 +222,7 @@ const HomeScreen = ({navigation}: any) => {
     return () => {
       socket.off('notice-cancle-order-from-driver', handleCancelOrder);
       socket.off('notification-arrival-destination', handleArrivalDestination);
-      // socket.off('notice-arrival-at-pick-up-point', handleArrivalPickupPoint);
+      socket.off('notice-arrival-at-pick-up-point', handleArrivalPickupPoint);
     };
   }, []);
 
@@ -492,7 +513,7 @@ const HomeScreen = ({navigation}: any) => {
           size={16}
         />
 
-        {/* <View
+        <View
           style={{
             height: 190,
             padding: 5,
@@ -516,7 +537,7 @@ const HomeScreen = ({navigation}: any) => {
             />
             <MapLibreGL.UserLocation />
           </MapLibreGL.MapView>
-        </View> */}
+        </View>
 
         <View
           style={{
