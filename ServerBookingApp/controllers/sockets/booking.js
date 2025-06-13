@@ -9,6 +9,8 @@ const mongoose = require("mongoose"); // Erase if already required
 module.exports = function (io) {
   io.of("/booking").on("connection", (socket) => {
     socket.on("find-driver", async (data) => {
+      // console.log(data);
+
       try {
         const drivers = await driverModel.aggregate([
           {
@@ -35,9 +37,16 @@ module.exports = function (io) {
 
         const socketIds = drivers.map((driver) => driver.socketId);
 
-        io.of("/booking")
-          .to(socket.id)
-          .emit("arr-driver-received-order", socketIds);
+        if (data.orderId) {
+          io.of("/booking").to(socket.id).emit("arr-driver-received-order", {
+            socketIds,
+            orderId: data.orderId,
+          });
+        } else {
+          io.of("/booking")
+            .to(socket.id)
+            .emit("arr-driver-received-order", socketIds);
+        }
 
         const newBillTemporary = new BillTemporary({
           pickupAddress: {
@@ -67,6 +76,17 @@ module.exports = function (io) {
 
         await newBillTemporary.save();
 
+        if (data.orderId) {
+          io.of("/booking").to(socket.id).emit("id-new-order", {
+            newBillTemId: newBillTemporary._id,
+            orderId: data.orderId,
+          });
+        } else {
+          io.of("/booking")
+            .to(socket.id)
+            .emit("id-new-order", newBillTemporary._id);
+        }
+
         io.of("/booking")
           .to(socket.id)
           .emit("id-new-order", newBillTemporary._id);
@@ -94,7 +114,6 @@ module.exports = function (io) {
         console.error("❌ Lỗi khi tìm tài xế:", error);
       }
     });
-
     socket.on("find-driver-again", async (data) => {
       console.log(data);
       const bill = await BillTemporary.findById(data.idNewOrder).populate(
@@ -125,9 +144,19 @@ module.exports = function (io) {
           { $project: { _id: 0, socketId: 1 } }, // Chỉ lấy socketId
         ]);
         const socketIds = drivers.map((driver) => driver.socketId);
-        io.of("/booking")
-          .to(socket.id)
-          .emit("arr-driver-received-order", socketIds);
+        // io.of("/booking")
+        //   .to(socket.id)
+        //   .emit("arr-driver-received-order", socketIds);
+        if (bill.orderId) {
+          io.of("/booking").to(socket.id).emit("arr-driver-received-order", {
+            socketIds,
+            orderId: bill.orderId,
+          });
+        } else {
+          io.of("/booking")
+            .to(socket.id)
+            .emit("arr-driver-received-order", socketIds);
+        }
         const updatedBill = await BillTemporary.findByIdAndUpdate(
           data.idNewOrder,
           { $set: { socketIdDriversReceived: socketIds } },
@@ -156,7 +185,6 @@ module.exports = function (io) {
         console.error("❌ Lỗi khi tìm tài xế:", error);
       }
     });
-
     socket.on("notice-receipt-order", async (data) => {
       const bill = await BillTemporary.findById(data.idBillTemporary);
 
@@ -231,6 +259,8 @@ module.exports = function (io) {
         userId: bill.userId,
       };
 
+      console.log(data.socketIdCustomer);
+
       socket.to(data.socketIdCustomer).emit("notice-driver-receipted-order", {
         // infDriver: data.infDriver,
         billWithDriver,
@@ -253,6 +283,9 @@ module.exports = function (io) {
         const admin = await userModel
           .findOne({ role: "admin" })
           .select("socketId");
+        socket
+          .to(admin.socketId)
+          .emit("notice-driver-receipted-order", { orderId: bill.orderId });
         socket.to(admin.socketId).emit("update-status-order", {
           _id: bill.orderId,
           status: "DriverPickup",
@@ -263,7 +296,6 @@ module.exports = function (io) {
 
       // Kiểm tra xem phòng chat đã tồn tại chưa
     });
-
     socket.on("send-location-to-customer", async (data) => {
       const bill = await Bill.findById(data.idOrder).populate({
         path: "userId",
@@ -290,15 +322,14 @@ module.exports = function (io) {
 
       console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
     });
-
     socket.on("notice-remove-order-from-admin", async (data) => {
-      console.log("notice-remove-order-from-admin", data);
-
       const deletedBill = await BillTemporary.findOneAndDelete({
         orderId: new mongoose.Types.ObjectId(data),
       }).select("socketIdDriversReceived");
 
-      console.log(deletedBill);
+      io.of("/booking")
+        .to(socket.id)
+        .emit("notice-driver-receipted-order", { orderId: data });
 
       deletedBill.socketIdDriversReceived.forEach((socketId) => {
         socket
@@ -308,7 +339,6 @@ module.exports = function (io) {
 
       console.log("✅ Đã gửi yêu cầu đến tài xế thành công!");
     });
-
     socket.on("notice-cancle-order-from-driver", async (data) => {
       const updatedBill = await Bill.findByIdAndUpdate(
         data,
@@ -344,7 +374,6 @@ module.exports = function (io) {
         });
       }
     });
-
     socket.on("notice-arrival-at-pick-up-point", async (data) => {
       console.log(data);
 
@@ -372,7 +401,6 @@ module.exports = function (io) {
         });
       }
     });
-
     socket.on("notification-arrival-destination", async (data) => {
       const bill = await Bill.findById(data.idOrder).populate({
         path: "userId",
@@ -398,7 +426,6 @@ module.exports = function (io) {
         });
       }
     });
-
     socket.on("sendMessage", async ({ roomId, senderId, message }) => {
       try {
         if (!roomId || !senderId || !message) {

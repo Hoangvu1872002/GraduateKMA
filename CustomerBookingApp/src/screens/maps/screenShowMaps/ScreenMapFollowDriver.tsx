@@ -61,7 +61,7 @@ const loadMap =
 const ScreenMapFollowDriver = ({navigation, route}: any) => {
   const {data}: {data: any} = route?.params || {};
 
-  const {pickupAddress, destinationAddress, driverId, _id} = data;
+  const {pickupAddress, destinationAddress, driverId, _id, orderId} = data;
 
   const {current} = useSelector((state: RootState) => state.user);
 
@@ -849,13 +849,15 @@ const ScreenMapFollowDriver = ({navigation, route}: any) => {
                   width: '100%',
                   height: 100,
                 }}>
-                <ButtonComponent
-                  width={118}
-                  styles={{paddingVertical: 10}}
-                  color={appColors.red}
-                  type="primary"
-                  textStyles={{flex: 0}}
-                  text="Skip Trip"></ButtonComponent>
+                {!orderId && (
+                  <ButtonComponent
+                    width={118}
+                    styles={{paddingVertical: 10}}
+                    color={appColors.red}
+                    type="primary"
+                    textStyles={{flex: 0}}
+                    text="Skip Trip"></ButtonComponent>
+                )}
                 {/* <ButtonComponent
                   width={130}
                   onPress={() => {

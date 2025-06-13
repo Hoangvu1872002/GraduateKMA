@@ -56,7 +56,7 @@ const AppRouters = () => {
     const handleRemoveOrderFromUser = (data: any) => {
       dispatch(removeFromListOrderReceived(data));
       Toast.show({
-        type: 'success',
+        type: 'error',
         text1: 'Customer has canceled the order',
         text2: 'The order you just received has been canceled by the customer.',
         position: 'top',

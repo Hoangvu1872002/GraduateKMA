@@ -101,6 +101,8 @@ const HomeScreen = ({navigation}: any) => {
 
   const fetchBillsPending = async () => {
     const rs = await apiGetBillsPending();
+    // console.log(rs.data.bills);
+
     setListOrderPending(rs.data.bills);
   };
 
@@ -213,16 +215,24 @@ const HomeScreen = ({navigation}: any) => {
       });
     };
 
+    const handleAddBillPending = (data: any) => {
+      console.log('abc');
+
+      fetchBillsPending();
+    };
+
     // Lắng nghe các sự kiện socket
     socket.on('notice-cancle-order-from-driver', handleCancelOrder);
     socket.on('notification-arrival-destination', handleArrivalDestination);
     socket.on('notice-arrival-at-pick-up-point', handleArrivalPickupPoint);
+    socket.on('notice-driver-receipted-order', handleAddBillPending);
 
     // Cleanup khi component unmount
     return () => {
       socket.off('notice-cancle-order-from-driver', handleCancelOrder);
       socket.off('notification-arrival-destination', handleArrivalDestination);
       socket.off('notice-arrival-at-pick-up-point', handleArrivalPickupPoint);
+      socket.off('notice-driver-receipted-order', handleAddBillPending);
     };
   }, []);
 
